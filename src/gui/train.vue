@@ -1,0 +1,152 @@
+<style type="text/css">
+@-moz-document url-prefix() {
+  .firefoxIcon {
+    transform: scale(0.3);
+    margin: -45px;
+  }
+}
+div:not(.v-autocomplete__content).menuable__content__active{
+  width: 180px;
+}
+div:not(.v-autocomplete__content).menuable__content__active  div{
+  float: left;
+      padding-top: 5px;
+}
+div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
+          margin-top: -10px;
+}
+</style>
+<template>
+  <vue-draggable-resizable
+    class="divBorder"
+    :style="{ zIndex: $store.state.options.style.train.z}"
+    :parent="true"
+    :w="$store.state.options.style.train.width"
+    :h="$store.state.options.style.train.height"
+    :x="$store.state.options.style.train.left"
+    :y="$store.state.options.style.train.top"
+    @resizing="resize"
+    @resizestop="resizestop"
+    @dragging="resize"
+    @dragstop="resizestop"
+    :drag-handle="'.drag'"
+    :key="$store.state.windowdimension"
+  >
+    <div class="containerCustom" dark>
+      <div class="headDiv" style>
+        <v-chip small class="badge" dark label color="blue-grey darken-1">
+          <v-icon dark left>group_add</v-icon>
+          <b>{{$store.state.lang["train"]}}</b>
+          <label>{{$store.state.selectedVillage.name}}</label>
+        </v-chip>
+        <div class="headdivicons" >
+        <v-btn class="drag headButtonRight" fab small dark color="red darken-1" @click="$store.state.options.style.train.show=false">
+          <v-icon medium>close</v-icon>
+        </v-btn>
+        <v-btn class="drag headButtonRight movebutton" fab small color="warning" @click="$store.state.options.style.train.z=$store.getters.getHighestZ()">
+          <v-icon medium>open_with</v-icon>
+        </v-btn>
+        </div>
+      </div>
+      <div class="containerCustomBody">
+        <v-layout column>
+          <v-layout row wrap>
+            <v-flex xs4 style="max-width: 100px; margin-left:10px;">
+              <v-select v-bind:items="Types" v-model="TrainTask.type" label="Select" single-line >
+                <template slot="selection" slot-scope="data">
+                  <div class="firefoxIcon" v-bind:style="troopIcon(data.item)"></div>
+                </template>
+                <template slot="item" slot-scope="data">
+                  <div class="firefoxIcon" v-bind:style="troopIcon(data.item)"></div>
+                </template>
+              </v-select>
+            </v-flex>
+            <v-flex xs3 style="    margin-top: 22px; margin-left: 5px;">
+              <v-text-field label="amount:" v-model="TrainTask.amount" type="number"></v-text-field>
+            </v-flex>
+            <v-flex xs3 style="    margin-top: 22px; margin-left: 5px;">
+              <v-text-field label="time:" v-model="TrainTask.timeMinutes" type="number"></v-text-field>
+            </v-flex>
+            <v-flex xs1>
+              <v-btn flat icon color="green" @click="addTrain">
+                <v-icon large>add_circle</v-icon>
+              </v-btn>
+            </v-flex>
+          </v-layout>
+          <v-divider style="margin-top: 0px;"></v-divider>
+        </v-layout>
+        
+        <v-layout
+          column
+          style="overflow-y: auto;"
+          :style="{ height: $store.state.options.style.train.height-60+'px'}"
+          v-if="$store.state.selectedVillage.tasks.train.length!=0"
+        >
+          <v-data-table
+            :items="$store.state.selectedVillage.tasks.train"
+            hide-actions
+            class="elevation-1"
+            hide-headers
+            style="text-align: center;"
+          >
+            <template slot="items" slot-scope="props">
+              <td class="tdClass" style="width:40%">
+                <div class="firefoxIcon" v-bind:style="troopIcon(props.item.type)"></div>
+              </td>
+              <td class="tdClass" style="width:20%">{{ props.item.amount }}</td>
+              <td class="tdClass" style="width:20%">{{ props.item.timeMinutes }}</td>
+              <td class="tdClass" style="width:20%">
+                <v-btn flat icon color="black" @click="removeTrain(props.index)">
+                  <v-icon>delete</v-icon>
+                </v-btn>
+              </td>
+            </template>
+          </v-data-table>
+        </v-layout>
+      </div>
+    </div>
+  </vue-draggable-resizable>
+</template>
+
+<script>
+export default {
+  name: "train",
+  data() {
+    return {
+      z: 999,
+      TrainTask: {
+        type: 1,
+        amount: 1,
+        timeMinutes: 10,
+        time: new Date().getTime()
+      },
+      Types: [1, 2, 3, 4, 5, 6, 7, 8]
+    };
+  },
+  methods: {
+    resize(left, top, width, height) {
+      this.$store.state.options.coverdiv = true;
+    },
+    resizestop(left, top, width, height) {
+      if (width !== undefined)
+        this.$store.state.options.style.train.width = width;
+      if (height !== undefined)
+        this.$store.state.options.style.train.height = height;
+      this.$store.state.options.style.train.left = left;
+      this.$store.state.options.style.train.top = top;
+      this.$store.state.options.coverdiv = false;
+    },
+    addTrain() {
+      let t=JSON.parse(JSON.stringify(this.TrainTask));
+      t.type=  (this.$store.state.Player.tribeId*1-1)*10+(this.TrainTask.type%10);
+      this.$store.state.selectedVillage.tasks.train.push(t);
+    },
+    removeTrain(index) {
+      this.$store.state.selectedVillage.tasks.train.splice(index, 1);
+    },
+    troopIcon(id) {
+      return this.$store.getters.troopIcon(id);
+    }
+  }
+};
+</script>

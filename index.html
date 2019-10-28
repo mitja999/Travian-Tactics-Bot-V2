@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>traviang</title>
+	<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+	<style>
+		/* This is for documentation purposes and will not be needed in your application */
+		body::-webkit-scrollbar {
+            width: 0px;
+			height:0px;
+        }
+	</style>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-19970352-6"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+
+		function gtag() {
+			dataLayer.push(arguments);
+		}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-19970352-6');
+	</script>
+</head>
+
+<body style="padding: 0px; margin: 0px; overflow:hidden;">
+	<!---->
+
+	<div id="app">
+		<v-app light v-resize="onResize">
+			<iframe id="traviantacticsFrame" :src="$store.state.iframesrc" style="overflow:hidden; position: fixed; height: 100%; width: 100%; left:0px; top:0px; border: none; z-index: 1; padding: 0px; margin: 0px;" alt="Web site is not avaialable"></iframe>
+			<div id="coverdiv" style="opacity: 0.3; width:100%;height:100%;z-index: 100" v-if="$store.state.options.coverdiv"></div>
+
+			<build v-show="$store.state.options.style.build.show"></build>
+			<buildfinder v-show="$store.state.options.style.buildfinder.show"></buildfinder>
+			<farm v-show="$store.state.options.style.farm.show"></farm>
+			<trade v-show="$store.state.options.style.trade.show"></trade>
+			<train v-show="$store.state.options.style.train.show"></train>
+			<hero v-show="$store.state.options.style.hero.show"></hero>
+			<setting v-show="$store.state.options.style.setting.show"></setting>
+			<tasks v-show="$store.state.options.style.tasks.show"></tasks>
+
+			<logs v-show="$store.state.options.style.logs.show"></logs>
+			<farmfinder v-show="$store.state.options.style.farmfinder.show"></farmfinder>
+			<!--<div id="mainContainer" v-bind:style="{width: $store.state.options.style.mainContainer.width+'%',		height: $store.state.options.style.mainContainer.height+'%',		left: $store.state.options.style.mainContainer.left+'%',top: $store.state.options.style.mainContainer.top+'%',		minWidth: $store.state.options.style.mainContainer.minWidth+'px',		minHeight: $store.state.options.style.mainContainer.minHeight+'px'}">
+				<div style="padding: 5px;">
+
+
+				</div>
+			</div>-->
+
+			<travian-side-bar></travian-side-bar>
+		</v-app>
+	</div>
+	<app-header></app-header>
+
+	<script src="./dist/build.js"></script>
+		<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+		<div style="position:fixed;top:0px;left:0px;">
+		<!-- MyAdd1 -->
+		<ins class="adsbygoogle"
+			 style="display:inline-block;width:160px;height:600px"
+			 data-ad-client="ca-pub-5916591832624637"
+			 data-ad-slot="8194865045"></ins></div>
+		<script>
+		(adsbygoogle = window.adsbygoogle || []).push({});
+		</script>
+</body>
+
+</html>

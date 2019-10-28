@@ -1,0 +1,201 @@
+tr{
+	padding: 0;
+}
+
+input{
+	text-align: center;
+}
+.v-select__selection{
+	margin-left: 50%;
+}
+.villagesclass .v-select__selection{
+	margin-left: 0%;
+}
+.v-menu__content{
+	z-index: 99999 !important;
+}
+.v-tooltip__content{
+	z-index: 99999 !important;
+
+}
+.divBorder{
+	
+    /*border-image-slice: 15 15 15 15 fill;border-image-width: 15px 15px 15px 15px; border-image-outset: 5px 5px 5px 5px; border-image-repeat: round round; border-image-source: url("https://mdn.mozillademos.org/files/6011/border-image-3.png");*/
+    /*border-image-slice: 35 38 47 43 fill;border-image-width: 10px 10px 10px 10px; border-image-outset: 5px 5px 5px 5px; border-image-repeat: round round; border-image-source: url("https://mdn.mozillademos.org/files/6011/border-image-3.png");*/
+		border: 1px;
+    border-style: solid;
+	background-color:  #ECEFF1 ;
+	font-weight: 600;}
+
+.v-input--selection-controls{
+	margin: 0px;
+	padding: 0px;
+}
+.container{
+	margin: 0px;
+	padding: 0px;
+}
+
+.containerCustom {
+	max-height: 100%;
+	max-width: 100%;
+	display: flex; /*added*/
+	flex-direction: column; /*added*/
+	padding: 0px;
+  }
+  .containerCustomBody {
+	overflow-y: hidden;
+	overflow-x: hidden;
+	flex: 1; /* added */
+  }
+
+	.columnheader{    text-align: center !important;
+	}
+  .v-text-field{
+	margin: 0px;
+	padding: 0px;
+}
+.container.grid-list-sm .layout .flex .v-input--selection-controls .v-input__slot{
+	margin: 0px;
+	padding: 0px;
+}
+
+table.v-table tbody td:first-child, table.v-table tbody td:not(:first-child), table.v-table tbody th:first-child, table.v-table tbody th:not(:first-child), table.v-table thead td:first-child, table.v-table thead td:not(:first-child), table.v-table thead th:first-child, table.v-table thead th:not(:first-child){
+	margin: 0px;
+	padding: 0px;
+}
+.v-text-field__details{
+	display: none;
+}
+#create .speed-dial {
+	position: absolute;
+}
+
+#create .btn--floating {
+	position: relative;
+}
+
+.is-collapsed {
+
+	display: none;
+}
+
+#sidebar {
+	z-index: 6;
+	width: 130px;
+}
+
+#mainContainer {
+	position: fixed;
+	background-color: white;
+	display: inline-block;
+	overflow-y: auto;
+	overflow-x: hidden;
+	z-index: 5;
+	border: thin solid grey;
+	box-shadow: 0px 0px 2px 2px;
+}
+
+.drag{
+	height: 30px; width: 30px;
+}
+
+.headDiv{
+	width: 100%;
+    margin-top: -38px;
+    height: 30px;
+    position: absolute;
+    margin-left: 5px;
+}
+
+.headdivicons{
+	float: right;
+	width: 60px;
+		margin-top: -38px;
+		margin-right: 10px;
+}
+.headButtonRight{
+	float:right;     
+	margin-right: -5px;
+}
+
+.headButtonLeft{
+	margin-left: -5px;
+}
+
+.badge{
+	width:100%;
+	margin-left: -5px;
+	font-size: large;
+	margin-top: 15px;
+}
+
+.badge label{
+	padding-left: 20px;
+}
+
+.badge i{
+	border-right: 2px solid;
+    border-color: gray;
+}
+
+.resources img{
+	padding-top: 1px;
+	max-width: 20px;
+    max-height: 19px;
+	width: 20px;
+    height: 19px;
+}
+.left img{
+	float: left;
+	margin-top: 5px;
+}
+
+.movebutton{
+	margin-left: -150px;
+	z-index: 1;
+}
+
+.headlayout{
+	background-color:  #CFD8DC;
+	font-weight: 600;
+}
+
+.v-btn--floating.v-btn--small{
+	width: 30px;height: 30px;
+}
+
+.application--is-rtl {
+	direction: rtl;
+}
+
+.application--is-rtl .headdivicons {
+	float: left;
+}
+
+.application--is-rtl .headDiv {
+margin-right: -5px;
+}
+
+.tradeselect .v-select__selection {
+	margin-left: 0%;
+}
+
+.tradeicons img{
+	margin-left: 40%;
+}
+
+.expansiontasks .v-expansion-panel__header{
+	padding: 0px;
+}
+
+.expansiontasks .flex{
+	text-align: center;
+
+} 
+.expansiontasks .v-btn {
+	margin: 0px;
+	 height: 0px; 
+}
+.firefoxIcon{
+}
