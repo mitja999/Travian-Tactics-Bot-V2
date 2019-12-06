@@ -48,7 +48,7 @@ table {
 </style>
 <template>
   <vue-draggable-resizable
-    :style="{ zIndex: $store.state.options.style.farm.z}"
+    :style="{ zIndex: $store.state.options.style.farm.z }"
     class="divBorder"
     :parent="true"
     :w="$store.state.options.style.farm.width"
@@ -67,8 +67,8 @@ table {
       <div class="headDiv" style>
         <v-chip small class="badge" dark label color="blue-grey darken-1">
           <v-icon dark left>my_location</v-icon>
-          <b>{{$store.state.lang["farmlist"]}}</b>
-          <label>{{$store.state.selectedVillage.name}}</label>
+          <b>{{ $store.state.lang["farmlist"] }}</b>
+          <label>{{ $store.state.selectedVillage.name }}</label>
         </v-chip>
         <div class="headdivicons" style="width: 100px;">
           <v-btn
@@ -77,11 +77,19 @@ table {
             small
             dark
             color="red darken-1"
-            @click="$store.state.options.style.farm.show=false"
+            @click="$store.state.options.style.farm.show = false"
           >
             <v-icon medium>close</v-icon>
           </v-btn>
-          <v-btn class="drag headButtonRight" fab small color="warning" @click="$store.state.options.style.farm.z=$store.getters.getHighestZ()">
+          <v-btn
+            class="drag headButtonRight"
+            fab
+            small
+            color="warning"
+            @click="
+              $store.state.options.style.farm.z = $store.getters.getHighestZ()
+            "
+          >
             <v-icon medium>open_with</v-icon>
           </v-btn>
           <v-btn
@@ -90,7 +98,11 @@ table {
             dark
             fab
             small
-            @click="$store.state.options.style.farmfinder.show=!$store.state.options.style.farmfinder.show; $store.state.options.style.farmfinder.z=$store.getters.getHighestZ()"
+            @click="
+              $store.state.options.style.farmfinder.show = !$store.state.options
+                .style.farmfinder.show;
+              $store.state.options.style.farmfinder.z = $store.getters.getHighestZ();
+            "
           >
             <v-icon medium dark>location_searching</v-icon>
           </v-btn>
@@ -100,7 +112,7 @@ table {
         justify-space-around
         class="containerCustomBody"
         style="overflow-y: auto;"
-        :style="{ height: $store.state.options.style.farm.height-60+'px'}"
+        :style="{ height: $store.state.options.style.farm.height - 60 + 'px' }"
       >
         <div style="width: 100%;">
           <v-snackbar
@@ -112,10 +124,15 @@ table {
             absolute
           >
             <v-layout row wrap>
-              <v-flex xs4 sm12 v-show="copyStatus.value==0">
-                <v-text-field v-model="newFarmListName" dark hint="name" label="name"></v-text-field>
+              <v-flex xs4 sm12 v-show="copyStatus.value == 0">
+                <v-text-field
+                  v-model="newFarmListName"
+                  dark
+                  hint="name"
+                  label="name"
+                ></v-text-field>
               </v-flex>
-              <v-flex xs12 v-show="copyStatus.value!=0">
+              <v-flex xs12 v-show="copyStatus.value != 0">
                 <div style="width:100%"></div>
                 <v-progress-linear
                   buffer-value="100"
@@ -124,13 +141,18 @@ table {
                   color="info"
                 ></v-progress-linear>
               </v-flex>
-              <v-flex xs2 sm6 v-show="copyStatus.value==0">
+              <v-flex xs2 sm6 v-show="copyStatus.value == 0">
                 <v-btn icon color="green" @click="copyFarmlist" hide-details>
                   <v-icon>done</v-icon>
                 </v-btn>
               </v-flex>
-              <v-flex xs2 sm6 v-show="copyStatus.value==0">
-                <v-btn icon color="red" @click.native="snackbar = false" hide-details>
+              <v-flex xs2 sm6 v-show="copyStatus.value == 0">
+                <v-btn
+                  icon
+                  color="red"
+                  @click.native="snackbar = false"
+                  hide-details
+                >
                   <v-icon>clear</v-icon>
                 </v-btn>
               </v-flex>
@@ -138,33 +160,59 @@ table {
           </v-snackbar>
           <v-expansion-panel>
             <v-expansion-panel-content
-              hide-actions
+              hide-default-footer
               v-bind:key="index"
-              v-for="(farmTask, index) in $store.state.selectedVillage.tasks.farms"
+              v-for="(farmTask, index) in $store.state.selectedVillage.tasks
+                .farms"
             >
               <table slot="header">
                 <thead>
                   <tr>
-                    <th style="width: 50px;" v-if="farmTask.amount['1']!==0">
-                      <div class="firefoxIcon" v-bind:style="troopIcon(1)"></div>
+                    <th style="width: 50px;" v-if="farmTask.amount['1'] !== 0">
+                      <div
+                        class="firefoxIcon"
+                        v-bind:style="troopIcon(1)"
+                      ></div>
                     </th>
-                    <th style="width: 50px;" v-if="farmTask.amount['2']!==0">
-                      <div class="firefoxIcon" v-bind:style="troopIcon(2)"></div>
+                    <th style="width: 50px;" v-if="farmTask.amount['2'] !== 0">
+                      <div
+                        class="firefoxIcon"
+                        v-bind:style="troopIcon(2)"
+                      ></div>
                     </th>
-                    <th style="width: 50px;" v-if="farmTask.amount['3']!==0">
-                      <div class="firefoxIcon" v-bind:style="troopIcon(3)"></div>
+                    <th style="width: 50px;" v-if="farmTask.amount['3'] !== 0">
+                      <div
+                        class="firefoxIcon"
+                        v-bind:style="troopIcon(3)"
+                      ></div>
                     </th>
-                    <th style="width: 50px;" v-if="farmTask.amount['4']!==0">
-                      <div class="firefoxIcon" v-bind:style="troopIcon(4)"></div>
+                    <th style="width: 50px;" v-if="farmTask.amount['4'] !== 0">
+                      <div
+                        class="firefoxIcon"
+                        v-bind:style="troopIcon(4)"
+                      ></div>
                     </th>
-                    <th style="width: 50px;" v-if="farmTask.amount['5']!==0">
-                      <div class="firefoxIcon" v-bind:style="troopIcon(5)"></div>
+                    <th style="width: 50px;" v-if="farmTask.amount['5'] !== 0">
+                      <div
+                        class="firefoxIcon"
+                        v-bind:style="troopIcon(5)"
+                      ></div>
                     </th>
-                    <th style="width: 50px;" v-if="farmTask.amount['6']!==0">
-                      <div class="firefoxIcon" v-bind:style="troopIcon(6)"></div>
+                    <th style="width: 50px;" v-if="farmTask.amount['6'] !== 0">
+                      <div
+                        class="firefoxIcon"
+                        v-bind:style="troopIcon(6)"
+                      ></div>
                     </th>
                     <th style="width: 50px;">
-                      <v-btn icon color="amber" @click="snackbar = true; selectedFarmlist=index">
+                      <v-btn
+                        icon
+                        color="amber"
+                        @click="
+                          snackbar = true;
+                          selectedFarmlist = index;
+                        "
+                      >
                         <v-icon>content_copy</v-icon>
                       </v-btn>
                     </th>
@@ -173,35 +221,47 @@ table {
                         <v-icon>delete</v-icon>
                       </v-btn>
                     </th>
-                    <th>{{farmTask.villages.length}}</th>
+                    <th>{{ farmTask.villages.length }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td
                       style="padding-right:0px;padding-left:0px"
-                      v-if="farmTask.amount['1']!==0"
-                    >{{farmTask.amount['1']}}</td>
+                      v-if="farmTask.amount['1'] !== 0"
+                    >
+                      {{ farmTask.amount["1"] }}
+                    </td>
                     <td
                       style="padding-right:0px;padding-left:0px"
-                      v-if="farmTask.amount['2']!==0"
-                    >{{farmTask.amount['2']}}</td>
+                      v-if="farmTask.amount['2'] !== 0"
+                    >
+                      {{ farmTask.amount["2"] }}
+                    </td>
                     <td
                       style="padding-right:0px;padding-left:0px"
-                      v-if="farmTask.amount['3']!==0"
-                    >{{farmTask.amount['3']}}</td>
+                      v-if="farmTask.amount['3'] !== 0"
+                    >
+                      {{ farmTask.amount["3"] }}
+                    </td>
                     <td
                       style="padding-right:0px;padding-left:0px"
-                      v-if="farmTask.amount['4']!==0"
-                    >{{farmTask.amount['4']}}</td>
+                      v-if="farmTask.amount['4'] !== 0"
+                    >
+                      {{ farmTask.amount["4"] }}
+                    </td>
                     <td
                       style="padding-right:0px;padding-left:0px"
-                      v-if="farmTask.amount['5']!==0"
-                    >{{farmTask.amount['5']}}</td>
+                      v-if="farmTask.amount['5'] !== 0"
+                    >
+                      {{ farmTask.amount["5"] }}
+                    </td>
                     <td
                       style="padding-right:0px;padding-left:0px"
-                      v-if="farmTask.amount['6']!==0"
-                    >{{farmTask.amount['6']}}</td>
+                      v-if="farmTask.amount['6'] !== 0"
+                    >
+                      {{ farmTask.amount["6"] }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -209,8 +269,10 @@ table {
                 <ul>
                   <li
                     v-bind:key="index"
-                    v-for="(farm,index) in farmTask.villages"
-                  >{{farm.name+"("+ farm.x+","+farm.y +")"}}</li>
+                    v-for="(farm, index) in farmTask.villages"
+                  >
+                    {{ farm.name + "(" + farm.x + "," + farm.y + ")" }}
+                  </li>
                 </ul>
               </div>
             </v-expansion-panel-content>
@@ -221,84 +283,82 @@ table {
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "farm",
-  data() {
-    return {
-      fontSize: "13px",
-      Coordinates: {
-        x: 1,
-        y: 1,
-        distance: this.$store.state.custom.farmfinder.distance
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
+    fontSize: "13px",
+    Coordinates: {
+      x: 1,
+      y: 1,
+      distance: $store.state.custom.farmfinder.distance
+    },
+    Player: $store.state.Player,
+    showFilter: false,
+    showProggres: false,
+    progress: 0.0,
+    //movementType 3-attack, 4-raid, 5-support, 6-spy
+    FarmTask: {
+      goldClubFarmlist: false,
+      movementType: "4",
+      amount: {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0
       },
-      Player: this.$store.state.Player,
-      showFilter: false,
-      showProggres: false,
-      progress: 0.0,
-      //movementType 3-attack, 4-raid, 5-support, 6-spy
-      FarmTask: {
-        goldClubFarmlist: false,
-        movementType: "4",
-        amount: {
-          "1": 0,
-          "2": 0,
-          "3": 0,
-          "4": 0,
-          "5": 0,
-          "6": 0,
-          "7": 0,
-          "8": 0,
-          "9": 0,
-          "10": 0,
-          "11": 0
-        },
-        time: new Date().getTime(),
-        villages: [],
-        farmPosition: 0,
-        timeMinutes: 10,
-        //{"listId":"1713","listName":"Startup farm list","lastSent":"0","lastChanged":1514720188,"units":{"1":"0","2":"3","3":"0","4":"0","5":"0","6":"0"},"orderNr":"0","villageIds":["534691834","537509897","538329049"],"entryIds":["43559","43576","43575"],"isDefault":true,"maxEntriesCount":10}
-        selectedFarmlist: {
-          listId: "0",
-          listName: "",
-          lastSent: "0",
-          lastChanged: 0,
-          units: { "1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0" },
-          orderNr: "0",
-          villageIds: [],
-          entryIds: [],
-          isDefault: true,
-          maxEntriesCount: 10
-        }
+      time: new Date().getTime(),
+      villages: new Array(),
+      farmPosition: 0,
+      timeMinutes: 10,
+      //{"listId":"1713","listName":"Startup farm list","lastSent":"0","lastChanged":1514720188,"units":{"1":"0","2":"3","3":"0","4":"0","5":"0","6":"0"},"orderNr":"0","villageIds":["534691834","537509897","538329049"],"entryIds":["43559","43576","43575"],"isDefault":true,"maxEntriesCount":10}
+      selectedFarmlist: {
+        listId: "0",
+        listName: "",
+        lastSent: "0",
+        lastChanged: 0,
+        units: { "1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0" },
+        orderNr: "0",
+        villageIds: [],
+        entryIds: [],
+        isDefault: true,
+        maxEntriesCount: 10,
+        villageId: 0
+      }
+    },
+    Types: ["1", "2", "3", "4", "5", "6", "7", "8"],
+    selectedVillages: [],
+    selected: [],
+    filterFarm: {
+      distance: {
+        val: $store.state.custom.farmfinder.distance,
+        enabled: true
       },
-      Types: ["1", "2", "3", "4", "5", "6", "7", "8"],
-      selectedVillages: [],
-      selected: [],
-      filterFarm: {
-        distance: {
-          val: this.$store.state.custom.farmfinder.distance,
-          enabled: true
-        },
-        pop: { min: 0, max: 2000, enabled: true },
-        activePlayers: { val: false, enabled: true },
-        noAlly: { val: false, enabled: true }
-      },
-      TroopUrl: "",
-      fontSize: 10,
-      pagination: {
-        sortBy: "distance",
-        descending: false,
-        rowsPerPage: 5000000
-      },
-      selectedFarmlist: {},
-      extended: true,
-      showGoldClubFarm: false,
-      snackbar: false,
-      newFarmListName: "",
-      selectedFarmlist: 0,
-      copyStatus: { value: 0 }
-    };
-  },
+      pop: { min: 0, max: 2000, enabled: true },
+      activePlayers: { val: false, enabled: true },
+      noAlly: { val: false, enabled: true }
+    },
+    TroopUrl: "",
+    pagination: {
+      sortBy: "distance",
+      descending: false,
+      rowsPerPage: 5000000
+    },
+    selectedFarmlist: 0,
+    extended: true,
+    showGoldClubFarm: false,
+    snackbar: false,
+    newFarmListName: "",
+    copyStatus: { value: 0 }
+  }),
   watch: {
     Coordinates: {
       handler: function(val, oldVal) {
@@ -312,10 +372,10 @@ export default {
     }
   },
   methods: {
-    resize(left, top, width, height) {
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.farm.width = width;
       if (height !== undefined)
@@ -324,7 +384,7 @@ export default {
       this.$store.state.options.style.farm.top = top;
       this.$store.state.options.coverdiv = false;
     },
-    customFilter(items, search, filter) {
+    /*customFilter(items, search, filter) {
       return items.filter(
         row =>
           //distance
@@ -342,42 +402,41 @@ export default {
           //no ally
           (search.noAlly.val ? row.player.ally.id === undefined : true)
       );
-    },
+    },*/
     addTaskFarm() {
       this.FarmTask.villages = [];
-      this.selected.forEach(
-        function(farm) {
-          this.FarmTask.villages.push(farm);
-        }.bind(this)
-      );
+      this.selected.forEach((farm: any) => {
+        this.FarmTask.villages.push(farm);
+      });
       this.$store.state.selectedVillage.tasks.farms.push(
         JSON.parse(JSON.stringify(this.FarmTask))
       );
       this.selected = [];
     },
-    removeFarmList(index) {
+    removeFarmList(index: number) {
       this.$store.state.selectedVillage.tasks.farms.splice(index, 1);
     },
     async farmFind() {
       this.selected = [];
       this.$store.state.custom.FarmFinderFarms = [];
-      this.$parent.$parent.CheckLogic.search({
+      /*this.$parent.$parent.CheckLogic.search({
         Coordinates: this.Coordinates,
         url: this.$store.state.Player.url,
         SeesionId: this.$store.state.Player.SeesionId
-      });
+      });*/
       //this.searchResult=data.farms;
     },
     async cropFind() {
       this.selected = [];
       this.$store.state.custom.FarmFinderFarms = [];
+      /*todo-
       this.$parent.$parent.CheckLogic.cropFind({
         Coordinates: this.Coordinates,
         url: this.$store.state.Player.url,
         SeesionId: this.$store.state.Player.SeesionId
-      });
+      });*/
     },
-    troopIcon(id) {
+    troopIcon(id: number) {
       return this.$store.getters.troopIcon(id);
     },
     stop() {
@@ -403,29 +462,30 @@ export default {
       );
     },
     async copyFarmlist() {
-      let startBotAfter = this.$parent.$parent.start;
-      if (this.$parent.$parent.start) {
+      //let startBotAfter = this.$parent.$parent.start;
+      /*if (this.$parent.$parent.start) {
         this.$parent.$parent.startBot(); //stop bot
-      }
+      }*/
       this.copyStatus.value = 1;
+      /* todo
       await this.$parent.$parent.CheckLogic.coppyFarmlist(
         this.$store.state.selectedVillage,
         this.$store.state.selectedVillage.tasks.farms[this.selectedFarmlist],
         this.newFarmListName,
         this.copyStatus
-      );
+      );*/
       this.copyStatus.value = 0;
       this.snackbar = false;
-      if (startBotAfter) {
+      /*if (startBotAfter) {
         this.$parent.$parent.startBot(); //start bot
-      }
+      }*/
     }
   },
   filters: {
-    uppercase: function(value) {
+    uppercase: function(value: string) {
       return value.toUpperCase();
     },
-    shorten: function(value) {
+    shorten: function(value: string) {
       return value !== undefined ? value.substring(0, 8) : "/";
     }
   },
@@ -436,5 +496,5 @@ export default {
     // this.$parent.$parent.custom.FarmFinderFarms=[];
   },
   computed: {}
-};
+});
 </script>

@@ -1,4 +1,4 @@
-exports.troopCost = () => {
+const troopCost = () => {
     return Clone({
         "1": {
             "id": 1,
@@ -1737,7 +1737,7 @@ exports.troopCost = () => {
     });
 }
 
-exports.BuildingRez = () => {
+const BuildingRez = () => {
     return Clone({
         "success": false,
         "BuildingQueue": {
@@ -1765,7 +1765,7 @@ exports.BuildingRez = () => {
 function Clone(o) {
     return JSON.parse(JSON.stringify(o));
 }
-var Buildings = [ //dummy
+var BuildingsTemp = [ //dummy
     [ //lumberCost gid = 1
         ["zazidljiva parcela", "Building site"]
     ],
@@ -2724,226 +2724,226 @@ var Buildings = [ //dummy
 
 
 //Training cost for each unit (4), load capacity (1), attack power (1), def power infantery (1), def power cavalery (1), speed (1) - for normal servers, crop consumption(1)
-var uc = new Array();
+var ucTemp = new Array();
 //Romans
-uc[1] = [
+ucTemp[1] = [
     ["Legionar", "Legionnaire"], 120, 100, 150, 30, 50, 40, 35, 50, 6, 1
 ]; //Legionnaire
-uc[2] = [
+ucTemp[2] = [
     ["Praetorijan", ""], 100, 130, 160, 70, 20, 30, 65, 35, 5, 1
 ]; //Praetorian
-uc[3] = [
+ucTemp[3] = [
     ["Imperijan", ""], 150, 160, 210, 80, 50, 70, 40, 25, 7, 1
 ]; //Imperian
-uc[4] = [
+ucTemp[4] = [
     ["Izvidnik", ""], 140, 160, 20, 40, 0, 0, 20, 10, 16, 2
 ]; //Equites legati
-uc[5] = [
+ucTemp[5] = [
     ["Equites Imperatoris", ""], 550, 440, 320, 100, 100, 120, 65, 50, 14, 3
 ]; //Equites imperatoris
-uc[6] = [
+ucTemp[6] = [
     ["Equites Caesaris", ""], 550, 640, 800, 180, 70, 180, 80, 105, 10, 4
 ]; //Equites cesaris
-uc[7] = [
+ucTemp[7] = [
     ["Oblegovalni oven", ""], 900, 360, 500, 70, 0, 60, 30, 75, 4, 3
 ]; //Battering ram
-uc[8] = [
+ucTemp[8] = [
     ["Ognjeni katapult", ""], 950, 1350, 600, 90, 0, 75, 60, 10, 3, 6
 ]; //Fire catapult
-uc[9] = [
+ucTemp[9] = [
     ["Senator", ""], 30750, 27200, 45000, 37500, 0, 50, 40, 30, 4, 5
 ]; //Senator
-uc[10] = [
+ucTemp[10] = [
     ["Kolonist", ""], 4600, 4200, 5800, 4400, 3000, 0, 80, 80, 5, 1
 ]; //Settler
 //Teutons
-uc[11] = [
+ucTemp[11] = [
     ["Gorjačar", "Clubswinger"], 95, 75, 40, 40, 60, 40, 20, 5, 7, 1
 ]; //Clubswinger
-uc[12] = [
+ucTemp[12] = [
     ["Suličar", ""], 145, 70, 85, 40, 40, 10, 35, 60, 7, 1
 ]; //Spearman
-uc[13] = [
+ucTemp[13] = [
     ["Metalec sekir", ""], 130, 120, 170, 70, 50, 60, 30, 30, 6, 1
 ]; //Axeman
-uc[14] = [
+ucTemp[14] = [
     ["Skavt"], 160, 100, 50, 50, 0, 0, 10, 5, 9, 1
 ]; //Scout
-uc[15] = [
+ucTemp[15] = [
     ["Paladin"], 370, 270, 290, 75, 110, 55, 100, 40, 10, 2
 ]; //Paladin
-uc[16] = [
+ucTemp[16] = [
     ["Tevtonski vitez"], 450, 515, 480, 80, 80, 150, 50, 75, 9, 3
 ]; //Teutonic knight
-uc[17] = [
+ucTemp[17] = [
     ["Oblegovalni oven"], 1000, 300, 350, 70, 0, 65, 30, 80, 4, 3
 ]; //Ram
-uc[18] = [
+ucTemp[18] = [
     ["Mangonel"], 900, 1200, 600, 60, 0, 50, 60, 10, 3, 6
 ]; //Catapult
-uc[19] = [
+ucTemp[19] = [
     ["Vodja"], 35500, 26600, 25000, 27200, 0, 40, 60, 40, 4, 4
 ]; //Chief
-uc[20] = [
+ucTemp[20] = [
     ["Kolonist"], 5800, 4400, 4600, 5200, 3000, 0, 80, 80, 5, 1
 ]; //Settler
 //Gauls
-uc[21] = [
+ucTemp[21] = [
     ["Falanga", "Phalanx"], 100, 130, 55, 30, 35, 15, 40, 50, 7, 1
 ]; //Phalanx
-uc[22] = [
+ucTemp[22] = [
     ["Mečevalec", ""], 140, 150, 185, 60, 45, 65, 35, 20, 6, 1
 ]; //Swordsman
-uc[23] = [
+ucTemp[23] = [
     ["Stezosledec", ""], 170, 150, 20, 40, 0, 0, 20, 10, 17, 2
 ]; //Pathfinder
-uc[24] = [
+ucTemp[24] = [
     ["Theutatesova Strela"], 350, 450, 230, 60, 75, 90, 25, 40, 19, 2
 ]; //Theutates thunder
-uc[25] = [
+ucTemp[25] = [
     ["Druid"], 360, 330, 280, 120, 35, 45, 115, 55, 16, 2
 ]; //Druidrider
-uc[26] = [
+ucTemp[26] = [
     ["Haeduan"], 500, 620, 675, 170, 65, 140, 50, 165, 13, 3
 ]; //Haeduan
-uc[27] = [
+ucTemp[27] = [
     ["Oblegovalni oven"], 950, 555, 330, 75, 0, 50, 30, 105, 4, 3
 ]; //Ram
-uc[28] = [
+ucTemp[28] = [
     ["Trebušet"], 960, 1450, 630, 90, 0, 70, 45, 10, 3, 6
 ]; //Trebuchet
-uc[29] = [
+ucTemp[29] = [
     ["Poglavar"], 30750, 45400, 31000, 37500, 0, 40, 50, 50, 5, 4
 ]; //Chieftain
-uc[30] = [
+ucTemp[30] = [
     ["Kolonist"], 4400, 5600, 4200, 3900, 3000, 0, 80, 80, 5, 1
 ]; //Settler
 //Nature
-uc[31] = [0, 0, 0, 0, 0, 10, 25, 20, 0, 1]; //Rat
-uc[32] = [0, 0, 0, 0, 0, 20, 35, 40, 0, 1]; //Spider
-uc[33] = [0, 0, 0, 0, 0, 60, 40, 60, 0, 1]; //Snake
-uc[34] = [0, 0, 0, 0, 0, 80, 66, 50, 0, 1]; //Bat
-uc[35] = [0, 0, 0, 0, 0, 50, 70, 33, 0, 2]; //Wild boar
-uc[36] = [0, 0, 0, 0, 0, 100, 80, 70, 0, 2]; //Wolf
-uc[37] = [0, 0, 0, 0, 0, 250, 140, 200, 0, 3]; //Bear
-uc[38] = [0, 0, 0, 0, 0, 450, 380, 240, 0, 3]; //Crocodile
-uc[39] = [0, 0, 0, 0, 0, 200, 170, 250, 0, 3]; //Tiger
-uc[40] = [0, 0, 0, 0, 0, 600, 440, 520, 0, 5]; //Elephant
+ucTemp[31] = [0, 0, 0, 0, 0, 10, 25, 20, 0, 1]; //Rat
+ucTemp[32] = [0, 0, 0, 0, 0, 20, 35, 40, 0, 1]; //Spider
+ucTemp[33] = [0, 0, 0, 0, 0, 60, 40, 60, 0, 1]; //Snake
+ucTemp[34] = [0, 0, 0, 0, 0, 80, 66, 50, 0, 1]; //Bat
+ucTemp[35] = [0, 0, 0, 0, 0, 50, 70, 33, 0, 2]; //Wild boar
+ucTemp[36] = [0, 0, 0, 0, 0, 100, 80, 70, 0, 2]; //Wolf
+ucTemp[37] = [0, 0, 0, 0, 0, 250, 140, 200, 0, 3]; //Bear
+ucTemp[38] = [0, 0, 0, 0, 0, 450, 380, 240, 0, 3]; //Crocodile
+ucTemp[39] = [0, 0, 0, 0, 0, 200, 170, 250, 0, 3]; //Tiger
+ucTemp[40] = [0, 0, 0, 0, 0, 600, 440, 520, 0, 5]; //Elephant
 //Natarian - fr3nchlover
-uc[41] = [0, 0, 0, 0, 0, 20, 35, 50, 0, 1]; //Pikeman
-uc[42] = [0, 0, 0, 0, 0, 65, 30, 10, 0, 1]; //Thorned warrior
-uc[43] = [0, 0, 0, 0, 0, 100, 90, 75, 0, 1]; //Guardsman
-uc[44] = [0, 0, 0, 0, 0, 0, 10, 0, 0, 1]; //Birds of prey
-uc[45] = [0, 0, 0, 0, 0, 155, 80, 50, 0, 2]; //Axerider
-uc[46] = [0, 0, 0, 0, 0, 170, 140, 80, 0, 3]; //Natarian knight
-uc[47] = [0, 0, 0, 0, 0, 250, 120, 150, 0, 6]; //Warelephant
-uc[48] = [0, 0, 0, 0, 0, 60, 45, 10, 0, 5]; //Ballista
-uc[49] = [0, 0, 0, 0, 0, 80, 50, 50, 0, 0]; //Natarian emperor
-uc[50] = [0, 0, 0, 0, 0, 30, 40, 40, 0, 0]; //Settler
-uc[51] = [
+ucTemp[41] = [0, 0, 0, 0, 0, 20, 35, 50, 0, 1]; //Pikeman
+ucTemp[42] = [0, 0, 0, 0, 0, 65, 30, 10, 0, 1]; //Thorned warrior
+ucTemp[43] = [0, 0, 0, 0, 0, 100, 90, 75, 0, 1]; //Guardsman
+ucTemp[44] = [0, 0, 0, 0, 0, 0, 10, 0, 0, 1]; //Birds of prey
+ucTemp[45] = [0, 0, 0, 0, 0, 155, 80, 50, 0, 2]; //Axerider
+ucTemp[46] = [0, 0, 0, 0, 0, 170, 140, 80, 0, 3]; //Natarian knight
+ucTemp[47] = [0, 0, 0, 0, 0, 250, 120, 150, 0, 6]; //Warelephant
+ucTemp[48] = [0, 0, 0, 0, 0, 60, 45, 10, 0, 5]; //Ballista
+ucTemp[49] = [0, 0, 0, 0, 0, 80, 50, 50, 0, 0]; //Natarian emperor
+ucTemp[50] = [0, 0, 0, 0, 0, 30, 40, 40, 0, 0]; //Settler
+ucTemp[51] = [
     ["Slave Militia", "Slave Militia"], 45, 60, 30, 15, 20, 10, 30, 15, 7, 1
 ]; //Slave Militia
-uc[52] = [
+ucTemp[52] = [
     ["Ash Warden", "Ash Warden"], 115, 100, 145, 60, 40, 30, 55, 50, 6, 1
 ]; //Ash Warden
-uc[53] = [
+ucTemp[53] = [
     ["Khopesh Warrior", "Khopesh Warrior"], 170, 180, 220, 80, 20, 65, 50, 45, 7, 1
 ]; //Khopesh Warrior
-uc[54] = [
+ucTemp[54] = [
     ["Sopdu Explorer", "Sopdu Explorer"], 170, 150, 20, 40, 10, 0, 20, 0, 16, 2
 ]; //Sopdu Explorer
-uc[55] = [
+ucTemp[55] = [
     ["Anhur Guard", "Anhur Guard"], 360, 330, 280, 120, 50, 50, 110, 50, 15, 2
 ]; //Anhur Guard
-uc[56] = [
+ucTemp[56] = [
     ["Resheph Chariot ", "Resheph Chariot "], 450, 560, 610, 180, 150, 110, 120, 70, 10, 3
 ]; //Resheph Chariot 
-uc[57] = [
+ucTemp[57] = [
     ["Ram", "Ram"], 995, 575, 340, 80, 95, 55, 30, 0, 4, 3
 ]; //Ram 
-uc[58] = [
+ucTemp[58] = [
     ["Stone Catapult", "Stone Catapult"], 980, 1510, 660, 100, 10, 65, 55, 0, 3, 6
 ]; //Stone Catapult
-uc[59] = [
+ucTemp[59] = [
     ["Nomarch", "Nomarch"], 34000, 50000, 34000, 42000, 50, 40, 50, 0, 4, 5
 ]; //Nomarch 
-uc[60] = [
+ucTemp[60] = [
     ["Settler", "Settler"], 4560, 5890, 4370, 4180, 3000, 0, 80, 80, 5, 1
 ]; //Settler
 
 
-uc[61] = [
+ucTemp[61] = [
     ["Mercenary ", "Mercenary "], 130, 80, 40, 40, 50, 35, 40, 30, 6, 1
 ]; //Mercenary 
-uc[62] = [
+ucTemp[62] = [
     ["Bowman ", "Bowman "], 140, 110, 60, 60, 30, 50, 30, 10, 6, 1
 ]; //Bowman 
-uc[63] = [
+ucTemp[63] = [
     ["Spotter ", "Spotter "], 170, 150, 20, 40, 0, 0, 20, 10, 19, 2
 ]; //Spotter 
-uc[64] = [
+ucTemp[64] = [
     ["Steppe Rider", "Steppe Rider"], 290, 370, 190, 45, 115, 120, 30, 15, 16, 2
 ]; //Steppe Rider
-uc[65] = [
+ucTemp[65] = [
     ["Marksman ", "Marksman "], 320, 350, 330, 50, 105, 115, 80, 70, 16, 2
 ]; //Marksman 
-uc[66] = [
+ucTemp[66] = [
     ["RMarauder ", "Marauder "], 450, 560, 610, 140, 80, 180, 60, 40, 14, 3
 ]; //Marauder  
-uc[67] = [
+ucTemp[67] = [
     ["Ram", "Ram"], 1060, 330, 360, 70, 0, 65, 30, 90, 4, 3
 ]; //Ram 
-uc[68] = [
+ucTemp[68] = [
     ["Catapult", "Catapult"], 950, 1280, 620, 60, 0, 45, 55, 10, 3, 6
 ]; //Catapult 
-uc[69] = [
+ucTemp[69] = [
     ["Senator ", "Senator "], 30750, 27200, 45000, 37500, 0, 50, 40, 30, 4, 5
 ]; //Nomarch 
-uc[70] = [
+ucTemp[70] = [
     ["Settler", "Settler"], 6100, 4600, 4800, 5400, 3000, 10, 80, 80, 5, 1
 ]; //Settler
-uc[98] = [20, 30, 10, 20, 0, 0, 0, 0, 0, 0]; //trap
-uc[99] = [20, 30, 10, 20, 0, 0, 0, 0, 0, 0]; //trap
+ucTemp[98] = [20, 30, 10, 20, 0, 0, 0, 0, 0, 0]; //trap
+ucTemp[99] = [20, 30, 10, 20, 0, 0, 0, 0, 0, 0]; //trap
 
-var uc2 = new Array();
-uc2[0] = [
+var uc2Temp = new Array();
+uc2Temp[0] = [
     ["Kolonist", ""], 5800, 5300, 7200, 5500, 3000, 0, 80, 80, 5, 1
 ]; //Settler
-uc2[1] = [
+uc2Temp[1] = [
     ["Kolonist"], 7200, 5500, 5800, 6500, 3000, 10, 80, 80, 5, 1
 ]; //Settler
-uc2[2] = [
+uc2Temp[2] = [
     ["Kolonist"], 5500, 7000, 5300, 4900, 3000, 0, 80, 80, 5, 1
 ]; //Settler
 //uc2[0] = [["Kolonist", ""], 4600, 4200, 5800, 4400, 3000, 0, 80, 80, 5, 1]; //Settler
 //uc2[1] = [["Kolonist"], 5800, 4400, 4600, 5200, 3000, 0, 80, 80, 5, 1]; //Settler
 //uc2[2] = [["Kolonist"], 4400, 5600, 4200, 3900, 3000, 0, 80, 80, 5, 1]; //Settler
-exports.Buildings = () => Buildings;
-exports.uc = () => uc;
-exports.uc2 = () => uc2;
-exports.options = {
+const Buildings = () => BuildingsTemp;
+const uc = () => ucTemp;
+const uc2 = () => uc2Temp;
+const options = {
     init: false,
     hover: false,
-    coverdiv:false,
+    coverdiv: false,
     version: 21,
     serverVersion: 21,
     style: {
-        "start":false,
-        "showNavigation":true,
+        "start": false,
+        "showNavigation": true,
         "sidebarY": 29,
         "sidebarButtonSize": "btn--medium",
-        "language":"",
-        "taskCheckMin":5,
-        "taskCheckMax":20,
-        "taskCheckMax":20,
-        "taskCheckMax":20,
+        "language": "",
+        "taskCheckMin": 5,
+        "taskCheckMax": 20,
+        "taskCheckMax": 20,
+        "taskCheckMax": 20,
         "build": {
             "show": false,
             "left": 891,
             "top": 255,
             "width": 360,
             "height": 190,
-            "z":999
+            "z": 999
         },
         "buildfinder": {
             "show": false,
@@ -2951,8 +2951,8 @@ exports.options = {
             "top": 255,
             "width": 360,
             "height": 190,
-            "z":999,
-            "minwidth":500
+            "z": 999,
+            "minwidth": 500
         },
         "farm": {
             "show": false,
@@ -2960,7 +2960,7 @@ exports.options = {
             "top": 169,
             "width": 309,
             "height": 154,
-            "z":999
+            "z": 999
         },
         "farmfinder": {
             "show": false,
@@ -2968,8 +2968,8 @@ exports.options = {
             "top": 169,
             "width": 309,
             "height": 154,
-            "z":999,
-            "minwidth":500
+            "z": 999,
+            "minwidth": 500
         },
         "trade": {
             "show": false,
@@ -2977,7 +2977,7 @@ exports.options = {
             "top": 469,
             "width": 364,
             "height": 355,
-            "z":999
+            "z": 999
         },
         "hero": {
             "show": false,
@@ -2985,7 +2985,7 @@ exports.options = {
             "top": 266,
             "width": 346,
             "height": 127,
-            "z":999
+            "z": 999
         },
         "logs": {
             "show": false,
@@ -2993,7 +2993,7 @@ exports.options = {
             "top": 425,
             "width": 341,
             "height": 179,
-            "z":999
+            "z": 999
         },
         "setting": {
             "show": false,
@@ -3001,7 +3001,7 @@ exports.options = {
             "top": 232,
             "width": 425,
             "height": 344,
-            "z":999
+            "z": 999
         },
         "train": {
             "show": false,
@@ -3009,7 +3009,7 @@ exports.options = {
             "top": 842,
             "width": 360,
             "height": 181,
-            "z":999
+            "z": 999
         },
         "chat": {
             "show": false,
@@ -3017,7 +3017,7 @@ exports.options = {
             "top": 10,
             "width": 100,
             "height": 100,
-            "z":999
+            "z": 999
         },
         "sidebar": {
             "show": true,
@@ -3025,7 +3025,7 @@ exports.options = {
             "top": 10,
             "width": 100,
             "height": 100,
-            "z":999
+            "z": 999
         },
         "tasks": {
             "show": true,
@@ -3033,18 +3033,18 @@ exports.options = {
             "top": 200,
             "width": 300,
             "height": 600,
-            "z":999
+            "z": 999
         }
     }
 }
-exports.custom = {
+const custom = {
     FarmFinderFarms: [],
     farmfinder: {
-      distance: 10,
-      showProgress: false,
-      progress: 0.0,
-      running: false,
-      stopped: true
+        distance: 10,
+        showProgress: false,
+        progress: 0.0,
+        running: false,
+        stopped: true
     }
 };
 var LandTypes = new Array();
@@ -3062,9 +3062,9 @@ LandTypes[10] = [null, 3, 4, 1, 2, 2, 2, 3, 4, 4, 3, 3, 4, 4, 1, 4, 2, 1, 2];
 LandTypes[11] = [null, 3, 1, 1, 3, 1, 4, 4, 3, 3, 2, 2, 3, 1, 4, 4, 2, 4, 4];
 LandTypes[12] = [null, 1, 4, 1, 1, 2, 2, 3, 4, 4, 3, 3, 4, 4, 1, 4, 2, 1, 2];
 
-exports.landType=LandTypes;
+const landType = LandTypes;
 
-exports.Player = function () {
+const Player = function () {
     this.setPlayerFromObject = function (obj, deepcoppy) {
         if (deepcoppy) {
             obj = JSON.parse(JSON.stringify(obj));
@@ -3073,7 +3073,7 @@ exports.Player = function () {
     }
     this.getVillage = function (villageid) {
         //console.log(this.villages)
-        for (i = 0; i < this.villages.length; i++) {
+        for (let i = 0; i < this.villages.length; i++) {
             if (this.villages[i].villageId == villageid * 1) {
                 return this.villages[i]
             }
@@ -3084,19 +3084,23 @@ exports.Player = function () {
     }
 
     this.newVillage = function (villageid, x, y, villageName) {
-        var newvill = JSON.parse(JSON.stringify(village));
+        var newvill = new village();
         newvill.coordinates.x = x;
         newvill.coordinates.y = y;
         newvill.name = villageName;
         newvill.villageId = villageid;
+
+        newvill.x = x;
+        newvill.y = y;
+
         this.villages.push(newvill);
         return newvill;
     }
     this.setPlayerFromObject(defaultplayer, true);
 }
 
-exports.village = () => village;
-var village = {
+const village = () => JSON.parse(JSON.stringify(villageClass));
+var villageClass = {
     "CASANALIZEGRADNJA1": 0,
     "CASANALIZEGRADNJA2": 0,
     "CASANALIZETRZNICA": 0,
@@ -3218,588 +3222,588 @@ var village = {
     "timeUntilTributeFull": 1510225434.2638555,
     "buildings": [
         {
-         "buildingType": 0,
-         "locationId": 0,
-         "lvl": 0,
-         "lvlNext": 0,
-         "lvlMax": 0,
-         "upgradeCosts": {
-          "1": 0,
-          "2": 0,
-          "3": 0,
-          "4": 0
-         },
-         "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 0,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-         "buildingType": 0,
-         "locationId": 1,
-         "lvl": 0,
-         "lvlNext": 0,
-         "lvlMax": 0,
-         "upgradeCosts": {
-          "1": 0,
-          "2": 0,
-          "3": 0,
-          "4": 0
-         },
-         "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 1,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 2,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 3,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 2,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 4,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 5,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 3,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 6,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 7,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 4,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 8,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 9,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 5,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 10,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 11,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 6,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 12,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 13,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 7,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 14,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 15,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 8,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 16,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 17,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 9,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 18,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 19,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 10,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 20,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 21,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 11,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 22,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 23,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 12,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 24,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 25,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 13,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 26,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 27,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 14,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 28,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 29,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 15,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 30,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 31,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 16,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 32,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 33,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 17,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 34,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 35,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 18,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 36,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 37,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 19,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 38,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
-        },
-        {
-        "buildingType": 0,
-        "locationId": 39,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
-        },
-        "upgradeTime": 0
+            "buildingType": 0,
+            "locationId": 20,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
         {
-        "buildingType": 0,
-        "locationId": 40,
-        "lvl": 0,
-        "lvlNext": 0,
-        "lvlMax": 0,
-        "upgradeCosts": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0
+            "buildingType": 0,
+            "locationId": 21,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
-        "upgradeTime": 0
+        {
+            "buildingType": 0,
+            "locationId": 22,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
         },
-       ],
+        {
+            "buildingType": 0,
+            "locationId": 23,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 24,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 25,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 26,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 27,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 28,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 29,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 30,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 31,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 32,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 33,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 34,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 35,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 36,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 37,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 38,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 39,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+        {
+            "buildingType": 0,
+            "locationId": 40,
+            "lvl": 0,
+            "lvlNext": 0,
+            "lvlMax": 0,
+            "upgradeCosts": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0
+            },
+            "upgradeTime": 0
+        },
+    ],
     "BuildingQueue": {
         "1": 1,
         "2": 1,
         "4": 1
     },
-    "BuildingQueueTimes":{
-        "1":0,
-        "2":0
+    "BuildingQueueTimes": {
+        "1": 0,
+        "2": 0
     },
     "Merchants": {
         "villageId": 0,
@@ -3813,34 +3817,34 @@ var village = {
     },
     "troopsMoving": [
         {
-          "troopId": 2551475,
-          "villageIdStart": "538263584",
-          "playerNameStart": "SloSpider",
-          "villageNameStart": "Spider",
-          "villageIdTarget": "538198048",
-          "villageNameTarget": "Spider2",
-          "playerNameTarget": "SloSpider",
-          "playerIdTarget": "1930",
-          "timeStart": "1542304488",
-          "timeFinish": 1542304788,
-          "movementType": 7,
-          "resources": {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 1225
-          },
-          "treasures": 0,
-          "spyTarget": 0,
-          "catapultTarget1": 0,
-          "catapultTarget2": 0,
-          "culturePoints": 0,
-          "coordinateID": 0,
-          "merchants": 1,
-          "recurrences": "1",
-          "recurrencesTotal": "1"
+            "troopId": 2551475,
+            "villageIdStart": "538263584",
+            "playerNameStart": "SloSpider",
+            "villageNameStart": "Spider",
+            "villageIdTarget": "538198048",
+            "villageNameTarget": "Spider2",
+            "playerNameTarget": "SloSpider",
+            "playerIdTarget": "1930",
+            "timeStart": "1542304488",
+            "timeFinish": 1542304788,
+            "movementType": 7,
+            "resources": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 1225
+            },
+            "treasures": 0,
+            "spyTarget": 0,
+            "catapultTarget1": 0,
+            "catapultTarget2": 0,
+            "culturePoints": 0,
+            "coordinateID": 0,
+            "merchants": 1,
+            "recurrences": "1",
+            "recurrencesTotal": "1"
         }
-      ],
+    ],
     "Troops": {
         "1": 0,
         "2": 0,
@@ -3870,28 +3874,29 @@ var defaultplayer = {
                 "adventure": false
             }
         },
-        "taskchecktime":{
-            "min":5,
-            "max":10
+        "taskchecktime": {
+            "min": 5,
+            "max": 10
         },
-        "workingdurationtime":{
-            "min":120,
-            "max":240
+        "workingdurationtime": {
+            "min": 120,
+            "max": 240
         },
-        "sleeptime":{
-            "min":30,
-            "max":60
+        "sleeptime": {
+            "min": 30,
+            "max": 60
         },
-        "redirect":{
-            "min":3,
-            "max":10
+        "redirect": {
+            "min": 3,
+            "max": 10
         },
-        "redirectsleeptime":true
+        "redirectsleeptime": true
     },
     "translations": {
         "incomingmerchants": "",
         "outgoingmerchants": ""
     },
+    "server2": "",
     "deviation": 0.1,
     "INTERVALGRADNJA": 30,
     "INTERVALHERO": 30,
@@ -3925,7 +3930,7 @@ var defaultplayer = {
     "isKing": false,
     "kingId": 0,
     "kingstatus": 0,
-    "villages": [village],
+    "villages": [new village()],
     "population": 215,
     "active": 1,
     "prestige": 1121,
@@ -4036,4 +4041,33 @@ var defaultplayer = {
         "notAlive": true
     },
     "SeesionId": "2303b0c790e8684e7da2"
+}
+let building = () => {
+    Clone({
+        "buildingType": 0,
+        "locationId": 0,
+        "lvl": 0,
+        "lvlNext": 0,
+        "lvlMax": 0,
+        "upgradeCosts": {
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+        },
+        "upgradeTime": 0
+    })
+};
+export default {
+    village,
+    Player,
+    troopCost,
+    BuildingRez,
+    Buildings,
+    uc,
+    uc2,
+    options,
+    building,
+    custom,
+    landType
 }

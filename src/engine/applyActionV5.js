@@ -1,3 +1,4 @@
+const exports = new Object();
 exports.version = 5;
 
 exports.initAA = async function (l, s) {
@@ -34,24 +35,26 @@ exports.build = async function (village, building, buildTask) {
 	building.upgradeCosts = multiplayResources(building.upgradeCosts, 1.25);
 	building.upgradeTime = building.upgradeTime;
 	village.storage = subResources(village.storage, building.upgradeCosts);
-	
+
 	return true;
 }
 
 exports.finishNow = async function (village, building, buildTask) {
 	this.log.debug('finishNow start');
-		url = "premiumFeature/bookFeature"
-		data = {
-			"featureName": "finishNow",
-			"params": {
-				"villageId": village.villageId,
-				"queueType": building.queueType,
-				"price": 0
-			}
+	let url = "premiumFeature/bookFeature"
+	let data = {
+		"featureName": "finishNow",
+		"params": {
+			"villageId": village.villageId,
+			"queueType": building.queueType,
+			"price": 0
 		}
-		let response = await request(url, data, "requestT5");
-	
+	}
+	let response = await request(url, data, "requestT5");
 
+	await wait(1000);
+
+	await this.analyzePlayer();
 	return true;
 }
 
@@ -75,7 +78,7 @@ exports.analyzePlayer = async function () {
 				"upgradeTime": 0
 			});
 		}
-		copyProperties(this.store.Player, rez.player);
+		copyProperties(this.store.Player, rez.player, this.store);
 		this.log.debug('T5analyzePlayer done', this.store.Player);
 		return true;
 	}
@@ -326,7 +329,7 @@ exports.getGoldClubFarmlists = async function (parameters) {
 
 	let rez = JSON.parse(response.document);
 	this.store.Player.goldClubFarmlists = [];
-	let farmLists=[];
+	let farmLists = [];
 	rez.cache[0].data.cache.forEach(function (farmList) {
 		let farmlistData = {
 			"listId": farmList.data.listId,
@@ -361,7 +364,7 @@ exports.getGoldClubFarmlists = async function (parameters) {
 		});
 		farmLists.push(farmlistData);
 	}.bind(farmLists));
-	this.store.Player.goldClubFarmlists=farmLists;
+	this.store.Player.goldClubFarmlists = farmLists;
 	return true;
 }
 
@@ -589,15 +592,6 @@ function subResources(res1, res2) {
 	}
 }
 
-function addResources(res1, res2) {
-	return {
-		"1": res1["1"] + res2["1"],
-		"2": res1["2"] + res2["2"],
-		"3": res1["3"] + res2["3"],
-		"4": res1["4"] + res2["4"]
-	}
-}
-
 function multiplayResources(res1, m) {
 	return {
 		"1": res1["1"] * m,
@@ -611,7 +605,7 @@ function sumResources(res1) {
 	return res1["1"] * 1 + res1["2"] * 1 + res1["3"] * 1 + res1["4"] * 1;
 }
 
-const copyProperties = function (main, other) {
+const copyProperties = function (main, other, store) {
 	if (other != undefined) {
 		for (let key in main) {
 			if (key == "lang") {
@@ -625,10 +619,10 @@ const copyProperties = function (main, other) {
 					if (arrayMain !== undefined) {
 						for (let i = 0, len = arrayOther.length; i < len; i++) {
 							if (arrayMain[i] !== undefined) {
-								copyProperties(arrayMain[i], arrayOther[i]);
+								copyProperties(arrayMain[i], arrayOther[i], store);
 							} else if (key === "villages") {
-								arrayMain[i] = JSON.parse(JSON.stringify(this.store.Village));
-								copyProperties(arrayMain[i], arrayOther[i]);
+								arrayMain[i] = JSON.parse(JSON.stringify(store.Village));
+								copyProperties(arrayMain[i], arrayOther[i], store);
 								arrayMain[i].tasks.villageId = arrayMain[i].villageId;
 
 							} else {
@@ -642,12 +636,12 @@ const copyProperties = function (main, other) {
 						}
 					}
 				} else if (typeof main[key] === 'object') {
-					copyProperties(main[key], other[key])
+					copyProperties(main[key], other[key], store)
 				} else {
 					if (main[key] !== other[key]) {
 						main[key] = other[key];
 					}
-					else if (main[key]  === null) {
+					else if (main[key] === null) {
 						main[key] = other[key];
 					}
 				}
@@ -724,9 +718,10 @@ function wait(ms) {
 }
 
 exports.checkAnalyseBuildRouter = async function (selectedVillage) {
-    return false;
+	return false;
 }.bind(this)
 
 exports.analyseBuildRouter = async function (selectedVillage) {
-    return false;
-}.bind(this)
+	return false;
+}.bind(this);
+export default exports;

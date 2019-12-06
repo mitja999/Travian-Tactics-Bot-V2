@@ -77,7 +77,7 @@
             </v-flex>
 
             <v-flex xs1>
-              <v-btn flat icon color="green" @click="addTradeTask">
+              <v-btn text icon color="green" @click="addTradeTask">
                 <v-icon large>add_circle</v-icon>
               </v-btn>
             </v-flex>
@@ -275,44 +275,46 @@
         <v-flex xs12>
           <v-data-table
             :items="$store.state.selectedVillage.tasks.trade"
-            hide-actions
+            hide-default-footer
             class="elevation-1"
-            hide-headers
+            hide-default-header
             style="text-align: center; margin-top: 5px;"
           >
-            <template slot="items" slot-scope="props" id="tradeShow">
-              <td class="tdClass" style="width:20%">{{ props.item.name }}</td>
+            <template v-slot:body="{ items }" id="tradeShow">
+                      <tbody>
+          <tr v-for="(item, name, index) in items" :key="index">
+              <td class="tdClass" style="width:20%">{{ item.name }}</td>
               <td class="tdClass" style="width:20%">
                 <div style="margin:10px">
-                  <p v-if="props.item.type=='1x'">Send only once.</p>
-                  <p v-if="props.item.type=='Return'">Send again when merchants return.</p>
+                  <p v-if="item.type=='1x'">Send only once.</p>
+                  <p v-if="item.type=='Return'">Send again when merchants return.</p>
                   <p
-                    v-if="props.item.type=='Every x minutes'"
-                  >Every {{props.item.repeatinterval}} minutes.</p>
-                  <p v-if="props.item.type=='Send by %'">Min res: {{props.item.minres}}</p>
-                  <p v-if="props.item.type=='Send by %'">Round: {{props.item.round}}</p>
-                  <p v-if="props.item.type=='Send by %'">
+                    v-if="item.type=='Every x minutes'"
+                  >Every {{item.repeatinterval}} minutes.</p>
+                  <p v-if="item.type=='Send by %'">Min res: {{item.minres}}</p>
+                  <p v-if="item.type=='Send by %'">Round: {{item.round}}</p>
+                  <p v-if="item.type=='Send by %'">
                     <v-checkbox
                       primary
                       label="Only full"
                       hide-details
-                      v-model="props.item.full"
+                      v-model="item.full"
                       disabled
                     ></v-checkbox>
                   </p>
                 </div>
               </td>
               <td class="tdClass" style="width:40%">
-                <div>{{"X:"+props.item.x}}</div>
-                <div>{{"Y:"+props.item.y}}</div>
+                <div>{{"X:"+item.x}}</div>
+                <div>{{"Y:"+item.y}}</div>
               </td>
-              <td class="tdClass" style="width:30%" v-if="props.item.type!='Send by %'">
-                <div>{{"Wood:"+props.item.resources["1"]}}</div>
-                <div>{{"Clay:"+props.item.resources["2"]}}</div>
-                <div>{{"Iron:"+props.item.resources["3"]}}</div>
-                <div>{{"Grain:"+props.item.resources["4"]}}</div>
+              <td class="tdClass" style="width:30%" v-if="item.type!='Send by %'">
+                <div>{{"Wood:"+item.resources["1"]}}</div>
+                <div>{{"Clay:"+item.resources["2"]}}</div>
+                <div>{{"Iron:"+item.resources["3"]}}</div>
+                <div>{{"Grain:"+item.resources["4"]}}</div>
               </td>
-              <td class="tdClass" style="width:30%" v-if="props.item.type=='Send by %'">
+              <td class="tdClass" style="width:30%" v-if="item.type=='Send by %'">
                 <table>
                   <tr>
                     <td style="height:auto"></td>
@@ -323,37 +325,39 @@
                     <td style="height:auto">Wood:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["1"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["1"]}}%</td>
+                    >{{item.fill["1"]}}%</td>
+                    <td style="height:auto">{{item.empty["1"]}}%</td>
                   </tr>
                   <tr>
                     <td style="height:auto">Clay:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["2"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["2"]}}%</td>
+                    >{{item.fill["2"]}}%</td>
+                    <td style="height:auto">{{item.empty["2"]}}%</td>
                   </tr>
                   <tr>
                     <td style="height:auto">Iron:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["3"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["3"]}}%</td>
+                    >{{item.fill["3"]}}%</td>
+                    <td style="height:auto">{{item.empty["3"]}}%</td>
                   </tr>
                   <tr>
                     <td style="height:auto">Grain:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["4"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["4"]}}%</td>
+                    >{{item.fill["4"]}}%</td>
+                    <td style="height:auto">{{item.empty["4"]}}%</td>
                   </tr>
                 </table>
               </td>
               <td class="tdClass" style="width:10%">
-                <v-btn flat icon color="black" @click="removeTrade(props.index)">
+                <v-btn text icon color="black" @click="removeTrade(index)">
                   <v-icon>delete</v-icon>
                 </v-btn>
               </td>
+          </tr>
+        </tbody>
             </template>
           </v-data-table>
         </v-flex>
@@ -363,18 +367,17 @@
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "trade",
-  data() {
-    return {
-      VillageTo: {},
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
+      VillageTo: {x:0,y:0,villageId:0,name:''},
       TradeTask: {
         type: "1x",
         x: 0,
         y: 0,
         villageId: 0,
-        name: undefined,
         resources: { "1": 0, "2": 0, "3": 0, "4": 0 },
         fill: { "1": 90, "2": 90, "3": 90, "4": 90 },
         empty: { "1": 10, "2": 10, "3": 10, "4": 10 },
@@ -382,16 +385,17 @@ export default {
         round: 100,
         full: true,
         repeatinterval: 1,
-        time: new Date().getTime()
+        time: new Date().getTime(),
+        name:''
       },
       showVillage: false
-    };
-  },
+  }),
   methods: {
-    resize(left, top, width, height) {
+    
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.trade.width = width;
       if (height !== undefined)
@@ -407,23 +411,23 @@ export default {
         this.TradeTask.villageId = this.VillageTo.villageId;
         this.TradeTask.name = this.VillageTo.name;
       } else {
-        this.TradeTask.name = undefined;
+        this.TradeTask.name = '';
       }
       this.$store.state.selectedVillage.tasks.trade.push(
         JSON.parse(JSON.stringify(this.TradeTask))
       );
     },
-    removeTrade(index) {
+    removeTrade(index:number) {
       this.$store.state.selectedVillage.tasks.trade.splice(index, 1);
     }
   },
   computed: {
     filterVillages() {
       this.VillageTo = this.$store.state.Player.villages.filter(
-        row => this.$store.state.selectedVillage.villageId !== row.villageId
+        (row:any) => this.$store.state.selectedVillage.villageId !== row.villageId
       )[0];
       return this.$store.state.Player.villages.filter(
-        row => this.$store.state.selectedVillage.villageId !== row.villageId
+        (row:any) => this.$store.state.selectedVillage.villageId !== row.villageId
       );
     },
 	r1: function() {
@@ -439,5 +443,5 @@ export default {
       return this.$store.state.images.r4;
     },
   }
-};
+});
 </script>

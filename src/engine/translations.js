@@ -3,7 +3,7 @@
 ////////////////
 
 
-class Translate {
+class TranslateTemp {
         
     constructor() {
         this.getdata = "Get Data";
@@ -4219,5 +4219,10 @@ class Translate {
             break;
         }
       }
-    }
-    exports.translations = new Translate();
+    };
+    const Translate = () => new TranslateTemp();
+    
+
+export default {
+  Translate
+}

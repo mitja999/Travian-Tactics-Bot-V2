@@ -1,44 +1,50 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import objects from "./engine/classes.js";
-import translations from "./engine/translations.js";
-Vue.use(Vuex);
+const objects = require('../engine/classes.js');
+const translations = require('../engine/translations.js');
+const { ls } = require('vue-storage-plus');
+import $log from "@/plugins/log";
 
+Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
-    Player: new objects.Player(),
-    Village: new objects.village(),
-    selectedVillage: new objects.village(),
-    troopCost: new objects.troopCost(),
-    BuildingRez: new objects.BuildingRez(),
-    Buildings: new objects.Buildings(),
-    uc: new objects.uc(),
-    uc2: new objects.uc2(),
-    custom: objects.custom,
-    options: objects.options,
+    CheckLogic: require("../engine/checkLogic.js").default,
+    log: $log,
+    localStorage: ls,
+    Player: new objects.default.Player(),
+    Village: new objects.default.village(),
+    selectedVillage: new objects.default.village(),
+    troopCost: new objects.default.troopCost(),
+    BuildingRez: new objects.default.BuildingRez(),
+    Buildings: new objects.default.Buildings(),
+    uc: new objects.default.uc(),
+    uc2: new objects.default.uc2(),
+    custom: objects.default.custom,
+    options: objects.default.options,
     start: false,
-    landType: objects.landType,
-    lang: translations.translations,
+    landType: objects.default.landType,
+    lang: new translations.default.Translate(),
     taskCheckTime: new Date(),
     taskWorkingTime: new Date(),
     redirectTime: new Date(),
     taskStatus: "Stop",
     executing: false,
     windowdimension: "2560-1440",
+    counter: 0,
     version: {
-      web: "3.3.24",
+      web: "3.3.25",
       extension: "3.3.24"
     },
     iframesrc: "https://traviantactics.com",
     images: {
       r1:
-        "https://gpack.travian.com/863d0145/mainPage/img_ltr/general/resources/lumber_small.png",
+        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/lumber_small.png",
       r2:
-        "https://gpack.travian.com/863d0145/mainPage/img_ltr/general/resources/clay_small.png",
+        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/clay_small.png",
       r3:
-        "https://gpack.travian.com/863d0145/mainPage/img_ltr/general/resources/iron_small.png",
+        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/iron_small.png",
       r4:
-        "https://gpack.travian.com/863d0145/mainPage/img_ltr/general/resources/crop_small.png"
+        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/crop_small.png"
     },
     mapZoom: 3,
     map: {
@@ -49,8 +55,8 @@ export default new Vuex.Store({
       bottom: -400,
       top: 400
     },
-    redirectPagesV4:["/karte.php","/statistiken.php","/messages.php","/berichte.php","/dorf1.php","/dorf2.php","/hero.php","/hero.php?t=4"],
-    redirectPagesV5:["/#/page:village","/#/page:resources/","/#/page:map/","/#/page:village/herotab:Auctions/window:hero/cp:1","/#/page:village/herotab:CardGame/window:hero/cp:1","/#/page:village/herotab:Inventory/window:hero"]
+    redirectPagesV4: ["/karte.php", "/statistiken.php", "/messages.php", "/berichte.php", "/dorf1.php", "/dorf2.php", "/hero.php", "/hero.php?t=4"],
+    redirectPagesV5: ["/#/page:village", "/#/page:resources/", "/#/page:map/", "/#/page:village/herotab:Auctions/window:hero/cp:1", "/#/page:village/herotab:CardGame/window:hero/cp:1", "/#/page:village/herotab:Inventory/window:hero"]
   },
 
   mutations: {
@@ -59,7 +65,7 @@ export default new Vuex.Store({
         if (state.options.style[propertyName].left !== undefined) {
           if (
             state.options.style[propertyName].left +
-              state.options.style[propertyName].width >
+            state.options.style[propertyName].width >
             window.innerWidth
           ) {
             state.options.style[propertyName].left =
@@ -68,7 +74,7 @@ export default new Vuex.Store({
           }
           if (
             state.options.style[propertyName].top +
-              state.options.style[propertyName].height >
+            state.options.style[propertyName].height >
             window.innerHeight
           ) {
             state.options.style[propertyName].top =
@@ -95,12 +101,12 @@ export default new Vuex.Store({
   getters: {
     getPlayer: state => () => state.Player,
     getSelectedVillageId: state => () => state.selectedVillage.villageId,
-    troopIcon: state => id => {
+    troopIcon: state => (id: number) => {
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
 
       let TroopUrl =
-        "https://gpack.travian.com/863d0145/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/69b4d93e/mainPage/img/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -112,12 +118,12 @@ export default new Vuex.Store({
         zoom: 0.45
       };
     },
-    troopIconFF: state => id => {
+    troopIconFF: state => (id: number) => {
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
 
       let TroopUrl =
-        "https://gpack.travian.com/863d0145/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/69b4d93e/mainPage/img/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -129,10 +135,10 @@ export default new Vuex.Store({
         zoom: 0.35
       };
     },
-    getIcon: state => id => {
+    getIcon: state => (id: number) => {
       let tribeIcon = "";
       let TroopUrl =
-        "https://gpack.travian.com/863d0145/mainPage/img_ltr/general/resources/" +
+        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/" +
         id +
         ".png";
       return {
@@ -151,6 +157,9 @@ export default new Vuex.Store({
         }
       }
       return z + 1;
+    },
+    getNewBuiding: state => () => {
+      return new objects.default.building();
     }
   }
 });

@@ -46,13 +46,15 @@
           
           <v-data-table
             :items="$store.state.selectedVillage.tasks.build"
-            hide-actions
-            hide-headers
+            hide-default-footer
+            hide-default-header
             style="text-align: center;overflow-y: auto;"
             no-data-text="/"
             v-show="$store.state.selectedVillage.tasks.build.length!==0"
           >
-            <template slot="items" slot-scope="props">
+            <template v-slot:body="{ items }" >
+                      <tbody>
+          <tr v-for="(item, name, index) in items" :key="index">
               <td class="tdClass" style="width:15%">
                 <v-btn
                   color="blue-grey darken-4"
@@ -64,35 +66,35 @@
                   <v-icon dark>gavel</v-icon>
                 </v-btn>
               </td>
-              <td class="tdClass" style="width:10%">{{ props.item.locationId }}</td>
+              <td class="tdClass" style="width:10%">{{ item.locationId }}</td>
               <td
                 class="tdClass resources"
                 style="width:45%"
-                v-show="props.item.locationId.constructor === Array"
+                v-show="item.locationId.constructor === Array"
               >
                 <img
-                  v-show="arrayHasItem(props.item.locationId,'1')"
+                  v-show="arrayHasItem(item.locationId,'1')"
                   v-bind:src="$store.state.images.r1"
                   alt="W"
                   height="22"
                   width="22"
                 >
                 <img
-                  v-show="arrayHasItem(props.item.locationId,'2')"
+                  v-show="arrayHasItem(item.locationId,'2')"
                   v-bind:src="$store.state.images.r2"
                   alt="W"
                   height="22"
                   width="22"
                 >
                 <img
-                  v-show="arrayHasItem(props.item.locationId,'3')"
+                  v-show="arrayHasItem(item.locationId,'3')"
                   v-bind:src="$store.state.images.r3"
                   alt="W"
                   height="22"
                   width="22"
                 >
                 <img
-                  v-show="arrayHasItem(props.item.locationId,'4')"
+                  v-show="arrayHasItem(item.locationId,'4')"
                   v-bind:src="$store.state.images.r4"
                   alt="W"
                   height="22"
@@ -102,25 +104,29 @@
               <td
                 class="tdClass"
                 style="width:60%"
-                v-show="props.item.locationId.constructor !== Array"
-              >{{ setBuildingNameFromId(props.item.locationId,props.item.buildingType) }}</td>
-              <td class="tdClass" style="width:10%">{{ props.item.toLvl }}</td>
+                v-show="item.locationId.constructor !== Array"
+              >{{ setBuildingNameFromId(item.locationId,item.buildingType) }}</td>
+              <td class="tdClass" style="width:10%">{{ item.toLvl }}</td>
               <td class="tdClass" style="width:20%">
-                <v-btn flat icon color="black" @click="removeBuild(props.index)">
+                <v-btn text icon color="black" @click="removeBuild(index)">
                   <v-icon>delete</v-icon>
                 </v-btn>
               </td>
+          </tr>
+        </tbody>
             </template>
           </v-data-table>
           <v-data-table
             :items="$store.state.selectedVillage.tasks.trade"
-            hide-actions
+            hide-default-footer
             class="elevation-1"
-            hide-headers
+            hide-default-header
             style="text-align: center; margin-top: 5px;"
             v-show="$store.state.selectedVillage.tasks.trade.length!==0"
           >
-            <template slot="items" slot-scope="props" id="tradeShow">
+            <template v-slot:body="{ items }" >
+                      <tbody>
+          <tr v-for="(item, name, index) in items" :key="index">
               <td class="tdClass" style="width:15%">
                 <v-btn
                   color="blue-grey darken-4"
@@ -132,38 +138,38 @@
                   <v-icon dark>swap_horiz</v-icon>
                 </v-btn>
               </td>
-              <td class="tdClass" style="width:20%">{{ props.item.name }}</td>
+              <td class="tdClass" style="width:20%">{{ item.name }}</td>
               <td class="tdClass" style="width:20%">
                 <div style="margin:10px">
-                  <p v-if="props.item.type=='1x'">Send only once.</p>
-                  <p v-if="props.item.type=='Return'">Send again when merchants return.</p>
+                  <p v-if="item.type=='1x'">Send only once.</p>
+                  <p v-if="item.type=='Return'">Send again when merchants return.</p>
                   <p
-                    v-if="props.item.type=='Every x minutes'"
-                  >Every {{props.item.repeatinterval}} minutes.</p>
-                  <p v-if="props.item.type=='Send by %'">Min res: {{props.item.minres}}</p>
-                  <p v-if="props.item.type=='Send by %'">Round: {{props.item.round}}</p>
-                  <p v-if="props.item.type=='Send by %'">
+                    v-if="item.type=='Every x minutes'"
+                  >Every {{item.repeatinterval}} minutes.</p>
+                  <p v-if="item.type=='Send by %'">Min res: {{item.minres}}</p>
+                  <p v-if="item.type=='Send by %'">Round: {{item.round}}</p>
+                  <p v-if="item.type=='Send by %'">
                     <v-checkbox
                       primary
                       label="Only full"
                       hide-details
-                      v-model="props.item.full"
+                      v-model="item.full"
                       disabled
                     ></v-checkbox>
                   </p>
                 </div>
               </td>
               <td class="tdClass" style="width:25%">
-                <div>{{"X:"+props.item.x}}</div>
-                <div>{{"Y:"+props.item.y}}</div>
+                <div>{{"X:"+item.x}}</div>
+                <div>{{"Y:"+item.y}}</div>
               </td>
-              <td class="tdClass" style="width:30%" v-if="props.item.type!='Send by %'">
-                <div>{{"Wood:"+props.item.resources["1"]}}</div>
-                <div>{{"Clay:"+props.item.resources["2"]}}</div>
-                <div>{{"Iron:"+props.item.resources["3"]}}</div>
-                <div>{{"Grain:"+props.item.resources["4"]}}</div>
+              <td class="tdClass" style="width:30%" v-if="item.type!='Send by %'">
+                <div>{{"Wood:"+item.resources["1"]}}</div>
+                <div>{{"Clay:"+item.resources["2"]}}</div>
+                <div>{{"Iron:"+item.resources["3"]}}</div>
+                <div>{{"Grain:"+item.resources["4"]}}</div>
               </td>
-              <td class="tdClass" style="width:30%" v-if="props.item.type=='Send by %'">
+              <td class="tdClass" style="width:30%" v-if="item.type=='Send by %'">
                 <table>
                   <tr>
                     <td style="height:auto"></td>
@@ -174,48 +180,52 @@
                     <td style="height:auto">Wood:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["1"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["1"]}}%</td>
+                    >{{item.fill["1"]}}%</td>
+                    <td style="height:auto">{{item.empty["1"]}}%</td>
                   </tr>
                   <tr>
                     <td style="height:auto">Clay:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["2"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["2"]}}%</td>
+                    >{{item.fill["2"]}}%</td>
+                    <td style="height:auto">{{item.empty["2"]}}%</td>
                   </tr>
                   <tr>
                     <td style="height:auto">Iron:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["3"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["3"]}}%</td>
+                    >{{item.fill["3"]}}%</td>
+                    <td style="height:auto">{{item.empty["3"]}}%</td>
                   </tr>
                   <tr>
                     <td style="height:auto">Grain:</td>
                     <td
                       style="height:auto; padding-left: 5px; padding-right:5px;"
-                    >{{props.item.fill["4"]}}%</td>
-                    <td style="height:auto">{{props.item.empty["4"]}}%</td>
+                    >{{item.fill["4"]}}%</td>
+                    <td style="height:auto">{{item.empty["4"]}}%</td>
                   </tr>
                 </table>
               </td>
               <td class="tdClass" style="width:10%">
-                <v-btn flat icon color="black" @click="removeTrade(props.index)">
+                <v-btn text icon color="black" @click="removeTrade(index)">
                   <v-icon>delete</v-icon>
                 </v-btn>
               </td>
+          </tr>
+        </tbody>
             </template>
           </v-data-table>
           <v-data-table
             :items="$store.state.selectedVillage.tasks.train"
-            hide-actions
+            hide-default-footer
             class="elevation-1"
-            hide-headers
+            hide-default-header
             style="text-align: center;"
             v-show="$store.state.selectedVillage.tasks.train.length!==0"
           >
-            <template slot="items" slot-scope="props">
+            <template v-slot:body="{ items }" >
+                      <tbody>
+          <tr v-for="(item, name, index) in items" :key="index">
               <td class="tdClass" style="width:15%">
                 <v-btn
                   color="blue-grey darken-4"
@@ -228,15 +238,17 @@
                 </v-btn>
               </td>
               <td class="tdClass" style="width:30%">
-                <div class="firefoxIcon" v-bind:style="troopIcon(props.item.type)"></div>
+                <div class="firefoxIcon" v-bind:style="troopIcon(item.type)"></div>
               </td>
-              <td class="tdClass" style="width:15%">{{ props.item.amount }}</td>
-              <td class="tdClass" style="width:15%">{{ props.item.timeMinutes }}</td>
+              <td class="tdClass" style="width:15%">{{ item.amount }}</td>
+              <td class="tdClass" style="width:15%">{{ item.timeMinutes }}</td>
               <td class="tdClass" style="width:15%">
-                <v-btn flat icon color="black" @click="removeTrain(props.index)">
+                <v-btn text icon color="black" @click="removeTrain(index)">
                   <v-icon>delete</v-icon>
                 </v-btn>
               </td>
+          </tr>
+        </tbody>
             </template>
           </v-data-table>
           <v-expansion-panel v-show="$store.state.selectedVillage.tasks.farms.length!==0" >
@@ -365,17 +377,17 @@
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "tasks",
-  data() {
-    return {};
-  },
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
+  }),
   methods: {
-    resize(left, top, width, height) {
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.tasks.width = width;
       if (height !== undefined)
@@ -384,52 +396,43 @@ export default {
       this.$store.state.options.style.tasks.top = top;
       this.$store.state.options.coverdiv = false;
     },
-    addTrain() {
-      this.someVariableUnderYourControl++;
-      this.$store.state.selectedVillage.tasks.train.push(
-        JSON.parse(JSON.stringify(this.TrainTask))
-      );
-    },
-    removeTrain(index) {
+    removeTrain(index:number) {
       this.$store.state.selectedVillage.tasks.train.splice(index, 1);
     },
-    troopIcon(id) {
+    troopIcon(id:number) {
       return this.$store.getters.troopIcon(id);
     },
-    setBuildingNameFromId: function(id, buildingType) {
+    setBuildingNameFromId: function(id:string, buildingType:string) {
       if (Array.isArray(id)) {
         if (id.length > 0) {
           var o = "";
           id.forEach(
-            function(e) {
+            (e:any) =>{
               o += this.$store.state.Player.lang.buildings[e * 1];
-            }.bind(this)
+            }
           );
           return o;
         }
       } else return this.$store.state.lang["buldings"][buildingType];; //this.$parent.Player.lang.buildings[this.$parent.selectedVillage.buildings[id].buildingType];
     },
-    arrayHasItem: function(array, item) {
+    arrayHasItem: function(array: Array<string>, item:string) {
       if (array.constructor === Array) {
         if (array.includes(item)) return true;
       }
       return false;
     },
-    removeBuild(index) {
+    removeBuild(index:number) {
       this.$store.state.selectedVillage.tasks.build.splice(index, 1);
     },
-    removeTrade(index) {
+    removeTrade(index:number) {
       this.$store.state.selectedVillage.tasks.trade.splice(index, 1);
     },
-    troopIcon(id) {
-      return this.$store.getters.troopIcon(id);
-    },
-    removeFarmList(index) {
+    removeFarmList(index:number) {
       this.$store.state.selectedVillage.tasks.farms.splice(index, 1);
     },
-    removeFarmListFarm(index,indexfarm) {
+    removeFarmListFarm(index:number,indexfarm:number) {
       this.$store.state.selectedVillage.tasks.farms[index].villages.splice(indexfarm, 1);
     }
   }
-};
+});
 </script>

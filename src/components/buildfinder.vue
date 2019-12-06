@@ -91,7 +91,7 @@
             ></v-slider>
           </v-flex>
           <v-flex xs2 sm6>
-            <v-btn flat icon color="green" @click="addToTaskBuildSimulator">
+            <v-btn text icon color="green" @click="addToTaskBuildSimulator">
               <v-icon large>add_circle</v-icon>
             </v-btn>
           </v-flex>
@@ -99,23 +99,27 @@
         <div v-if="taskSimulator.tasks.length!=0">
           <v-data-table
             :items="taskSimulator.tasks"
-            hide-actions
+            hide-default-footer
             class="elevation-1"
             hide-headers
             style="text-align: center;"
           >
-            <template slot="items" slot-scope="props">
-              <td class="tdClass" style="width:10%">{{ props.item.locationId }}</td>
+            <template v-slot:body="{ items }" >
+                      <tbody>
+          <tr v-for="(item, name, index) in items" :key="index">
+              <td class="tdClass" style="width:10%">{{ item.locationId }}</td>
               <td
                 class="tdClass"
                 style="width:70%"
-              >{{ setBuildingNameFromId(1,props.item.buildingType) }}</td>
-              <td class="tdClass" style="width:10%">{{ props.item.lvl }}</td>
+              >{{ setBuildingNameFromId(1,item.buildingType) }}</td>
+              <td class="tdClass" style="width:10%">{{ item.lvl }}</td>
               <td class="tdClass" style="width:20%">
-                <v-btn flat icon color="black" @click="removeBuildSimulator(props.index)">
+                <v-btn text icon color="black" @click="removeBuildSimulator(index)">
                   <v-icon>delete</v-icon>
                 </v-btn>
               </td>
+          </tr>
+        </tbody>
             </template>
           </v-data-table>
         </div>
@@ -124,12 +128,11 @@
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "build",
-  props: ["loading"],
-  data() {
-    return {
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
       //Player:this.$parent.Player,
       selectedBuilding: {},
       newBuilding: null,
@@ -152,13 +155,13 @@ export default {
       taskSimulator: {
         tasks: []
       }
-    };
-  },
+  }),
   methods: {
-    resize(left, top, width, height) {
+    
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.buildfinder.width = width;
       if (height !== undefined)
@@ -169,7 +172,7 @@ export default {
     },
     addToTaskBuildSimulator() {
       this.taskSimulator.tasks.forEach(
-        function(task) {
+        (task:any) =>{
           var objj = {
             locationId: task.locationId,
             buildingType: task.buildingType,
@@ -177,20 +180,20 @@ export default {
             priority: 1
           };
           this.$store.state.selectedVillage.tasks.build.push(objj);
-        }.bind(this)
+        }
       );
     },
-    removeBuildSimulator(index) {
+    removeBuildSimulator(index:number) {
       this.taskSimulator.tasks.splice(index, 1);
     },
-    setBuildingNameFromId: function(id, buildingType) {
+    setBuildingNameFromId: function(id:any, buildingType:any) {
       if (Array.isArray(id)) {
         if (id.length > 0) {
           var o = "";
           id.forEach(
-            function(e) {
+            (e:any) =>{
               o += this.$store.state.Player.lang.buildings[e * 1];
-            }.bind(this)
+            }
           );
           return o;
         }
@@ -198,7 +201,7 @@ export default {
     }
   },
   watch: {
-    "options.criterium": {
+    /*"options.criterium": {
       handler: async function(val, oldVal) {
         console.log(val);
         let rez = await this.$parent.$parent.Simulator.simulate(
@@ -210,16 +213,16 @@ export default {
         console.log(this.taskSimulator.tasks);
       },
       deep: true
-    }
+    }*/
   },
   mounted: function() {
     if (this.$store.state.selectedVillage.buildings[1] !== undefined) {
       this.selectedBuilding = this.$store.state.selectedVillage.buildings[1];
     }
-    if (this.newbuildings !== undefined) {
+    /*if (this.newbuildings !== undefined) {
       this.newBuilding = this.newbuildings[0].id;
-    }
+    }*/
   },
   computed: {}
-};
+});
 </script>

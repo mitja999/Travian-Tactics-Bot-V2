@@ -68,7 +68,7 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
               <v-text-field label="time:" v-model="TrainTask.timeMinutes" type="number"></v-text-field>
             </v-flex>
             <v-flex xs1>
-              <v-btn flat icon color="green" @click="addTrain">
+              <v-btn text icon color="green" @click="addTrain">
                 <v-icon large>add_circle</v-icon>
               </v-btn>
             </v-flex>
@@ -84,22 +84,26 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
         >
           <v-data-table
             :items="$store.state.selectedVillage.tasks.train"
-            hide-actions
+            hide-default-footer
             class="elevation-1"
-            hide-headers
+            hide-default-header
             style="text-align: center;"
           >
-            <template slot="items" slot-scope="props">
+            <template v-slot:body="{ items }" >
+                      <tbody>
+          <tr v-for="(item, name, index) in items" :key="index">
               <td class="tdClass" style="width:40%">
-                <div class="firefoxIcon" v-bind:style="troopIcon(props.item.type)"></div>
+                <div class="firefoxIcon" v-bind:style="troopIcon(item.type)"></div>
               </td>
-              <td class="tdClass" style="width:20%">{{ props.item.amount }}</td>
-              <td class="tdClass" style="width:20%">{{ props.item.timeMinutes }}</td>
+              <td class="tdClass" style="width:20%">{{ item.amount }}</td>
+              <td class="tdClass" style="width:20%">{{ item.timeMinutes }}</td>
               <td class="tdClass" style="width:20%">
-                <v-btn flat icon color="black" @click="removeTrain(props.index)">
+                <v-btn text icon color="black" @click="removeTrain(index)">
                   <v-icon>delete</v-icon>
                 </v-btn>
               </td>
+          </tr>
+        </tbody>
             </template>
           </v-data-table>
         </v-layout>
@@ -108,11 +112,11 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "train",
-  data() {
-    return {
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
       z: 999,
       TrainTask: {
         type: 1,
@@ -121,13 +125,13 @@ export default {
         time: new Date().getTime()
       },
       Types: [1, 2, 3, 4, 5, 6, 7, 8]
-    };
-  },
+  }),
   methods: {
-    resize(left, top, width, height) {
+    
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.train.width = width;
       if (height !== undefined)
@@ -141,12 +145,12 @@ export default {
       t.type=  (this.$store.state.Player.tribeId*1-1)*10+(this.TrainTask.type%10);
       this.$store.state.selectedVillage.tasks.train.push(t);
     },
-    removeTrain(index) {
+    removeTrain(index:number) {
       this.$store.state.selectedVillage.tasks.train.splice(index, 1);
     },
-    troopIcon(id) {
+    troopIcon(id:number) {
       return this.$store.getters.troopIcon(id);
     }
   }
-};
+});
 </script>

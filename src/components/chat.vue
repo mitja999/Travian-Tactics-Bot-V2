@@ -41,31 +41,30 @@
     </div>
   </vue-draggable-resizable>
 </template>
-<script>
-export default {
-  name: "chat",
-  data() {
-    return {
-      z: 999
-    };
-  },
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
+      z: 999,
+  }),
   watch: {
     "$store.state.options.style.chat.z": function(val) {
       this.z = val;
     }
   },
   methods: {
-    resize(left, top, width, height) {
-      this.$store.state.options.coverdiv = true;
+    resize(left: number, top: number, width: number, height: number) {
+      $store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
-        this.$store.state.options.style.chat.width = width;
+        $store.state.options.style.chat.width = width;
       if (height !== undefined)
-        this.$store.state.options.style.chat.height = height;
-      this.$store.state.options.style.chat.left = left;
-      this.$store.state.options.style.chat.top = top;
+        $store.state.options.style.chat.height = height;
+      $store.state.options.style.chat.left = left;
+      $store.state.options.style.chat.top = top;
     }
   }
-};
+});
 </script>

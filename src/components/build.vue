@@ -19,7 +19,7 @@
   <vue-draggable-resizable
     class="divBorder"
     :parent="true"
-    :style="{ zIndex: $store.state.options.style.build.z}"
+    :style="{ zIndex: $store.state.options.style.build.z }"
     :w="$store.state.options.style.build.width"
     :h="$store.state.options.style.build.height"
     :x="$store.state.options.style.build.left"
@@ -33,28 +33,37 @@
   >
     <div class="containerCustom">
       <div label class="headDiv" style>
-        <v-chip small class="badge" dark label color="blue-grey darken-1" >
+        <v-chip small class="badge" dark label color="blue-grey darken-1">
           <v-icon dark left>gavel</v-icon>
-          <b>{{$store.state.lang["building"]}}</b>
-          <label>{{$store.state.selectedVillage.name}}</label>
+          <b>{{ $store.state.lang["building"] }}</b>
+          <label>{{ $store.state.selectedVillage.name }}</label>
         </v-chip>
-        <div class="headdivicons" >
-        <v-btn
-          class="drag headButtonRight"
-          fab
-          small
-          dark
-          color="red darken-1"
-          @click="$store.state.options.style.build.show=false"
-        >
-          <v-icon medium>close</v-icon>
-        </v-btn>
-        <v-btn class="drag headButtonRight movebutton" fab small color="warning" @click="$store.state.options.style.build.z=$store.getters.getHighestZ()">
-          <v-icon medium>open_with</v-icon>
-        </v-btn></div>
+        <div class="headdivicons">
+          <v-btn
+            class="drag headButtonRight"
+            fab
+            small
+            dark
+            color="red darken-1"
+            @click="$store.state.options.style.build.show = false"
+          >
+            <v-icon medium>close</v-icon>
+          </v-btn>
+          <v-btn
+            class="drag headButtonRight movebutton"
+            fab
+            small
+            color="warning"
+            @click="
+              $store.state.options.style.build.z = $store.getters.getHighestZ()
+            "
+          >
+            <v-icon medium>open_with</v-icon>
+          </v-btn>
+        </div>
       </div>
-      <div class="containerCustomBody" v-show="loading1==false">
-        <v-layout column v-show="loading1==false" class="headlayout">
+      <div class="containerCustomBody" v-show="loading1 == false">
+        <v-layout column v-show="loading1 == false" class="headlayout">
           <v-container fluid grid-list-sm>
             <v-layout row>
               <v-flex sm7 id="buildings">
@@ -76,24 +85,48 @@
                 ></v-select>
               </v-flex>
               <v-flex d-flex sm2>
-                <v-btn flat icon color="green" @click="addToTaskBuild">
-                  <v-icon  large>add_circle</v-icon>
+                <v-btn text icon color="green" @click="addToTaskBuild">
+                  <v-icon large>add_circle</v-icon>
                 </v-btn>
               </v-flex>
             </v-layout>
             <v-layout row wrap>
               <v-flex xs3 sm10>
-                <v-flex d-flex v-if="selectedBuilding.buildingType===46" class="resources">
-                  <img v-bind:src="$store.state.images.r1" alt="W" height="22" width="22">
+                <v-flex
+                  d-flex
+                  v-if="selectedBuilding.buildingType === 46"
+                  class="resources"
+                >
+                  <img
+                    v-bind:src="$store.state.images.r1"
+                    alt="W"
+                    height="22"
+                    width="22"
+                  />
                   <v-switch v-model="selectedResources" value="1"></v-switch>
-                  <img v-bind:src="$store.state.images.r2" alt="W" height="22" width="22">
+                  <img
+                    v-bind:src="$store.state.images.r2"
+                    alt="W"
+                    height="22"
+                    width="22"
+                  />
                   <v-switch v-model="selectedResources" value="2"></v-switch>
-                  <img v-bind:src="$store.state.images.r3" alt="W" height="22" width="22">
+                  <img
+                    v-bind:src="$store.state.images.r3"
+                    alt="W"
+                    height="22"
+                    width="22"
+                  />
                   <v-switch v-model="selectedResources" value="3"></v-switch>
-                  <img v-bind:src="$store.state.images.r4" alt="W" height="22" width="22">
+                  <img
+                    v-bind:src="$store.state.images.r4"
+                    alt="W"
+                    height="22"
+                    width="22"
+                  />
                   <v-switch v-model="selectedResources" value="4"></v-switch>
                 </v-flex>
-                <v-flex d-flex v-if="selectedBuilding.buildingType===0">
+                <v-flex d-flex v-if="selectedBuilding.buildingType === 0">
                   <v-autocomplete
                     :items="newbuildings"
                     v-model="newBuilding"
@@ -108,118 +141,132 @@
         <v-layout
           column
           style="overflow-y: auto;"
-          :style="{ height: $store.state.options.style.build.height-60+'px'}"
+          :style="{
+            height: $store.state.options.style.build.height - 60 + 'px'
+          }"
         >
           <v-data-table
             :items="$store.state.selectedVillage.tasks.build"
-            hide-actions
-            hide-headers
+            hide-default-footer
+            hide-default-header
             style="text-align: center;overflow-y: auto;"
             no-data-text="/"
           >
-            <template slot="items" slot-scope="props">
-              <td class="tdClass" style="width:10%">{{ props.item.locationId }}</td>
-              <td
-                class="tdClass resources"
-                style="width:60%"
-                v-show="props.item.locationId.constructor === Array"
-              >
-                <img
-                  v-show="arrayHasItem(props.item.locationId,'1')"
-                  v-bind:src="$store.state.images.r1"
-                  alt="W"
-                  height="22"
-                  width="22"
-                >
-                <img
-                  v-show="arrayHasItem(props.item.locationId,'2')"
-                  v-bind:src="$store.state.images.r2"
-                  alt="W"
-                  height="22"
-                  width="22"
-                >
-                <img
-                  v-show="arrayHasItem(props.item.locationId,'3')"
-                  v-bind:src="$store.state.images.r3"
-                  alt="W"
-                  height="22"
-                  width="22"
-                >
-                <img
-                  v-show="arrayHasItem(props.item.locationId,'4')"
-                  v-bind:src="$store.state.images.r4"
-                  alt="W"
-                  height="22"
-                  width="22"
-                >
-              </td>
-              <td
-                class="tdClass"
-                style="width:60%"
-                v-show="props.item.locationId.constructor !== Array"
-              >{{ setBuildingNameFromId(props.item.locationId,props.item.buildingType) }}</td>
-              <td class="tdClass" style="width:10%">{{ props.item.toLvl }}</td>
-              <td class="tdClass" style="width:20%">
-                <v-btn flat icon color="black" @click="removeBuild(props.index)">
-                  <v-icon>delete</v-icon>
-                </v-btn>
-              </td>
+            <template v-slot:body="{ items }">
+              <tbody>
+                <tr v-for="(item, name, index) in items" :key="index">
+                  <td class="tdClass" style="width:10%">
+                    {{ item.locationId }}
+                  </td>
+                  <td
+                    class="tdClass resources"
+                    style="width:60%"
+                    v-show="item.locationId.constructor === Array"
+                  >
+                    <img
+                      v-show="arrayHasItem(item.locationId, '1')"
+                      v-bind:src="$store.state.images.r1"
+                      alt="W"
+                      height="22"
+                      width="22"
+                    />
+                    <img
+                      v-show="arrayHasItem(item.locationId, '2')"
+                      v-bind:src="$store.state.images.r2"
+                      alt="W"
+                      height="22"
+                      width="22"
+                    />
+                    <img
+                      v-show="arrayHasItem(item.locationId, '3')"
+                      v-bind:src="$store.state.images.r3"
+                      alt="W"
+                      height="22"
+                      width="22"
+                    />
+                    <img
+                      v-show="arrayHasItem(item.locationId, '4')"
+                      v-bind:src="$store.state.images.r4"
+                      alt="W"
+                      height="22"
+                      width="22"
+                    />
+                  </td>
+                  <td
+                    class="tdClass"
+                    style="width:60%"
+                    v-show="item.locationId.constructor !== Array"
+                  >
+                    {{
+                      setBuildingNameFromId(item.locationId, item.buildingType)
+                    }}
+                  </td>
+                  <td class="tdClass" style="width:10%">{{ item.toLvl }}</td>
+                  <td class="tdClass" style="width:20%">
+                    <v-btn text icon color="black" @click="removeBuild(index)">
+                      <v-icon>delete</v-icon>
+                    </v-btn>
+                  </td>
+                </tr>
+              </tbody>
             </template>
           </v-data-table>
         </v-layout>
       </div>
     </div>
-    <div style="text-align: center" v-show="loading1==true">
-      <v-progress-circular indeterminate v-bind:size="50" color="primary"></v-progress-circular>
+    <div style="text-align: center" v-show="loading1 == true">
+      <v-progress-circular
+        indeterminate
+        v-bind:size="50"
+        color="primary"
+      ></v-progress-circular>
     </div>
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "build",
-  props: ["loading"],
-  data() {
-    return {
-      height: "50px",
-      build: {
-        show: true,
-        left: 891,
-        top: 255,
-        width: 360,
-        height: 190,
-        z: 999
-      },
-      loading1: false,
-      //Player:this.$parent.Player,
-      selectedBuilding: {},
-      newBuilding: null,
-      selectedLevel: 0,
-      selectedResources: ["1", "2", "3", "4"],
-      showBuildHelper: false,
-      options: {
-        loops: 1,
-        threads: 1,
-        type: "greedy",
-        criterium: {
-          taskNumber: 10,
-          time: 0,
-          pop: 0,
-          cp: 0,
-          negative: 0,
-          resorces: 0
-        }
-      },
-      taskSimulator: {
-        tasks: []
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
+    height: "50px",
+    build: {
+      show: true,
+      left: 891,
+      top: 255,
+      width: 360,
+      height: 190,
+      z: 999
+    },
+    loading1: false,
+    //Player:$parent.Player,
+    selectedBuilding: $store.getters.getNewBuiding(),
+    newBuilding: 0,
+    selectedLevel: 0,
+    selectedResources: ["1", "2", "3", "4"],
+    showBuildHelper: false,
+    options: {
+      loops: 1,
+      threads: 1,
+      type: "greedy",
+      criterium: {
+        taskNumber: 10,
+        time: 0,
+        pop: 0,
+        cp: 0,
+        negative: 0,
+        resorces: 0
       }
-    };
-  },
+    },
+    taskSimulator: {
+      tasks: []
+    }
+  }),
   methods: {
-    resize(left, top, width, height) {
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.build.width = width;
       if (height !== undefined)
@@ -246,53 +293,51 @@ export default {
       }
       this.$store.state.selectedVillage.tasks.build.push(objj);
     },
-    removeBuild(index) {
+    removeBuild(index: number) {
       this.$store.state.selectedVillage.tasks.build.splice(index, 1);
     },
-    setLevels: function(building) {
-      this.levels = [];
+    setLevels: function(building: any) {
+      let levels = [];
       if (building.buildingType == 0) {
-        for (var i = 1; i < 21; i++) {
-          this.levels.push(i);
+        for (let i = 1; i < 21; i++) {
+          levels.push(i);
         }
       } else {
-        for (var i = building.lvlNext; i < (building.lvlMax && 20); i++) {
-          this.levels.push(i);
+        for (let i = building.lvlNext; i < (building.lvlMax && 20); i++) {
+          levels.push(i);
         }
       }
     },
-    setBuildingNameFromId: function(id, buildingType) {
+    setBuildingNameFromId: function(id: number, buildingType: number) {
       if (Array.isArray(id)) {
         if (id.length > 0) {
           var o = "";
-          id.forEach(
-            function(e) {
-              o += this.$store.state.Player.lang.buildings[e * 1];
-            }.bind(this)
-          );
+          id.forEach((e: number) => {
+            o += this.$store.state.Player.lang.buildings[e * 1];
+          });
           return o;
         }
-      } else return this.$store.state.lang["buldings"][buildingType]; //this.$parent.Player.lang.buildings[this.$parent.selectedVillage.buildings[id].buildingType];
+      } else return this.$store.state.lang["buldings"][buildingType]; //$parent.Player.lang.buildings[$parent.selectedVillage.buildings[id].buildingType];
     },
-    getIcon(id) {
+    getIcon(id: number) {
       return this.$store.getters.getIcon("clay");
     },
-    arrayHasItem: function(array, item) {
+    arrayHasItem: function(array: Array<string>, item: string) {
       if (array.constructor === Array) {
         if (array.includes(item)) return true;
       }
       return false;
     },
-    buildingname: function(item) {
-      if(item===null)return "";
-      if(item.buildingType===46){
-              return (
-        item.locationId +
-        " " +
-        this.$store.state.lang["allfields"] +
-        " " +
-        item.lvl
-      );
+    buildingname: function(item: any) {
+      if (item === null) return "";
+      if (item.buildingType === 46) {
+        return (
+          item.locationId +
+          " " +
+          this.$store.state.lang["allfields"] +
+          " " +
+          item.lvl
+        );
       }
       return (
         item.locationId +
@@ -302,57 +347,57 @@ export default {
         item.lvl
       );
     },
-    buildingvalue: item => item
+    buildingvalue: (item: any) => item
   },
   watch: {
-    "options.criterium": {
+    /* "options.criterium": {
       handler: async function(val, oldVal) {
         console.log(val);
-        let rez = await this.$parent.$parent.Simulator.simulate(
+        let rez = await $parent.$parent.Simulator.simulate(
           this.$store.state.selectedVillage,
-          this.$parent.$parent.$worker,
-          this.options
+          $parent.$parent.$worker,
+          options
         );
-        this.taskSimulator.tasks = rez.tasks;
-        console.log(this.taskSimulator.tasks);
+        taskSimulator.tasks = rez.tasks;
+        console.log(taskSimulator.tasks);
       },
       deep: true
-    },
+    },*/
     "$store.state.options.style.build.show": async function(val) {
       if (val == true) {
         try {
           //analyze dorf1
-          console.log(this.$parent.$parent.CheckLogic);
-          this.loading1 = await this.$parent.$parent.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
+          //console.log($parent.$parent.CheckLogic);
+          let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
             this.$store.state.selectedVillage
           );
-          console.log("this.loading1", this.loading1);
-          if (this.loading1) {
-            await this.$parent.$parent.CheckLogic.ApplyActions.analyseBuildRouter(
+          console.log("loading1", loading1);
+          if (loading1) {
+            await this.$store.state.CheckLogic.ApplyActions.analyseBuildRouter(
               this.$store.state.selectedVillage
             );
             console.log("finished analysing");
-            this.loading1 = false;
+            loading1 = false;
           }
         } catch (err) {}
       }
     },
-    "$store.state.selectedVillage": async function(val) {
+    "this.$store.state.selectedVillage": async function(val) {
       //console.log("selected village changed")
       if (this.$store.state.options.style.build.show == true) {
         try {
           //analyze dorf1
-          //console.log(this.$parent.$parent.CheckLogic)
-          this.loading1 = await this.$parent.$parent.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
+          //console.log($parent.$parent.CheckLogic)
+          let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
             val
           );
-          console.log("this.loading1", this.loading1);
-          if (this.loading1) {
-            await this.$parent.$parent.CheckLogic.ApplyActions.analyseBuildRouter(
+          console.log("loading1", loading1);
+          if (loading1) {
+            await this.$store.state.CheckLogic.ApplyActions.analyseBuildRouter(
               val
             );
             console.log("finished analysing");
-            this.loading1 = false;
+            loading1 = false;
           }
         } catch (err) {}
       }
@@ -362,7 +407,6 @@ export default {
     if (this.$store.state.selectedVillage.buildings[1] !== undefined)
       this.selectedBuilding = this.$store.state.selectedVillage.buildings[1];
     this.newBuilding = this.newbuildings[0].id;
-    
   },
   computed: {
     newbuildings: function() {
@@ -377,8 +421,8 @@ export default {
         JSON.stringify(this.$store.state.selectedVillage.buildings)
       );
       for (var i = 0; i < buildings.length; i++) {
-        if(buildings[i]===null){
-          buildings.splice(i,1);
+        if (buildings[i] === null) {
+          buildings.splice(i, 1);
           i--;
         }
       }
@@ -411,10 +455,10 @@ export default {
 
       buildings[0].buildingType = 46;
       buildings[0].locationId = 0;
-      
+
       if (buildings[this.selectedBuilding.locationId] !== undefined)
         this.selectedBuilding = buildings[this.selectedBuilding.locationId];
-      //console.log(this.selectedBuilding)
+      //console.log(selectedBuilding)
 
       return buildings;
       /*.filter(function (buildings,index) {
@@ -422,15 +466,15 @@ export default {
       })*/
     },
     levels: function() {
-      var levels = [];
-      var building = this.selectedBuilding;
+      let levels = [];
+      let building = this.selectedBuilding;
       if (building === undefined) return;
       if (building.buildingType == 0) {
-        var building = {
+        building = {
           buildingType: this.newBuilding
         };
       }
-      var lvlNext = 1;
+      let lvlNext = 1;
       if (building.lvlNext) {
         lvlNext = building.lvlNext;
       }
@@ -451,7 +495,7 @@ export default {
       }
 
       //console.log("levels",levels,building,building.buildingType)
-      //if(levels.length>0){this.selectedLevel=levels[0];}
+      //if(levels.length>0){selectedLevel=levels[0];}
       if (levels.length > 0) {
         this.selectedLevel = levels[0];
       }
@@ -459,5 +503,5 @@ export default {
       return levels;
     }
   }
-};
+});
 </script>

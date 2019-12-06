@@ -118,22 +118,18 @@
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "setting",
-  data() {
-    return {
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
       sidebarButtonSizeNumeric: 1
-    };
-  },
+  }),
   methods: {
-    addBuilding() {
-      return (this.Player.name += "test"); //return await setTimeout(function(){ ; }, 3000);
-    },
-    resize(left, top, width, height) {
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.setting.width = width;
       if (height !== undefined)
@@ -145,9 +141,9 @@ export default {
   },
   watch: {
     "$store.state.options.style.language": async function(val) {
-    this.$store.state.lang.setlanguage(this.$store.state.options.style.language);
-      this.$store.state.windowdimension  += "1";
+    $store.state.lang.setlanguage($store.state.options.style.language);
+      $store.state.windowdimension  += "1";
     }
   }
-};
+});
 </script>

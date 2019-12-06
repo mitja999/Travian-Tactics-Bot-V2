@@ -40,21 +40,20 @@
   </vue-draggable-resizable>
 </template>
 
-<script>
-export default {
-  name: "hero",
-  data() {
-    return {
+<script lang="ts">
+import Vue from "vue";
+import $store from "@/store";
+export default Vue.extend({
+  data: () => ({
       z: 999,
-      Player: this.$store.state.Player,
+      Player: $store.state.Player,
       value: "OFF"
-    };
-  },
+  }),
   methods: {
-    resize(left, top, width, height) {
+    resize(left: number, top: number, width: number, height: number) {
       this.$store.state.options.coverdiv = true;
     },
-    resizestop(left, top, width, height) {
+    resizestop(left: number, top: number, width: number, height: number) {
       if (width !== undefined)
         this.$store.state.options.style.hero.width = width;
       if (height !== undefined)
@@ -64,5 +63,5 @@ export default {
       this.$store.state.options.coverdiv = false;
     }
   }
-};
+});
 </script>

@@ -9481,6 +9481,7 @@ if (!!self.simulatorHelper) {
     self.copy=copy;
 
 } else {
+    const exports=new Object();
     exports.villageToSimulatorVillage = villageToSimulatorVillage;
     exports.criteriumFunction = criteriumFunction;
     exports.evaluateBuildingList = evaluateBuildingList;
