@@ -116,11 +116,22 @@ table {
       >
         <v-expansion-panels>
           <v-expansion-panel
+            color="green darken-1"
             v-for="(FarmTask, index) in $store.state.selectedVillage.tasks
               .farms"
             :key="index"
           >
-            <v-expansion-panel-header>farmTask </v-expansion-panel-header>
+            <v-expansion-panel-header
+              :style="{
+                backgroundColor: FarmTask.goldClubFarmlist
+                  ? '#FFE57F'
+                  : '#BBDEFB'
+              }"
+              >farmTask
+              {{
+                FarmTask.listName !== undefined ? FarmTask.listName : ""
+              }}</v-expansion-panel-header
+            >
             <v-expansion-panel-content>
               <v-layout row wrap>
                 <v-btn x-large @click="removeFarmList(index)" icon>
@@ -206,15 +217,11 @@ table {
                     min="0"
                   ></v-text-field>
                 </v-flex>
-                <v-flex>
+                <v-flex v-if="!FarmTask.goldClubFarmlist">
                   <v-hover v-slot:default="{ hover }">
                     <v-container>
                       <v-row>
-                        <v-btn
-                          icon
-                          color="amber"
-                          @click="removeFarmListFarm(index, i)"
-                        >
+                        <v-btn icon color="amber">
                           <v-icon>content_copy</v-icon>
                         </v-btn>
                         <v-layout v-show="hover">
@@ -331,7 +338,6 @@ export default Vue.extend({
   watch: {
     Coordinates: {
       handler: function(val, oldVal) {
-        //debugger
         if (!isNaN(val.distance * 1)) {
           this.filterFarm.distance.val = val.distance * 1;
           this.$store.state.custom.farmfinder.distance = val.distance * 1;

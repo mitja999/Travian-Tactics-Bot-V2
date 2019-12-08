@@ -237,7 +237,6 @@ const exports = class {
             return rez
         }
         let farmlists = await this.getAllFarmlists(rez);
-        debugger;
         this.store.state.Player.goldClubFarmlists = farmlists;
         //
         return farmlists;

@@ -245,6 +245,9 @@ table {
                   </v-flex>
                 </v-layout>
               </template>
+              <template v-slot:item.player.active="{ item }">
+                <v-chip :color="getColor(item.player.active)" dark></v-chip>
+              </template>
             </v-data-table>
           </div>
           <v-layout row wrap v-if="!showGoldClubFarm">
@@ -434,6 +437,7 @@ export default Vue.extend({
     progress: 0.0,
     //movementType 3-attack, 4-raid, 5-support, 6-spy
     FarmTask: {
+      listName: "",
       goldClubFarmlist: false,
       movementType: "4",
       amount: {
@@ -500,10 +504,10 @@ export default Vue.extend({
       return [
         {
           text: "Ally",
-          value: "ally.name",
+          value: "player.ally.name",
           align: "center",
           filter: (value: string) => {
-            return this.filterFarm.noAlly ? true : true;
+            return this.filterFarm.noAlly.val ? value === undefined : true;
           }
         },
         {
@@ -535,8 +539,11 @@ export default Vue.extend({
         },
         {
           text: "Active",
-          value: "active",
-          align: "center"
+          value: "player.active",
+          align: "center",
+          filter: (value: string) => {
+            return this.filterFarm.activePlayers.val ? value === "0" : true;
+          }
         },
         { text: "Report", value: "lastReport", align: "center" }
       ];
@@ -552,7 +559,6 @@ export default Vue.extend({
   watch: {
     Coordinates: {
       handler: function(val, oldVal) {
-        //debugger
         if (!isNaN(val.distance * 1)) {
           this.filterFarm.distance.val = val.distance * 1;
           this.$store.state.custom.farmfinder.distance = val.distance * 1;
@@ -579,6 +585,11 @@ export default Vue.extend({
       this.$store.state.options.style.farmfinder.left = left;
       this.$store.state.options.style.farmfinder.top = top;
       this.$store.state.options.coverdiv = false;
+    },
+    getColor(value: any) {
+      if (value * 1 == 1) return "green lighten-1";
+      else if (value * 1 == 0) return "red lighten-1";
+      else return "grey";
     },
     customFilter(items: Array<any>, search: any, filter: any) {
       return items.filter(
@@ -620,7 +631,6 @@ export default Vue.extend({
       );
     },
     addTaskFarm() {
-      debugger;
       this.FarmTask.villages = [];
       this.selected.forEach((farm: any) => {
         this.FarmTask.villages.push(farm);
@@ -642,6 +652,7 @@ export default Vue.extend({
         url: this.$store.state.Player.url,
         SeesionId: this.$store.state.Player.SeesionId
       });
+      this.FarmTask.listName = "";
       //this.searchResult=data.farms;
     },
     async cropFind() {
@@ -664,16 +675,30 @@ export default Vue.extend({
         this.selectedFarmlist
       ];
       this.FarmTask.goldClubFarmlist = true;
-      //debugger
       if (this.FarmTask.selectedFarmlist.villageId) {
         var vill = this.$store.state.Player.getVillage(
           this.FarmTask.selectedFarmlist.villageId
         );
-        //debugger
         if (vill) {
           this.$store.state.selectedVillage = vill;
         }
       }
+      this.FarmTask.listName = this.FarmTask.selectedFarmlist.listName;
+      this.FarmTask.villages = new Array();
+      this.FarmTask.amount = {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0
+      };
+      debugger;
       this.$store.state.selectedVillage.tasks.farms.push(
         JSON.parse(JSON.stringify(this.FarmTask))
       );
