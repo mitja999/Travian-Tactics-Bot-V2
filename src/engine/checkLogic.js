@@ -717,16 +717,10 @@
 	}.bind(this)
 
 	const resourcesToBeSentByPercent = function (village, task) {
-		let targetvillage = getVillageFromXY(task.x, task.y)
-		//.log(task)
+		let targetvillage = getVillageFromXY(task.x, task.y);
 
 		let SkupajSurovinZaPosiljanje = village.Merchants.maxCapacity;
 
-
-		//let surovine = this.PridobiSurovine();//zracuna kolko je trenutno surovin glede na zadnjo analizo in proizvodnjo
-		//let Skladisce1 = this.warhouse;
-		//let Zitnica1 = this.granary;
-		//console.log(village)
 		let SkupajLes1 = village["storage"]["1"];
 		let SkupajGlina1 = village["storage"]["2"];
 		let SkupajZelezo1 = village["storage"]["3"];
@@ -742,10 +736,9 @@
 		let PolnoZito2 = 0;
 		let capacity = { "1": 1000000000, "2": 1000000000, "3": 1000000000, "4": 1000000000 };
 
-		if (targetvillage) {//ce je naselje najdeno, potem moramo preveriti koliko surovin lahko sprejme to naselje
+		if (targetvillage) {
 			updateInncomingResources(targetvillage)
-			let incommingRes = getInncomingResources(targetvillage)
-			//console.log("incommingRes",incommingRes)
+			let incommingRes = getInncomingResources(targetvillage);
 			let SkupajLes2 = targetvillage["storage"]["1"] + incommingRes[0];
 			let SkupajGlina2 = targetvillage["storage"]["2"] + incommingRes[1];
 			let SkupajZelezo2 = targetvillage["storage"]["3"] + incommingRes[2];
@@ -755,10 +748,9 @@
 			PolnoGlina2 = SkupajGlina2 / targetvillage["storageCapacity"]["2"];
 			PolnoZelezo2 = SkupajZelezo2 / targetvillage["storageCapacity"]["3"];
 			PolnoZito2 = SkupajZito2 / targetvillage["storageCapacity"]["4"];
-			capacity = targetvillage["storageCapacity"]
+			capacity = targetvillage["storageCapacity"];
 		}
 
-		//izracunamo kolko surovin lahko naselja posljejo oz sprejmejo
 		if ((task["empty"]["1"] / 100 < PolnoLes1 || task["empty"]["2"] / 100 < PolnoGlina1 || task["empty"]["3"] / 100 < PolnoZelezo1 || task["empty"]["4"] / 100 < PolnoZito1) && (task["fill"]["1"] / 100 > PolnoLes2 || task["fill"]["2"] / 100 > PolnoGlina2 || task["fill"]["3"] / 100 > PolnoZelezo2 || task["fill"]["4"] / 100 > PolnoZito2)) {
 
 			let LesKiGaLahkoPosljem = 0;
@@ -789,43 +781,23 @@
 			}
 
 			let vsotaSurovin = LesKiGaLahkoPosljem + GlinaKiGaLahkoPosljem + ZelezoKiGaLahkoPosljem + ZitoKiGaLahkoPosljem;
-			let ProcentiLes = LesKiGaLahkoPosljem / vsotaSurovin;//izracunaj procentualno koliko posamezne surovine se posilja. 
+			let ProcentiLes = LesKiGaLahkoPosljem / vsotaSurovin;
 			let ProcentiGlina = GlinaKiGaLahkoPosljem / vsotaSurovin;
 			let ProcentiZelezo = ZelezoKiGaLahkoPosljem / vsotaSurovin;
 			let ProcentiZito = ZitoKiGaLahkoPosljem / vsotaSurovin;
-			vsotaSurovin = Math.min(vsotaSurovin, SkupajSurovinZaPosiljanje);//ce je vsota surovin vecja od skupaj surovin ki jih lahko vsi trgovci nosijo, potem moramo upoštevat koliko lahko trgovci nesejo
-			//console.log(LesKiGaLahkoPosljem , GlinaKiGaLahkoPosljem , ZelezoKiGaLahkoPosljem , ZitoKiGaLahkoPosljem,vsotaSurovin,SkupajSurovinZaPosiljanje)
+			vsotaSurovin = Math.min(vsotaSurovin, SkupajSurovinZaPosiljanje);
 
 			if (vsotaSurovin == 0) {
 				return [0, 0, 0, 0];
 			}
-			//zdaj zelimo surovine zaokrozit in pnapolnit trgovce
 			let surovine = [Math.floor(ProcentiLes * vsotaSurovin), Math.floor(ProcentiGlina * vsotaSurovin), Math.floor(ProcentiZelezo * vsotaSurovin), Math.floor(ProcentiZito * vsotaSurovin)];
 			let maxsurovin = [LesKiGaLahkoPosljem, GlinaKiGaLahkoPosljem, ZelezoKiGaLahkoPosljem, ZitoKiGaLahkoPosljem];
-			//console.log("maxsurovin",maxsurovin)
-			//console.log("surovine",surovine)
-			//console.log([village["Merchants"]["merchantsFree"],village["Merchants"]["carry"]], task["minres"], task["round"], task["full"])
 			let zaokrozene = RoundTrade(surovine, maxsurovin, [village["Merchants"]["merchantsFree"], village["Merchants"]["carry"]], task["minres"], task["round"], task["full"]);
 			console.log("send by % rounded res", zaokrozene);
 			return zaokrozene;
-
-			//alert(vsotaSurovin+"="+LesKiGaLahkoPosljem+"+"+GlinaKiGaLahkoPosljem+"+"+ZelezoKiGaLahkoPosljem+"+"+ZitoKiGaLahkoPosljem)
-			if (vsotaSurovin >= task["minres"] * 1 && vsotaSurovin > 0) {
-				//return 444;
-				return [Math.floor(ProcentiLes * vsotaSurovin), Math.floor(ProcentiGlina * vsotaSurovin), Math.floor(ProcentiZelezo * vsotaSurovin), Math.floor(ProcentiZito * vsotaSurovin)];
-			}
-			else {
-				//return 333;
-				return [0, 0, 0, 0];
-			}
-
-		}
-		else {
-			//return 222;
-			return [0, 0, 0, 0];
 		}
 
-		//return 111;
+		return [0, 0, 0, 0];
 	}
 
 	const getInncomingResources = function (village) {
@@ -834,13 +806,13 @@
 		for (let i = 0; i < village["troopsMoving"].length; i++) {
 			//console.log(village["troopsMoving"][i],village.name, village["troopsMoving"][i]["movementType"]*1,"==", 7 ,"&&", village["troopsMoving"][i]["villageIdTarget"]*1,"==", village.villageId)
 			if (village["troopsMoving"][i]["movementType"] * 1 == 7 && village["troopsMoving"][i]["villageIdTarget"] * 1 == village.villageId * 1) {
-				res[0] += village["troopsMoving"][i]["resources"]["1"]
-				res[1] += village["troopsMoving"][i]["resources"]["2"]
-				res[2] += village["troopsMoving"][i]["resources"]["3"]
-				res[3] += village["troopsMoving"][i]["resources"]["4"]
+				res[0] += village["troopsMoving"][i]["resources"]["1"];
+				res[1] += village["troopsMoving"][i]["resources"]["2"];
+				res[2] += village["troopsMoving"][i]["resources"]["3"];
+				res[3] += village["troopsMoving"][i]["resources"]["4"];
 			}
 		}
-		return res
+		return res;
 	}
 
 	const updateInncomingResources = function (village) {
@@ -914,41 +886,82 @@
 		let clayMax = maxsurovine[1];
 		let ironMax = maxsurovine[2];
 		let cropMax = maxsurovine[3];
-		let sumResources = wood + clay + iron + crop;
-		if (zaokrozitev == 10 || zaokrozitev == 100 || zaokrozitev == 1000) {
-			wood = Math.floor(wood / zaokrozitev) * zaokrozitev;
-			clay = Math.floor(clay / zaokrozitev) * zaokrozitev;
-			iron = Math.floor(iron / zaokrozitev) * zaokrozitev;
-			crop = Math.floor(crop / zaokrozitev) * zaokrozitev;
+		if (!(zaokrozitev == 10 || zaokrozitev == 100 || zaokrozitev == 1000)) {
+			zaokrozitev = 100;
 		}
+		wood = Math.floor(wood / zaokrozitev) * zaokrozitev;
+		clay = Math.floor(clay / zaokrozitev) * zaokrozitev;
+		iron = Math.floor(iron / zaokrozitev) * zaokrozitev;
+		crop = Math.floor(crop / zaokrozitev) * zaokrozitev;
+		let sumResources = wood + clay + iron + crop;
 		if (polnitrgovci) {
-			let resourcesLeft = trgovci[1] % sumResources;
+			//add resources to fill trade task
+			let resourcesLeft = trgovci[1] - (sumResources % trgovci[1]);
 			let change = true;
-			while (resourcesLeft > 0 && change) {
-				change = false;
-				if (resourcesLeft < zaokrozitev) {
-					zaokrozitev = resourcesLeft;
+			if (sumResources / trgovci[1] < trgovci[0]) {
+				while (resourcesLeft > 0 && change) {
+					change = false;
+					if (woodMax - wood >= zaokrozitev && resourcesLeft > 0) {
+						wood += zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						change = true;
+					}
+					if (clayMax - clay >= zaokrozitev && resourcesLeft > 0) {
+						clay += zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						change = true;
+					}
+					if (ironMax - iron >= zaokrozitev && resourcesLeft > 0) {
+						iron += zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						change = true;
+					}
+					if (cropMax - crop >= zaokrozitev && resourcesLeft > 0) {
+						crop += zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+						change = true;
+					}
+				}
+			}
+			//remove resources in case of multiple trades when resources are over
+			sumResources = wood + clay + iron + crop;
+			if (sumResources / trgovci[1] > 1) {
+
+				if (polnitrgovci) {
+					resourcesLeft = sumResources % trgovci[1];
+				} else {
+					resourcesLeft = 0;
 				}
 
-				if (woodMax - wood >= zaokrozitev) {
-					resourcesLeft -= zaokrozitev;
-					wood += zaokrozitev;
-					change = true;
+				if (sumResources / trgovci[1] > trgovci[0]) {
+					resourcesLeft = sumResources - trgovci[1] * trgovci[0];
 				}
-				if (clayMax - clay >= zaokrozitev) {
-					resourcesLeft -= zaokrozitev;
-					clay += zaokrozitev;
+				if (trgovci[1] !== resourcesLeft) {
 					change = true;
-				}
-				if (ironMax - iron >= zaokrozitev) {
-					resourcesLeft -= zaokrozitev;
-					iron += zaokrozitev;
-					change = true;
-				}
-				if (cropMax - crop >= zaokrozitev) {
-					resourcesLeft -= zaokrozitev;
-					crop += zaokrozitev;
-					change = true;
+					while (resourcesLeft > 0 && change) {
+						change = false;
+
+						if (wood >= zaokrozitev && resourcesLeft > 0) {
+							wood -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							change = true;
+						}
+						if (clay >= zaokrozitev && resourcesLeft > 0) {
+							clay -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							change = true;
+						}
+						if (iron >= zaokrozitev && resourcesLeft > 0) {
+							iron -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							change = true;
+						}
+						if (crop >= zaokrozitev && resourcesLeft > 0) {
+							crop -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							resourcesLeft -= zaokrozitev < resourcesLeft ? zaokrozitev : resourcesLeft;
+							change = true;
+						}
+					}
 				}
 			}
 		}

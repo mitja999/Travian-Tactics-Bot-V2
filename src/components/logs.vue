@@ -78,7 +78,7 @@
           >
             <template v-slot:body="{ items }">
               <tbody>
-                <tr v-for="(item, name, index) in items" :key="index">
+                <tr v-for="(item, index) in items" :key="index">
                   <td class="tdClass">
                     {{ new Date(item.time).toLocaleString() }}
                   </td>

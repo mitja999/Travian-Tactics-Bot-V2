@@ -106,7 +106,7 @@
           >
             <template v-slot:body="{ items }" >
                       <tbody>
-          <tr v-for="(item, name, index) in items" :key="index">
+          <tr v-for="(item, index) in items" :key="index">
               <td class="tdClass" style="width:10%">{{ item.locationId }}</td>
               <td
                 class="tdClass"

@@ -218,27 +218,29 @@ table {
                   ></v-text-field>
                 </v-flex>
                 <v-flex v-if="!FarmTask.goldClubFarmlist">
-                  <v-hover v-slot:default="{ hover }">
+                  <v-hover v-slot:default="{ hover }" close-delay="120000">
                     <v-container>
                       <v-row>
                         <v-btn icon color="amber">
                           <v-icon>content_copy</v-icon>
                         </v-btn>
-                        <v-layout v-show="hover">
-                          <v-text-field
-                            label="Copy farmlist, name: "
-                            style="max-width:200px;"
-                            v-model="newFarmListName"
-                          ></v-text-field>
+                        <v-expand-transition>
+                          <v-layout v-if="hover">
+                            <v-text-field
+                              label="Copy farmlist, name: "
+                              style="max-width:200px;"
+                              v-model="newFarmListName"
+                            ></v-text-field>
 
-                          <v-btn
-                            @click="copyFarmlist(index)"
-                            icon
-                            color="green"
-                          >
-                            <v-icon>check_circle</v-icon>
-                          </v-btn>
-                        </v-layout>
+                            <v-btn
+                              @click="copyFarmlist(index)"
+                              icon
+                              color="green"
+                            >
+                              <v-icon>check_circle</v-icon>
+                            </v-btn>
+                          </v-layout>
+                        </v-expand-transition>
                       </v-row>
                       <v-row>
                         <v-progress-linear

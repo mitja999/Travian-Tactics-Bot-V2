@@ -154,7 +154,7 @@
           >
             <template v-slot:body="{ items }">
               <tbody>
-                <tr v-for="(item, name, index) in items" :key="index">
+                <tr v-for="(item, index) in items" :key="index">
                   <td class="tdClass" style="width:10%">
                     {{ item.locationId }}
                   </td>
@@ -294,6 +294,7 @@ export default Vue.extend({
       this.$store.state.selectedVillage.tasks.build.push(objj);
     },
     removeBuild(index: number) {
+      debugger;
       this.$store.state.selectedVillage.tasks.build.splice(index, 1);
     },
     setLevels: function(building: any) {

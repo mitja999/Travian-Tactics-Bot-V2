@@ -54,7 +54,7 @@
           >
             <template v-slot:body="{ items }" >
                       <tbody>
-          <tr v-for="(item, name, index) in items" :key="index">
+          <tr v-for="(item, index) in items" :key="index">
               <td class="tdClass" style="width:15%">
                 <v-btn
                   color="blue-grey darken-4"
@@ -126,7 +126,7 @@
           >
             <template v-slot:body="{ items }" >
                       <tbody>
-          <tr v-for="(item, name, index) in items" :key="index">
+          <tr v-for="(item, index) in items" :key="index">
               <td class="tdClass" style="width:15%">
                 <v-btn
                   color="blue-grey darken-4"
@@ -225,7 +225,7 @@
           >
             <template v-slot:body="{ items }" >
                       <tbody>
-          <tr v-for="(item, name, index) in items" :key="index">
+          <tr v-for="(item, index) in items" :key="index">
               <td class="tdClass" style="width:15%">
                 <v-btn
                   color="blue-grey darken-4"

@@ -507,7 +507,9 @@ export default Vue.extend({
           value: "player.ally.name",
           align: "center",
           filter: (value: string) => {
-            return this.filterFarm.noAlly.val ? value === undefined : true;
+            return this.filterFarm.noAlly.val
+              ? value === undefined || value === "/"
+              : true;
           }
         },
         {

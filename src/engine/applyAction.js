@@ -499,14 +499,14 @@ const exports = class {
                 name: village.name
             }
         }
-        direction = direction[0].value
+        direction = direction[0].value;
         let data = "action=" + action + "&a=" + a + "&sort=" + sort + "&direction=" + direction + "&lid=" + lid;
         //
         if (farmlist.farmPosition >= farmlist.selectedFarmlist.farms.length) {
             farmlist.farmPosition = 0
         }
-        let poslji = false;
-        nrOfAttacks = 0
+
+        let nrOfAttacks = 0
         for (let slot = farmlist.farmPosition; slot < farmlist.selectedFarmlist.farms.length; slot++) {
             let nadaljuj = true;
             for (let j = 1; j < 11; j++) {
@@ -521,7 +521,7 @@ const exports = class {
                 break
             }
             data += "&slot%5B" + farmlist.selectedFarmlist.farms[slot].entryId + "%5D=on";
-            poslji = true;
+
             farmlist.farmPosition = slot + 1
             nrOfAttacks += 1
             //
@@ -688,7 +688,7 @@ const exports = class {
                 break;
             }
             farme = farme.concat(farme1)
-            this.store.state.custom.farmfinder.progress = await round((i + 1) / kvadrati.length * 100, 2)
+            this.store.state.custom.farmfinder.progress = await this.round((i + 1) / kvadrati.length * 100, 2)
         }
         this.store.state.custom.farmfinder.showProgress = false;
         //
@@ -1091,7 +1091,7 @@ const exports = class {
         }, 1);
         if (!rez.activeTab && rez.activeTab != 0) {
             rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?id=39", "", "GET", {
-                "Referer": this.store.state.Player.url + "/dorf1.php?newdid=" + village.villageId + "&"
+                "Referer": this.store.state.Player.url + "/dorf1.php"
             }, 1);
             return await this.goToGoldclubPage(attempts + 1)
         }
@@ -2837,6 +2837,9 @@ const exports = class {
         if (url.indexOf("dorf1.php") > -1) {
 
 
+            if (await this.analyzeFields_4_4_New(doc, village)) {
+                return;
+            }
 
             let divPolja = doc.evaluate(".//map[@id='rx']", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
             let polja = []
@@ -3003,6 +3006,39 @@ const exports = class {
                 //this.store.state.log.debug("Error analysing fields. Please contact administrator with this error on forum");
             }
         }
+    }
+
+    analyzeFields_4_4_New = async function (doc, village) {
+        let divPoljadoc = doc.evaluate('.//*[@id="resourceFieldContainer"]/div', doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        if (divPoljadoc.snapshotLength === 18) {
+            for (let i = 0; i < 18; i++) {
+                let resourcefieldparameters = divPoljadoc.snapshotItem(i).getAttribute("class").split(' ');
+                resourcefieldparameters.splice(resourcefieldparameters.findIndex(f => f === "level"), 1);
+                let IdPolja = resourcefieldparameters.find(f => f.indexOf('buildingSlot') !== -1).replace('buildingSlot', '') * 1;
+                let buildingType = resourcefieldparameters.find(f => f.indexOf('gid') !== -1).replace('gid', '') * 1;
+                let level = resourcefieldparameters.find(f => f.indexOf('level') !== -1).replace('level', '') * 1;
+                let lvnext = level + 1;
+                village.buildings[IdPolja].buildingType = buildingType;
+                village.buildings[IdPolja].lvl = level;
+                village.buildings[IdPolja].lvlNext = lvnext;
+                village.buildings[IdPolja].lvlMax = 20;
+                let r1 = this.store.state.Buildings[buildingType][lvnext][0];
+                let r2 = this.store.state.Buildings[buildingType][lvnext][1];
+                let r3 = this.store.state.Buildings[buildingType][lvnext][2];
+                let r4 = this.store.state.Buildings[buildingType][lvnext][3];
+                village.buildings[IdPolja].upgradeCosts["1"] = r1 * 1;
+                village.buildings[IdPolja].upgradeCosts["2"] = r2 * 1;
+                village.buildings[IdPolja].upgradeCosts["3"] = r3 * 1;
+                village.buildings[IdPolja].upgradeCosts["4"] = r4 * 1;
+            }
+
+            let novCas = new Date()
+            novCas = novCas.getTime() + await this.randomXToY(Math.round(60000 * (1 - this.store.state.Player.deviation) * this.store.state.Player.INTERVALGRADNJA), Math.round(60000 * (1 + this.store.state.Player.deviation) * this.store.state.Player.INTERVALGRADNJA));
+            village.CASANALIZEGRADNJA1 = novCas;
+        } else {
+            return false;
+        }
+        return true;
     }
 
     analizirajZgradbe = async function (doc, village, url) {
@@ -3200,8 +3236,19 @@ const exports = class {
             tribe = doc.documentElement.innerHTML.indexOf("tribe6_") === -1 ? tribe : 6;
             tribe = doc.documentElement.innerHTML.indexOf("tribe7_") === -1 ? tribe : 7;
         }
+        if (tribe === -1) {
 
-        this.store.state.Player.tribeId = tribe
+            tribe = doc.documentElement.innerHTML.indexOf("roman") === -1 ? tribe : 1;
+            tribe = doc.documentElement.innerHTML.indexOf("teuton") === -1 ? tribe : 2;
+            tribe = doc.documentElement.innerHTML.indexOf("gaul") === -1 ? tribe : 3;
+            tribe = doc.documentElement.innerHTML.indexOf("natar") === -1 ? tribe : 4;
+            tribe = doc.documentElement.innerHTML.indexOf("natar") === -1 ? tribe : 5;
+            tribe = doc.documentElement.innerHTML.indexOf("egyptian") === -1 ? tribe : 6;
+            tribe = doc.documentElement.innerHTML.indexOf("hun") === -1 ? tribe : 7;
+        }
+        if (tribe !== -1) {
+            this.store.state.Player.tribeId = tribe;
+        }
 
         let split1 = doc.documentElement.innerHTML.split("Travian.Game.speed =")
         if (split1.length > 1) {
@@ -3684,11 +3731,17 @@ const exports = class {
 
         }
     }
-
+    sleep = async function (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
     request = async function (url, data, type, headers, timeout) {
         if (!timeout) {
             timeout = 10000
         }
+        console.log("request: ", type, url, data);
+        let sleepDuration = Math.floor(Math.random() * 1000) + 500;
+        await this.sleep(sleepDuration);
+
         return new Promise((resolve, reject) => {
             setTimeout(function () {
                 resolve({ "document": "", "orign": "", "url": "" })

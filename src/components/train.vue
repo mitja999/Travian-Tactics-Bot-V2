@@ -91,7 +91,7 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
           >
             <template v-slot:body="{ items }" >
                       <tbody>
-          <tr v-for="(item, name, index) in items" :key="index">
+          <tr v-for="(item, index) in items" :key="index">
               <td class="tdClass" style="width:40%">
                 <div class="firefoxIcon" v-bind:style="troopIcon(item.type)"></div>
               </td>

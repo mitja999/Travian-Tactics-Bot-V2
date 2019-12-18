@@ -320,6 +320,7 @@ export default Vue.extend({
 
     this.onResize();
     let timerCounter = 6;
+    let workingDuration = 99999999;
 
     var refreshId = setInterval(async () => {
       if (
@@ -331,16 +332,54 @@ export default Vue.extend({
         await this.getPlayer();
         if (this.$store.state.Player.playerId !== 0) {
           this.$store.state.taskStatus = "Got player";
+          workingDuration =
+            Math.floor(
+              Math.random() *
+                (this.$store.state.Player.options.workingdurationtime.max * 1 -
+                  this.$store.state.Player.options.workingdurationtime.min * 1)
+            ) *
+              60 +
+            this.$store.state.Player.options.workingdurationtime.min * 60;
         }
       } else {
         if (this.$store.state.Player.start) {
           if (timerCounter <= 0) {
-            timerCounter = 7;
+            timerCounter =
+              Math.floor(
+                Math.random() *
+                  (this.$store.state.Player.options.taskchecktime.max * 1 -
+                    this.$store.state.Player.options.taskchecktime.min * 1)
+              ) +
+              this.$store.state.Player.options.taskchecktime.min * 1;
             this.$store.state.taskStatus = "checking";
             await this.$store.state.CheckLogic.checkTasks();
           } else if (!this.$store.state.CheckLogic.lock) {
             timerCounter--;
+            workingDuration--;
             this.$store.state.taskStatus = timerCounter + "";
+          }
+
+          if (workingDuration <= 0) {
+            timerCounter =
+              Math.floor(
+                Math.random() *
+                  (this.$store.state.Player.options.sleeptime.max * 1 -
+                    this.$store.state.Player.options.sleeptime.min * 1)
+              ) *
+                60 +
+              this.$store.state.Player.options.sleeptime.min * 60;
+
+            workingDuration =
+              Math.floor(
+                Math.random() *
+                  (this.$store.state.Player.options.workingdurationtime.max *
+                    1 -
+                    this.$store.state.Player.options.workingdurationtime.min *
+                      1)
+              ) *
+                60 +
+              this.$store.state.Player.options.workingdurationtime.min * 60 +
+              timerCounter;
           }
         }
       }

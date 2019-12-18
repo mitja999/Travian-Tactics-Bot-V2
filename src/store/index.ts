@@ -32,19 +32,19 @@ export default new Vuex.Store({
     windowdimension: "2560-1440",
     counter: 0,
     version: {
-      web: "3.3.25",
-      extension: "3.3.24"
+      web: "3.4.31",
+      extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",
     images: {
       r1:
-        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/lumber_small.png",
+        "https://gpack.travian.com/eb94719a/mainPage/img_ltr/general/resources/lumber_small.png",
       r2:
-        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/clay_small.png",
+        "https://gpack.travian.com/eb94719a/mainPage/img_ltr/general/resources/clay_small.png",
       r3:
-        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/iron_small.png",
+        "https://gpack.travian.com/eb94719a/mainPage/img_ltr/general/resources/iron_small.png",
       r4:
-        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/crop_small.png"
+        "https://gpack.travian.com/eb94719a/mainPage/img_ltr/general/resources/crop_small.png"
     },
     mapZoom: 3,
     map: {
@@ -104,9 +104,8 @@ export default new Vuex.Store({
     troopIcon: state => (id: number) => {
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
-
       let TroopUrl =
-        "https://gpack.travian.com/69b4d93e/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/eb94719a/mainPage/img/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -123,7 +122,7 @@ export default new Vuex.Store({
       id = id % 10;
 
       let TroopUrl =
-        "https://gpack.travian.com/69b4d93e/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/eb94719a/mainPage/img/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -138,7 +137,7 @@ export default new Vuex.Store({
     getIcon: state => (id: number) => {
       let tribeIcon = "";
       let TroopUrl =
-        "https://gpack.travian.com/69b4d93e/mainPage/img_ltr/general/resources/" +
+        "https://gpack.travian.com/eb94719a/mainPage/img_ltr/general/resources/" +
         id +
         ".png";
       return {
