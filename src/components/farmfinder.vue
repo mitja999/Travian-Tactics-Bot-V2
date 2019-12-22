@@ -471,7 +471,8 @@ export default Vue.extend({
         isDefault: true,
         maxEntriesCount: 10,
         villageId: 0
-      }
+      },
+      enabled: true
     },
     Types: ["1", "2", "3", "4", "5", "6", "7", "8"],
     selectedVillages: [],
@@ -635,6 +636,7 @@ export default Vue.extend({
     addTaskFarm() {
       this.FarmTask.villages = [];
       this.selected.forEach((farm: any) => {
+        farm.enabled = true;
         this.FarmTask.villages.push(farm);
       });
       this.$store.state.selectedVillage.tasks.farms.push(
@@ -700,7 +702,7 @@ export default Vue.extend({
         "10": 0,
         "11": 0
       };
-      
+
       this.$store.state.selectedVillage.tasks.farms.push(
         JSON.parse(JSON.stringify(this.FarmTask))
       );

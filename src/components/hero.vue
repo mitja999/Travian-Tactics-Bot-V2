@@ -45,11 +45,10 @@
         </div>
       </div>
       <v-layout justify-space-around class="containerCustomBody">
-        <v-checkbox
+        <v-switch
           v-model="$store.state.Player.options.tasks.hero.adventure"
-          value="true"
           label="Enable adventure"
-        ></v-checkbox>
+        ></v-switch>
       </v-layout>
     </div>
   </vue-draggable-resizable>

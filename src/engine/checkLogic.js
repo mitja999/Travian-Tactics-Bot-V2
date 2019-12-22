@@ -413,7 +413,25 @@
 		let villageTasks = this.store.localStorage.get(this.store.Player.playerId + "");
 		if (villageTasks !== false && villageTasks !== null) {
 			for (let i = 0; i < villageTasks.length; i++) {
-
+				try {
+					villageTasks[i].tasks.build.forEach(t => {
+						t.enabled = t.enabled === undefined ? true : t.enabled;
+					});
+					villageTasks[i].tasks.trade.forEach(t => {
+						t.enabled = t.enabled === undefined ? true : t.enabled;
+					});
+					villageTasks[i].tasks.train.forEach(t => {
+						t.enabled = t.enabled === undefined ? true : t.enabled;
+					});
+					villageTasks[i].tasks.farms.forEach(t => {
+						t.enabled = t.enabled === undefined ? true : t.enabled;
+						t.villages.forEach(f => {
+							f.enabled = f.enabled === undefined ? true : f.enabled;
+						})
+					});
+				} catch (ex) {
+					console.log(ex);
+				}
 				for (let j = 0; j < this.store.Player.villages.length; j++) {
 					if (this.store.Player.villages[j].villageId === villageTasks[i].villageId) {
 						copyProperties(this.store.Player.villages[j].tasks, villageTasks[i].tasks);
@@ -579,7 +597,8 @@
 			let buildtasksToRemove = []
 			for (let j = 0; j < village.tasks.build.length; j++) {
 				let buildTask = village.tasks.build[j];
-
+				if (!buildTask.enabled)
+					continue;
 				let locationId = undefined;
 				let lowestBuilding = 30;
 				let lowestBuilding2 = 30;
@@ -667,6 +686,10 @@
 				continue;
 			}
 			for (let j = 0; j < village.tasks.trade.length; j++) {
+
+				if (!village.tasks.trade[j].enabled)
+					continue;
+
 				let resources = village.tasks.trade[j].resources;
 				if (village.tasks.trade[j].time > new Date().getTime()) {
 					continue;
@@ -999,6 +1022,9 @@
 				continue;
 			}
 			for (let j = 0; j < village.tasks.train.length; j++) {
+
+				if (!village.tasks.train[j].enabled)
+					continue;
 				if (village.tasks.train[j].time > new Date().getTime()) {
 					continue;
 				}
@@ -1071,12 +1097,17 @@
 				continue;
 			}
 			for (let j = 0; j < village.tasks.farms.length; j++) {
+
+				if (!village.tasks.farms[j].enabled)
+					continue;
 				if (village.tasks.farms[j].time > new Date().getTime()) {
 					continue;
 				}
 				if (!village.tasks.farms[j].goldClubFarmlist) {
 					for (let f = village.tasks.farms[j].farmPosition; f < village.tasks.farms[j].villages.length; f++) {
 
+						if (!village.tasks.farms[j].villages[f].enabled)
+							continue;
 						if (isLowerFarms(village.tasks.farms[j].amount, village.Troops) || this.store.Player.version == 4) {
 							let rez = await this.ApplyActions.farm(village, village.tasks.farms[j], village.tasks.farms[j].villages[f]);
 

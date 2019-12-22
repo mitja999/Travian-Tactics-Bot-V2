@@ -32,7 +32,7 @@ export default new Vuex.Store({
     windowdimension: "2560-1440",
     counter: 0,
     version: {
-      web: "3.4.32",
+      web: "3.4.33",
       extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",
@@ -115,6 +115,22 @@ export default new Vuex.Store({
         width: "120px",
         height: "120px",
         zoom: 0.45
+      };
+    },
+    troopIconSmall: state => (id: number) => {
+      let tribeIcon = state.Player.tribeId * 1 - 1;
+      id = id % 10;
+      let TroopUrl =
+        "https://gpack.travian.com/eb94719a/mainPage/img/u/section/u" +
+        (tribeIcon === 0 ? "" : tribeIcon) +
+        "" +
+        id +
+        "-ltr.png";
+      return {
+        background: "url(" + TroopUrl + ")",
+        width: "120px",
+        height: "120px",
+        zoom: 0.35
       };
     },
     troopIconFF: state => (id: number) => {

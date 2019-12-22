@@ -155,7 +155,8 @@
             <template v-slot:body="{ items }">
               <tbody>
                 <tr v-for="(item, index) in items" :key="index">
-                  <td class="tdClass" style="width:10%">
+                  <td><v-switch v-model="item.enabled"></v-switch></td>
+                  <td class="tdClass" style="width:5%">
                     {{ item.locationId }}
                   </td>
                   <td
@@ -236,7 +237,8 @@ export default Vue.extend({
       top: 255,
       width: 360,
       height: 190,
-      z: 999
+      z: 999,
+      enabled: true
     },
     loading1: false,
     //Player:$parent.Player,
@@ -280,7 +282,8 @@ export default Vue.extend({
         locationId: this.selectedBuilding.locationId,
         buildingType: this.selectedBuilding.buildingType,
         toLvl: this.selectedLevel,
-        priority: 1
+        priority: 1,
+        enabled: true
       };
       if (objj.buildingType == 0) {
         objj.buildingType = this.newBuilding;

@@ -134,9 +134,7 @@ table {
             >
             <v-expansion-panel-content>
               <v-layout row wrap>
-                <v-btn x-large @click="removeFarmList(index)" icon>
-                  <v-icon>delete</v-icon>
-                </v-btn>
+                <v-switch v-model="FarmTask.enabled"></v-switch>
                 <v-flex xs1 style v-if="FarmTask.amount['1'] !== 0">
                   <div class="firefoxIcon" v-bind:style="troopIcon(1)"></div>
                   <v-text-field
@@ -217,7 +215,15 @@ table {
                     min="0"
                   ></v-text-field>
                 </v-flex>
-                <v-flex v-if="!FarmTask.goldClubFarmlist">
+                <v-flex style="padding-left: 20px;">
+                  <v-btn x-large @click="removeFarmList(index)" icon>
+                    <v-icon>delete</v-icon>
+                  </v-btn></v-flex
+                >
+                <v-flex
+                  v-if="!FarmTask.goldClubFarmlist"
+                  style="margin-top: 10px;"
+                >
                   <v-hover v-slot:default="{ hover }" close-delay="120000">
                     <v-container>
                       <v-row>
@@ -257,14 +263,29 @@ table {
                 </v-flex>
               </v-layout>
               <div :key="componentKey">
-                <ul>
-                  <li v-bind:key="i" v-for="(farm, i) in FarmTask.villages">
+                <v-row
+                  v-for="(farm, i) in FarmTask.villages"
+                  :key="i"
+                  style="height: 30px;"
+                >
+                  <v-flex xs2>
+                    <v-switch
+                      dense
+                      v-model="farm.enabled"
+                      style="padding: 0px;margin-top: 5px;"
+                    ></v-switch>
+                  </v-flex>
+                  <v-flex xs8>
+                    <div style="margin-top: 6px;">
+                      {{ farm.name + "(" + farm.x + "," + farm.y + ")" }}
+                    </div>
+                  </v-flex>
+                  <v-flex xs2>
                     <v-btn @click="removeFarmListFarm(index, i)" icon>
                       <v-icon>delete</v-icon>
                     </v-btn>
-                    {{ farm.name + "(" + farm.x + "," + farm.y + ")" }}
-                  </li>
-                </ul>
+                  </v-flex>
+                </v-row>
               </div>
             </v-expansion-panel-content>
           </v-expansion-panel>
@@ -310,7 +331,8 @@ export default Vue.extend({
       time: new Date().getTime(),
       villages: new Array(),
       farmPosition: 0,
-      timeMinutes: 10
+      timeMinutes: 10,
+      enabled: true
       //{"listId":"1713","listName":"Startup farm list","lastSent":"0","lastChanged":1514720188,"units":{"1":"0","2":"3","3":"0","4":"0","5":"0","6":"0"},"orderNr":"0","villageIds":["534691834","537509897","538329049"],"entryIds":["43559","43576","43575"],"isDefault":true,"maxEntriesCount":10}
     },
     Types: ["1", "2", "3", "4", "5", "6", "7", "8"],
@@ -383,11 +405,13 @@ export default Vue.extend({
     addTaskFarm() {
       this.FarmTask.villages = [];
       this.selected.forEach((farm: any) => {
+        farm.enabled = true;
         this.FarmTask.villages.push(farm);
       });
       this.$store.state.selectedVillage.tasks.farms.push(
         JSON.parse(JSON.stringify(this.FarmTask))
       );
+      debugger;
       this.selected = [];
     },
     removeFarmList(index: number) {
@@ -411,7 +435,7 @@ export default Vue.extend({
       //this.searchResult=data.farms;
     },
     troopIcon(id: number) {
-      return this.$store.getters.troopIcon(id);
+      return this.$store.getters.troopIconSmall(id);
     },
     stop() {
       this.$store.state.custom.farmfinder.stopped = true;
