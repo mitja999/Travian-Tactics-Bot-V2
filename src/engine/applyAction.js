@@ -1289,7 +1289,7 @@ const exports = class {
             }
         }
 
-        let troops = FarmTask.amount
+        let troops = JSON.parse(JSON.stringify(FarmTask.amount));
         let movementType = FarmTask.movementType
         //this.store.state.log.debug(village, FarmTask, farm, this.store.state.Player)
         //
@@ -1397,7 +1397,7 @@ const exports = class {
             }
 
             if (inputs[i].getAttribute("name").indexOf("t") > -1 && inputs[i].getAttribute("name").match(/[\d\.]+/g) != null) {
-                let troop = inputs[i].getAttribute("name").match(/[\d\.]+/g)[0] * 1;
+                let troop = inputs[i].getAttribute("name").substring(inputs[i].getAttribute("name").lastIndexOf('[')).match(/[\d\.]+/g)[0] * 1;
                 let maxtroop = 0;
 
                 if (inputs[i].getAttribute("class").indexOf("disabled") == -1) {
@@ -1453,6 +1453,7 @@ const exports = class {
         inputs = doc.getElementsByTagName("form")[0].getElementsByTagName("input");
         data = "";
         let Analysedspy = false;
+        let t4_5 = false;
         for (let i = 0; i < inputs.length; i++) {
             if (i > 0) {
                 data += "&";
@@ -1473,11 +1474,22 @@ const exports = class {
                     Analysedspy = true;
                 }
             } else {
-                data += inputs[i].getAttribute("name") + "=" + inputs[i].getAttribute("value");
+                if (data.indexOf('>') === -1) {
+                    t4_5 = true;
+                    data += encodeURIComponent(inputs[i].getAttribute("name")) + "=" + inputs[i].getAttribute("value");
+                    data = data.replace(">", "");
+                } else {
+
+                    data += inputs[i].getAttribute("name") + "=" + inputs[i].getAttribute("value");
+                }
             }
         }
-        data += "&s1=ok";
-        //
+        if (!t4_5) {
+            data += "&s1=ok";
+        } else {
+            data += "&a=" + data.substring(data.indexOf('&w=') + 3, data.indexOf('&', data.indexOf('&w=') + 3));
+        }
+
         rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=39&tt=2", data, "POST", {
             "Referer": rez.responseURL,
             "Content-Type": "application/x-www-form-urlencoded",
@@ -1539,7 +1551,6 @@ const exports = class {
 
         village.Merchants.merchantsFree = Math.max(0, village.Merchants.merchantsFree - sttrgovcev);
         village.Merchants.maxCapacity = village.Merchants.carry * village.Merchants.merchantsFree;
-
     }
 
     GetVillageFromCoord = async function (x, y) {
@@ -2428,12 +2439,12 @@ const exports = class {
             village.storage["4"] += Math.min(village.production["4"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["4"]);
             village.lastCalculation = now;
             village.Merchants.maxCapacity = village.Merchants.carry * village.Merchants.merchantsFree;
+
         }
     }
 
     AnalyseMarketplace = async function (rez, village, attempts, withouterrorhandler) {
         //this.store.state.log.debug("AnalyseMarketplace", village.villageId,village);
-
         if (rez.villageId != village.villageId) {
 
             rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET", {
@@ -2448,7 +2459,7 @@ const exports = class {
             rez.name = village.name
             return rez;
         }
-        let location = await this.getBuildingId(doc, 17)
+        let location = await this.getBuildingId(doc, 17);
         //this.store.state.log.debug("location", location);
         //let areagumb = doc.evaluate(".//img[@class='building g17']", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         if (location) {
@@ -2458,9 +2469,11 @@ const exports = class {
             //let areagumb1 = doc.evaluate(".//area[contains(@href, 'build.php?') and contains(@href, 'id=" + location + "')]", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
 
             //this.store.state.log.debug(this.store.state.Player.url + "/build.php?id=" + location);
+
             rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=" + location, "", "GET", {
                 "Referer": rez.responseURL
             }, 1);
+
             //this.store.state.log.debug(rez.villageId , village.villageId);
             if (rez.villageId != village.villageId) {
                 //console.log("err1",rez.villageId,village.villageId)
@@ -2470,9 +2483,11 @@ const exports = class {
             let activeTab = activeTab = rez.activeTab;
             if (activeTab || activeTab == 0) {
                 if (activeTab != 5) {
+
                     rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?t=5&id=" + location, "", "GET", {
                         "Referer": rez.responseURL
                     }, 1);
+
                     if (rez.villageId != village.villageId) {
                         //console.log("err2",rez.villageId,village.villageId)
                         return await this.AnalyseMarketplace(rez, village, attempts + 1, withouterrorhandler)
@@ -2512,6 +2527,7 @@ const exports = class {
             rez.name = village.name
             village.Merchants.merchantsFree = 0
             village.Merchants.carry = 1
+
             village.Merchants.maxCapacity = 0
             let novCas = new Date();
             novCas = novCas.getTime() + await this.randomXToY(Math.round(60000 * (1 - this.store.state.Player.deviation) * this.store.state.Player.INTERVALTRZNICA), Math.round(60000 * (1 + this.store.state.Player.deviation) * this.store.state.Player.INTERVALTRZNICA));
@@ -2599,7 +2615,6 @@ const exports = class {
 
             //this.store.state.log.debug('logedin:', logedin);
             if (logedin) {
-                ;
                 await this.ananalizirajNaselje(doc, rez.responseURL, rez.document, rez);
                 await this.setAjaxToken(rez);
                 await this.setMapSize(rez);
@@ -2705,19 +2720,16 @@ const exports = class {
             let spliter = activeTab.snapshotItem(0).getAttribute("href").split("category=").length > 1 ? "category=" : "t="
             let activeTabUrl = activeTab.snapshotItem(0).getAttribute("href").split(spliter)[1].match(/[\d\.]+/g)[0] * 1;
             rez.activeTab = activeTabUrl;
+            return;
         }
-        ex = ".//div[@class='contentContainer']//div[contains(@class,'container') and contains(@class,'normal')]//a[@class='tabItem' and (contains (@href, 't=') or contains (@href, 'category='))]";
+        ex = ".//div[@class='scrollingContainer']//a[contains(@class, 'active')]"; // 
         activeTab = doc.evaluate(ex, doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         if (activeTab.snapshotLength) {
-            rez.otherTabs = []
-            for (let i = 0; i < activeTab.snapshotLength; i++) {
-                let spliter = activeTab.snapshotItem(i).getAttribute("href").split("category=").length > 1 ? "category=" : "t="
-                let thisTab = activeTab.snapshotItem(i).getAttribute("href").split(spliter)[1].match(/[\d\.]+/g)[0] * 1;
-                rez.otherTabs.push(thisTab)
-            }
-
+            let activeTabUrl = activeTab.snapshotItem(0).getAttribute("href");
+            let ats = activeTabUrl.indexOf('t=') + 2;
+            let ate = activeTabUrl.indexOf('&', ats);
+            rez.activeTab = activeTabUrl.substring(ats, ate) * 1;
         }
-        //
     }
 
 
@@ -3044,13 +3056,7 @@ const exports = class {
     analizirajZgradbe = async function (doc, village, url) {
 
         if (url.indexOf("dorf2") > -1) {
-            let CasZdaj = new Date();
             let divZPolji = doc.getElementById("village_map");
-
-            let SlikePolj = divZPolji.getElementsByTagName("img");
-            let Polja = [
-                [0, 0, 0]
-            ];
             let area = doc.evaluate(".//div[contains(@class, 'buildingSlot') and contains(@class, ' a') and contains(@class, ' g')]", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
             //let PoljaZaShranjevanje = CasZdaj.getDay() + ":" + CasZdaj.getMonth() + ":" + CasZdaj.getFullYear() + ":" + CasZdaj.getHours() + ":" + CasZdaj.getMinutes() + ":" + CasZdaj.getSeconds();
             //let area = doc.getElementsByTagName("area");
@@ -3126,7 +3132,6 @@ const exports = class {
                         }
                     }
                     lvnext = StopnjaPolja + 1
-                    let underconstruction = false;
                     let tmpdoc = tmpel
                     //console.log(tmpel)
 
@@ -3245,6 +3250,16 @@ const exports = class {
             tribe = doc.documentElement.innerHTML.indexOf("natar") === -1 ? tribe : 5;
             tribe = doc.documentElement.innerHTML.indexOf("egyptian") === -1 ? tribe : 6;
             tribe = doc.documentElement.innerHTML.indexOf("hun") === -1 ? tribe : 7;
+        }
+        if (tribe === -1) {
+
+            tribe = doc.documentElement.innerHTML.indexOf("tribe1") === -1 ? tribe : 1;
+            tribe = doc.documentElement.innerHTML.indexOf("tribe2") === -1 ? tribe : 2;
+            tribe = doc.documentElement.innerHTML.indexOf("tribe3") === -1 ? tribe : 3;
+            tribe = doc.documentElement.innerHTML.indexOf("tribe4") === -1 ? tribe : 4;
+            tribe = doc.documentElement.innerHTML.indexOf("tribe5") === -1 ? tribe : 5;
+            tribe = doc.documentElement.innerHTML.indexOf("tribe6") === -1 ? tribe : 6;
+            tribe = doc.documentElement.innerHTML.indexOf("tribe7") === -1 ? tribe : 7;
         }
         if (tribe !== -1) {
             this.store.state.Player.tribeId = tribe;
@@ -3470,6 +3485,7 @@ const exports = class {
         //analyse marketplace
         if (sendselect) //marketplace
         {
+
             //this.store.state.log.debug("on marketplace");
             let merchantsdiv = doc.evaluate(".//div[@class='boxes boxesColor gray traderCount']/div[@class='boxes-contents cf']", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
             if (merchantsdiv.snapshotLength > 0) {
@@ -3562,12 +3578,6 @@ const exports = class {
                 } else if (this.store.state.Player.translations.outgoingmerchants != "" && naslovi[0].innerHTML.split(this.store.state.Player.translations.outgoingmerchants).length > 1) {
                     odhajajocitrgovcinaslov = naslovi[0]
                 } else {
-                    //this.store.state.log.debug("no saved own merchants")
-                    //naselje1.PONUDBETRGOVCI = 0;
-                    //let ana = AnalizirajTrznicoXX(doc, naselje1.villageid);
-                    //nadaljuj = false
-
-
                     let skupnotrgovcevvtrznici = 0;
                     for (let gfsd = 0; gfsd < Tabele.snapshotLength; gfsd++) {
                         let Tabele1 = Tabele.snapshotItem(gfsd);
@@ -3588,17 +3598,12 @@ const exports = class {
                         let SteviloPoslanihTrgovcev = Math.ceil((surovine[0] + surovine[1] + surovine[2] + surovine[3]) / Math.max(TrgovciNosijo, 1));
                         skupnotrgovcevvtrznici += SteviloPoslanihTrgovcev
                     }
-                    //let maxmerhants = village.Merchants.max;
 
-                    //this.store.state.log.debug("skupnotrgovcevvtrznici ", skupnotrgovcevvtrznici)
-                    //this.store.state.log.debug("maxmerhants ", maxmerhants)
-                    //this.store.state.log.debug("availablemerchants ", availablemerchants)
                     if (skupnotrgovcevvtrznici + availablemerchants > maxmerhants) {
                         prihajajocitrgovcinaslov = naslovi[0]
                     } else {
                         odhajajocitrgovcinaslov = naslovi[0]
                     }
-                    //nadaljuj = false
                 }
 
 
@@ -3669,13 +3674,7 @@ const exports = class {
                         }
                         VracanjaTrgovcev.push(vracamke)
                     } else if (prihajajocituji) {
-                        //this.store.state.log.debug("transportfrom")
                         let VracanjeCezSekund = SekundePotovanja + PrihodCezSekund;
-                        //this.store.state.log.debug("VracanjeCezSekund", VracanjeCezSekund)
-                        //let CasVracanja = new Date();
-                        //CasVracanja.setSeconds(CasVracanja.getSeconds() + VracanjeCezSekund);
-                        //this.store.state.log.debug("village", village,surovine)
-                        //this.store.state.log.debug("timeFinish", CasVracanja.getTime()+VracanjeCezSekund*1000)
                         let vracamke = {
                             "troopId": 0,
                             "villageIdStart": 0,
@@ -3724,13 +3723,10 @@ const exports = class {
                 }
                 village.TRGOVCI = VracanjaTrgovcev;
                 village.troopsMoving = PrihajajoceSurovine;
-                //this.store.state.log.debug("VracanjaTrgovcev", VracanjaTrgovcev,village.name)
-                //this.store.state.log.debug("PrihajajoceSurovine", PrihajajoceSurovine,village.name)
             }
-
-
         }
     }
+
     sleep = async function (ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }

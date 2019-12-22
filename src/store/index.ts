@@ -32,7 +32,7 @@ export default new Vuex.Store({
     windowdimension: "2560-1440",
     counter: 0,
     version: {
-      web: "3.4.31",
+      web: "3.4.32",
       extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",

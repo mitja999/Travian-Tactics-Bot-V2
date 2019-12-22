@@ -191,7 +191,7 @@ function mutate(village, tasks, mutateNumber, generation, options) {
         }
         tasks[index] = task;
         if (village.buildings[task.locationId].lvl === task.lvl) {
-            debugger;
+            
         }
         village.buildings[task.locationId].lvl = task.lvl;
         village.buildings[task.locationId].buildingType = task.buildingType;
@@ -246,7 +246,7 @@ function crossOver(village, tasks, tasksBest, mutateNumber) {
         tasks[index] = task;
 
         if (village.buildings[tasks[index].locationId].lvl === tasks[index].lvl) {
-            debugger;
+            
         }
         village.buildings[tasks[index].locationId].lvl = tasks[index].lvl;
         village.buildings[tasks[index].locationId].buildingType = tasks[index].buildingType;

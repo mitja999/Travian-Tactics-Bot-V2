@@ -53,7 +53,7 @@ function criteriumFunction(rez, criterium) {
     let resultMul = 1+(time+res)*(1+MaksPopCp);
     let resultDev = 1+(pop+cp)*(1+MaksTRes);
     let result=resultMul/resultDev;
-    //debugger;
+    //
     return result;
 }
 
@@ -143,7 +143,7 @@ function evaluateBuildingList(village, buildingList) {
     
     buildingList.forEach(function (buildingL, i) {
         let building = buildingData[buildingL.buildingType].upgrade[buildingL.lvl - 1];
-        if(building===undefined)debugger;
+        if(building===undefined)
         
         //check resources
         let timeNeeded = 0;
@@ -165,7 +165,7 @@ function evaluateBuildingList(village, buildingList) {
 
         //set resources and rez
         rez.time += building[5] / 100 ;//* mainBuildingSpeedBonus + timeNeeded;
-        //debugger;
+        //
         rez.pop += building[6];
         if (buildingL.lvl - 1 === 0) {
             rez.cp += building[8];

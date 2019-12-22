@@ -294,7 +294,6 @@ export default Vue.extend({
       this.$store.state.selectedVillage.tasks.build.push(objj);
     },
     removeBuild(index: number) {
-      debugger;
       this.$store.state.selectedVillage.tasks.build.splice(index, 1);
     },
     setLevels: function(building: any) {
@@ -412,7 +411,7 @@ export default Vue.extend({
   computed: {
     newbuildings: function() {
       let b = [];
-      for (let i = 5; i < 40; i++) {
+      for (let i = 5; i < 44; i++) {
         b.push({ id: i, name: this.$store.state.lang["buldings"][i] });
       }
       return b;

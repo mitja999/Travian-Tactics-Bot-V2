@@ -138,9 +138,9 @@ function FuzzyStart(villageOrginal, options) {
                     bestTask.task= getLowestBuilding(tasks, [11]);
                 }
             }
-            //if(rez.length>80){debugger;}
+            //if(rez.length>80){}
             if(bestTask.task.locationId===0){
-                debugger;
+                
             }
             let taskEvaluated = simulatorHelper.evaluateBuildingList(village, [bestTask.task]);
             bestTask.task.total = simulatorHelper.criteriumFunction(taskEvaluated, options.criterium);

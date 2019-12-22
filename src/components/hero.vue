@@ -1,7 +1,7 @@
 <template>
   <vue-draggable-resizable
     class="divBorder"
-    :style="{ zIndex: $store.state.options.style.hero.z}"
+    :style="{ zIndex: $store.state.options.style.hero.z }"
     :parent="true"
     :key="$store.state.windowdimension"
     v-bind:w="$store.state.options.style.hero.width"
@@ -20,20 +20,35 @@
           <v-icon dark left>accessibility</v-icon>
           <b>Hero</b>
         </v-chip>
-        <div class="headdivicons" >
-        <v-btn class="drag headButtonRight" fab small dark color="red darken-1" @click="$store.state.options.style.hero.show=false">
-          <v-icon medium>close</v-icon>
-        </v-btn>
-        <v-btn class="drag headButtonRight movebutton" fab small color="warning" @click="$store.state.options.style.hero.z=$store.getters.getHighestZ()">
-          <v-icon medium>open_with</v-icon>
-        </v-btn>
+        <div class="headdivicons">
+          <v-btn
+            class="drag headButtonRight"
+            fab
+            small
+            dark
+            color="red darken-1"
+            @click="$store.state.options.style.hero.show = false"
+          >
+            <v-icon medium>close</v-icon>
+          </v-btn>
+          <v-btn
+            class="drag headButtonRight movebutton"
+            fab
+            small
+            color="warning"
+            @click="
+              $store.state.options.style.hero.z = $store.getters.getHighestZ()
+            "
+          >
+            <v-icon medium>open_with</v-icon>
+          </v-btn>
         </div>
       </div>
       <v-layout justify-space-around class="containerCustomBody">
         <v-checkbox
           v-model="$store.state.Player.options.tasks.hero.adventure"
           value="true"
-          label="Enable hero"
+          label="Enable adventure"
         ></v-checkbox>
       </v-layout>
     </div>
@@ -45,9 +60,9 @@ import Vue from "vue";
 import $store from "@/store";
 export default Vue.extend({
   data: () => ({
-      z: 999,
-      Player: $store.state.Player,
-      value: "OFF"
+    z: 999,
+    Player: $store.state.Player,
+    value: "OFF"
   }),
   methods: {
     resize(left: number, top: number, width: number, height: number) {

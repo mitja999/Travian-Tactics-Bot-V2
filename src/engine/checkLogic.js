@@ -337,7 +337,10 @@
 		this.store.custom.farmfinder.progress = 0.0;
 		this.store.custom.farmfinder.showProgress = true;
 		this.store.custom.farmfinder.running = true;
+		let start = this.store.Player.start;
+		this.store.Player.start = false;
 		await this.ApplyActions.search(parameters);
+		this.store.Player.start = start;
 		this.store.custom.farmfinder.progress = 100;
 		this.store.custom.farmfinder.showProgress = false;
 		this.store.custom.farmfinder.running = false;
@@ -347,7 +350,10 @@
 		this.store.custom.farmfinder.progress = 0.0;
 		this.store.custom.farmfinder.showProgress = true;
 		this.store.custom.farmfinder.running = true;
+		let start = this.store.Player.start;
+		this.store.Player.start = false;
 		await this.ApplyActions.cropFind(parameters);
+		this.store.Player.start = start;
 		this.store.custom.farmfinder.progress = 100;
 		this.store.custom.farmfinder.showProgress = false;
 		this.store.custom.farmfinder.running = false;
@@ -357,7 +363,10 @@
 		this.store.custom.farmfinder.progress = 0.0;
 		this.store.custom.farmfinder.showProgress = true;
 		this.store.custom.farmfinder.running = true;
+		let start = this.store.Player.start;
+		this.store.Player.start = false;
 		await this.ApplyActions.getGoldClubFarmlists(parameters);
+		this.store.Player.start = start;
 		this.store.custom.farmfinder.progress = 100;
 		this.store.custom.farmfinder.showProgress = false;
 		this.store.custom.farmfinder.running = false;
@@ -365,7 +374,10 @@
 
 	this.coppyFarmlist = async function (village, farmlist, name, copyStatus) {
 
-		return await this.ApplyActions.coppyFarmlist(village, farmlist, name, copyStatus);
+		let start = this.store.Player.start;
+		this.store.Player.start = false;
+		await this.ApplyActions.coppyFarmlist(village, farmlist, name, copyStatus);
+		this.store.Player.start = start;
 	}
 
 	this.getConfig = async function () {
@@ -672,6 +684,7 @@
 					//console.log("send by %")
 					//console.log(village,village.tasks.trade[j])
 					resources = resourcesToBeSentByPercent(village, village.tasks.trade[j]);
+
 					resources = { "1": resources[0], "2": resources[1], "3": resources[2], "4": resources[3] }
 					//console.log(resources)
 					//continue
@@ -681,6 +694,7 @@
 				//console.log("tradecheck",village.Merchants.maxCapacity,">",sumResources(resources),"&&", isLowerReources(resources, village.storage))
 				if (village.Merchants.maxCapacity >= sumResources(resources) && isLowerReources(resources, village.storage) && sumResources(resources) > 0) {
 					//console.log("sending")
+
 					let rez = await this.ApplyActions.trade(village, village.tasks.trade[j], resources);
 					//console.log("distance",distance(village.x, village.y, village.tasks.trade[j].x, village.tasks.trade[j].y))
 					//console.log("village.Merchants.speed",village.Merchants.speed)
@@ -749,9 +763,11 @@
 			PolnoZelezo2 = SkupajZelezo2 / targetvillage["storageCapacity"]["3"];
 			PolnoZito2 = SkupajZito2 / targetvillage["storageCapacity"]["4"];
 			capacity = targetvillage["storageCapacity"];
+
 		}
 
-		if ((task["empty"]["1"] / 100 < PolnoLes1 || task["empty"]["2"] / 100 < PolnoGlina1 || task["empty"]["3"] / 100 < PolnoZelezo1 || task["empty"]["4"] / 100 < PolnoZito1) && (task["fill"]["1"] / 100 > PolnoLes2 || task["fill"]["2"] / 100 > PolnoGlina2 || task["fill"]["3"] / 100 > PolnoZelezo2 || task["fill"]["4"] / 100 > PolnoZito2)) {
+		if ((task["empty"]["1"] / 100 < PolnoLes1 || task["empty"]["2"] / 100 < PolnoGlina1 || task["empty"]["3"] / 100 < PolnoZelezo1 || task["empty"]["4"] / 100 < PolnoZito1)
+			&& (task["fill"]["1"] / 100 > PolnoLes2 || task["fill"]["2"] / 100 > PolnoGlina2 || task["fill"]["3"] / 100 > PolnoZelezo2 || task["fill"]["4"] / 100 > PolnoZito2)) {
 
 			let LesKiGaLahkoPosljem = 0;
 			let GlinaKiGaLahkoPosljem = 0;

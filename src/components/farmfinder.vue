@@ -700,28 +700,10 @@ export default Vue.extend({
         "10": 0,
         "11": 0
       };
-      debugger;
+      
       this.$store.state.selectedVillage.tasks.farms.push(
         JSON.parse(JSON.stringify(this.FarmTask))
       );
-    },
-    async copyFarmlist() {
-      /*let startBotAfter = this.$parent.$parent.start;
-      if (this.$parent.$parent.start) {
-        this.$parent.$parent.startBot(); //stop bot
-      }
-      this.copyStatus.value = 1;
-      await this.$store.state.CheckLogic.coppyFarmlist(
-        this.$store.state.selectedVillage,
-        this.$store.state.selectedVillage.tasks.farms[this.selectedFarmlist],
-        this.newFarmListName,
-        this.copyStatus
-      );
-      this.copyStatus.value = 0;
-      this.snackbar = false;
-      if (startBotAfter) {
-        this.$parent.$parent.startBot(); //start bot
-      }*/
     }
   },
   filters: {
