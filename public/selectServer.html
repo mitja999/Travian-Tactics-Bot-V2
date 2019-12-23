@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Travian tactics, select server</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <nav class="navbar navbar-light bg-light navbar-expand-lg">
+            <div class="input-group mb-3 text-center">
+                <div>
+                    <a target="_blank"
+                        href="https://chrome.google.com/webstore/detail/traviantactics/gegegmbnpdigalgfkegjgnfcpmolijdg">
+                        <img style="height: 40px;"
+                            src="https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_340x96.png"
+                            alt="Chrome store"> </a>
+                </div>
+                <div>
+
+                    <a target="_blank" href="https://addons.mozilla.org/sl/firefox/addon/traviantacticsbot/">
+                        <img style="height: 40px;" src="http://traviantactics.com/images/firefoxLogo.png"
+                            alt="firefox store"></a>
+                </div>
+                <input type="text" class="form-control" placeholder="Server link" aria-label="Server link"
+                    aria-describedby="button-addon2" class="text-center" style="text-align: center;" id="customserver"
+                    onchange="showservers()" oninput="showservers()">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2"
+                        onclick="redirectpage()">Go</button>
+                </div>
+            </div>
+        </nav>
+
+        <div id='main' class="list-group"></div>
+    </div>
+    <script>
+        /*var servers=[];
+        for(let i=0;i<window.document.getElementsByClassName('world').length;i++){
+        let datestart=window.document.getElementsByClassName('world').item(i).getAttribute('data-start');
+        let href=window.document.getElementsByClassName('world').item(i).href;
+        for(let j=0;j<100;j++){
+            href=href.replace("."+j+"/",'')
+        }
+        href=href.replace('/','').replace('/','').replace('/','').replace('/','').replace('/','');
+        href=href.replace('https:www.gettertools.com','');
+        href=href.replace('https:www.getter-tools.de','');
+        let servername=href;
+        href='http://traviantactics.com/botV2/index.html?name='+href;
+        if(href.indexOf('kingdoms')===-1){href=href+'/dorf1.php'}
+        servers.push({href,datestart,servername})
+        }
+        console.log(JSON.stringify( servers,1,1));*/
+        let servers = [
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=cz1.kingdoms.com",
+                "datestart": "30/07/2019",
+                "servername": "cz1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=cz1n.kingdoms.com",
+                "datestart": "17/09/2019",
+                "servername": "cz1n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=cz2.kingdoms.com",
+                "datestart": "6/11/2019",
+                "servername": "cz2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=cz2n.kingdoms.com",
+                "datestart": "18/12/2019",
+                "servername": "cz2n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.czsk.travian.com/dorf1.php",
+                "datestart": "30/09/2019",
+                "servername": "ts1.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.czsk.travian.com/dorf1.php",
+                "datestart": "1/09/2019",
+                "servername": "ts15.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.czsk.travian.com/dorf1.php",
+                "datestart": "16/04/2019",
+                "servername": "ts2.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.czsk.travian.com/dorf1.php",
+                "datestart": "7/12/2019",
+                "servername": "ts3.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.czsk.travian.com/dorf1.php",
+                "datestart": "24/07/2019",
+                "servername": "ts5.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.czsk.travian.com/dorf1.php",
+                "datestart": "1/03/2019",
+                "servername": "ts6.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts7.czsk.travian.com/dorf1.php",
+                "datestart": "12/06/2019",
+                "servername": "ts7.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.czsk.travian.com/dorf1.php",
+                "datestart": "27/11/2019",
+                "servername": "tx3.czsk.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com1.kingdoms.com",
+                "datestart": "23/07/2019",
+                "servername": "com1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com2.kingdoms.com",
+                "datestart": "27/08/2019",
+                "servername": "com2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com2x3.kingdoms.com",
+                "datestart": "27/11/2019",
+                "servername": "com2x3.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com3.kingdoms.com",
+                "datestart": "1/10/2019",
+                "servername": "com3.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com4.kingdoms.com",
+                "datestart": "11/12/2019",
+                "servername": "com4.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com6.kingdoms.com",
+                "datestart": "13/11/2019",
+                "servername": "com6.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com7.kingdoms.com",
+                "datestart": "3/07/2019",
+                "servername": "com7.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=com8.kingdoms.com",
+                "datestart": "10/09/2019",
+                "servername": "com8.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=beta.travian.com/dorf1.php",
+                "datestart": "5/08/2019",
+                "servername": "beta.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=finals.travian.com/dorf1.php",
+                "datestart": "5/11/2019",
+                "servername": "finals.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.com/dorf1.php",
+                "datestart": "26/09/2019",
+                "servername": "ts2.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.com/dorf1.php",
+                "datestart": "12/07/2019",
+                "servername": "ts3.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.com/dorf1.php",
+                "datestart": "21/05/2019",
+                "servername": "ts5.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.travian.com/dorf1.php",
+                "datestart": "26/11/2019",
+                "servername": "ts6.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.com/dorf1.php",
+                "datestart": "3/09/2019",
+                "servername": "ts15.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.com/dorf1.php",
+                "datestart": "10/12/2019",
+                "servername": "tx3.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.ro/dorf1.php",
+                "datestart": "11/10/2019",
+                "servername": "ts1.travian.ro"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.ro/dorf1.php",
+                "datestart": "9/12/2019",
+                "servername": "ts2.travian.ro"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.ro/dorf1.php",
+                "datestart": "10/05/2019",
+                "servername": "ts3.travian.ro"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.ro/dorf1.php",
+                "datestart": "5/07/2019",
+                "servername": "ts4.travian.ro"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.ro/dorf1.php",
+                "datestart": "4/09/2019",
+                "servername": "ts15.travian.ro"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.ro/dorf1.php",
+                "datestart": "24/08/2019",
+                "servername": "ts5.travian.ro"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.nl/dorf1.php",
+                "datestart": "21/11/2019",
+                "servername": "ts2.travian.nl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.nl/dorf1.php",
+                "datestart": "8/06/2019",
+                "servername": "ts3.travian.nl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.nl/dorf1.php",
+                "datestart": "24/09/2019",
+                "servername": "ts5.travian.nl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.travian.nl/dorf1.php",
+                "datestart": "24/07/2019",
+                "servername": "ts6.travian.nl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.nl/dorf1.php",
+                "datestart": "3/09/2019",
+                "servername": "ts15.travian.nl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.nl/dorf1.php",
+                "datestart": "17/10/2019",
+                "servername": "tx3.travian.nl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=fr1.kingdoms.com",
+                "datestart": "31/07/2019",
+                "servername": "fr1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=fr1n.kingdoms.com",
+                "datestart": "17/09/2019",
+                "servername": "fr1n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=fr2.kingdoms.com",
+                "datestart": "6/11/2019",
+                "servername": "fr2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=fr2n.kingdoms.com",
+                "datestart": "18/12/2019",
+                "servername": "fr2n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.fr/dorf1.php",
+                "datestart": "31/05/2019",
+                "servername": "ts1.travian.fr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.fr/dorf1.php",
+                "datestart": "20/08/2019",
+                "servername": "ts2.travian.fr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.fr/dorf1.php",
+                "datestart": "14/12/2019",
+                "servername": "ts3.travian.fr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.fr/dorf1.php",
+                "datestart": "17/07/2019",
+                "servername": "ts5.travian.fr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.travian.fr/dorf1.php",
+                "datestart": "23/10/2019",
+                "servername": "ts6.travian.fr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.fr/dorf1.php",
+                "datestart": "1/09/2019",
+                "servername": "ts15.travian.fr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.fr/dorf1.php",
+                "datestart": "3/09/2019",
+                "servername": "tx3.travian.fr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=de1.kingdoms.com",
+                "datestart": "30/07/2019",
+                "servername": "de1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=de1n.kingdoms.com",
+                "datestart": "17/09/2019",
+                "servername": "de1n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=de2.kingdoms.com",
+                "datestart": "6/11/2019",
+                "servername": "de2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=de2n.kingdoms.com",
+                "datestart": "18/12/2019",
+                "servername": "de2n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.de/dorf1.php",
+                "datestart": "7/05/2019",
+                "servername": "ts1.travian.de"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.de/dorf1.php",
+                "datestart": "5/07/2019",
+                "servername": "ts2.travian.de"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.de/dorf1.php",
+                "datestart": "8/10/2019",
+                "servername": "ts3.travian.de"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.de/dorf1.php",
+                "datestart": "4/12/2019",
+                "servername": "ts4.travian.de"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.de/dorf1.php",
+                "datestart": "14/08/2019",
+                "servername": "ts5.travian.de"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.de/dorf1.php",
+                "datestart": "5/09/2019",
+                "servername": "ts15.travian.de"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.de/dorf1.php",
+                "datestart": "29/10/2019",
+                "servername": "tx3.travian.de"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=it1.kingdoms.com",
+                "datestart": "30/07/2019",
+                "servername": "it1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=it1n.kingdoms.com",
+                "datestart": "17/09/2019",
+                "servername": "it1n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=it2.kingdoms.com",
+                "datestart": "6/11/2019",
+                "servername": "it2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=it2n.kingdoms.com",
+                "datestart": "18/12/2019",
+                "servername": "it2n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.it/dorf1.php",
+                "datestart": "21/09/2019",
+                "servername": "ts1.travian.it"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.it/dorf1.php",
+                "datestart": "23/07/2019",
+                "servername": "ts2.travian.it"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.it/dorf1.php",
+                "datestart": "17/04/2019",
+                "servername": "ts4.travian.it"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.it/dorf1.php",
+                "datestart": "29/10/2019",
+                "servername": "ts5.travian.it"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.travian.it/dorf1.php",
+                "datestart": "6/06/2019",
+                "servername": "ts6.travian.it"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.it/dorf1.php",
+                "datestart": "25/08/2019",
+                "servername": "ts15.travian.it"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.it/dorf1.php",
+                "datestart": "19/11/2019",
+                "servername": "tx3.travian.it"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.pl/dorf1.php",
+                "datestart": "25/09/2019",
+                "servername": "ts1.travian.pl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.pl/dorf1.php",
+                "datestart": "4/11/2019",
+                "servername": "ts2.travian.pl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.pl/dorf1.php",
+                "datestart": "11/12/2019",
+                "servername": "ts4.travian.pl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.pl/dorf1.php",
+                "datestart": "4/09/2019",
+                "servername": "ts15.travian.pl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.pl/dorf1.php",
+                "datestart": "3/12/2019",
+                "servername": "tx3.travian.pl"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ru1.kingdoms.com",
+                "datestart": "11/09/2019",
+                "servername": "ru1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ru2.kingdoms.com",
+                "datestart": "23/07/2019",
+                "servername": "ru2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ru2x3.kingdoms.com",
+                "datestart": "27/11/2019",
+                "servername": "ru2x3.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ru3.kingdoms.com",
+                "datestart": "11/12/2019",
+                "servername": "ru3.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ru4.kingdoms.com",
+                "datestart": "2/10/2019",
+                "servername": "ru4.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.ru/dorf1.php",
+                "datestart": "25/09/2019",
+                "servername": "ts2.travian.ru"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.ru/dorf1.php",
+                "datestart": "8/06/2019",
+                "servername": "ts3.travian.ru"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.ru/dorf1.php",
+                "datestart": "27/11/2019",
+                "servername": "ts4.travian.ru"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.ru/dorf1.php",
+                "datestart": "26/08/2019",
+                "servername": "ts15.travian.ru"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.ru/dorf1.php",
+                "datestart": "19/07/2019",
+                "servername": "ts5.travian.ru"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.ru/dorf1.php",
+                "datestart": "8/10/2019",
+                "servername": "tx3.travian.ru"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=es2.kingdoms.com",
+                "datestart": "18/09/2019",
+                "servername": "es2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=es3.kingdoms.com",
+                "datestart": "30/07/2019",
+                "servername": "es3.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=es4.kingdoms.com",
+                "datestart": "5/11/2019",
+                "servername": "es4.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tr1.kingdoms.com",
+                "datestart": "5/11/2019",
+                "servername": "tr1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tr1n.kingdoms.com",
+                "datestart": "17/09/2019",
+                "servername": "tr1n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tr2.kingdoms.com",
+                "datestart": "30/07/2019",
+                "servername": "tr2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tr2n.kingdoms.com",
+                "datestart": "17/12/2019",
+                "servername": "tr2n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.com.tr/dorf1.php",
+                "datestart": "18/04/2019",
+                "servername": "ts1.travian.com.tr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.com.tr/dorf1.php",
+                "datestart": "23/07/2019",
+                "servername": "ts2.travian.com.tr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.com.tr/dorf1.php",
+                "datestart": "26/11/2019",
+                "servername": "ts3.travian.com.tr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.com.tr/dorf1.php",
+                "datestart": "19/09/2019",
+                "servername": "ts4.travian.com.tr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.com.tr/dorf1.php",
+                "datestart": "6/06/2019",
+                "servername": "ts5.travian.com.tr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.com.tr/dorf1.php",
+                "datestart": "30/08/2019",
+                "servername": "ts15.travian.com.tr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.com.tr/dorf1.php",
+                "datestart": "15/10/2019",
+                "servername": "tx3.travian.com.tr"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.anglosphere.travian.com/dorf1.php",
+                "datestart": "12/05/2019",
+                "servername": "ts1.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.anglosphere.travian.com/dorf1.php",
+                "datestart": "12/09/2019",
+                "servername": "ts15.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.anglosphere.travian.com/dorf1.php",
+                "datestart": "3/07/2019",
+                "servername": "ts2.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.anglosphere.travian.com/dorf1.php",
+                "datestart": "24/08/2019",
+                "servername": "ts3.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.anglosphere.travian.com/dorf1.php",
+                "datestart": "18/10/2019",
+                "servername": "ts4.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.anglosphere.travian.com/dorf1.php",
+                "datestart": "27/11/2019",
+                "servername": "ts5.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts7.anglosphere.travian.com/dorf1.php",
+                "datestart": "28/01/2019",
+                "servername": "ts7.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts8.anglosphere.travian.com/dorf1.php",
+                "datestart": "4/03/2019",
+                "servername": "ts8.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.anglosphere.travian.com/dorf1.php",
+                "datestart": "21/11/2019",
+                "servername": "tx3.anglosphere.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=arabiats2.travian.com/dorf1.php",
+                "datestart": "17/08/2019",
+                "servername": "arabiats2.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.arabics.travian.com/dorf1.php",
+                "datestart": "30/10/2019",
+                "servername": "ts1.arabics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.arabics.travian.com/dorf1.php",
+                "datestart": "5/09/2019",
+                "servername": "ts15.arabics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.arabics.travian.com/dorf1.php",
+                "datestart": "11/12/2019",
+                "servername": "ts5.arabics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts8.arabics.travian.com/dorf1.php",
+                "datestart": "19/09/2019",
+                "servername": "ts8.arabics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.arabics.travian.com/dorf1.php",
+                "datestart": "18/10/2019",
+                "servername": "tx3.arabics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.balkans.travian.com/dorf1.php",
+                "datestart": "18/07/2019",
+                "servername": "ts1.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.balkans.travian.com/dorf1.php",
+                "datestart": "11/09/2019",
+                "servername": "ts15.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.balkans.travian.com/dorf1.php",
+                "datestart": "21/08/2019",
+                "servername": "ts2.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.balkans.travian.com/dorf1.php",
+                "datestart": "22/10/2019",
+                "servername": "ts3.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.balkans.travian.com/dorf1.php",
+                "datestart": "30/04/2019",
+                "servername": "ts4.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.balkans.travian.com/dorf1.php",
+                "datestart": "6/12/2019",
+                "servername": "ts5.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.balkans.travian.com/dorf1.php",
+                "datestart": "4/03/2019",
+                "servername": "ts6.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.balkans.travian.com/dorf1.php",
+                "datestart": "8/10/2019",
+                "servername": "tx3.balkans.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.baltics.travian.com/dorf1.php",
+                "datestart": "18/07/2019",
+                "servername": "ts1.baltics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.baltics.travian.com/dorf1.php",
+                "datestart": "6/09/2019",
+                "servername": "ts15.baltics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.baltics.travian.com/dorf1.php",
+                "datestart": "1/10/2019",
+                "servername": "ts2.baltics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.baltics.travian.com/dorf1.php",
+                "datestart": "24/12/2019",
+                "servername": "ts3.baltics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.baltics.travian.com/dorf1.php",
+                "datestart": "12/06/2019",
+                "servername": "ts4.baltics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.baltics.travian.com/dorf1.php",
+                "datestart": "4/02/2019",
+                "servername": "ts5.baltics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.baltics.travian.com/dorf1.php",
+                "datestart": "21/09/2019",
+                "servername": "tx3.baltics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.hispano.travian.com/dorf1.php",
+                "datestart": "12/06/2019",
+                "servername": "ts1.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.hispano.travian.com/dorf1.php",
+                "datestart": "12/09/2019",
+                "servername": "ts15.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.hispano.travian.com/dorf1.php",
+                "datestart": "1/09/2019",
+                "servername": "ts2.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.hispano.travian.com/dorf1.php",
+                "datestart": "18/10/2019",
+                "servername": "ts3.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.hispano.travian.com/dorf1.php",
+                "datestart": "18/04/2019",
+                "servername": "ts4.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.hispano.travian.com/dorf1.php",
+                "datestart": "24/07/2019",
+                "servername": "ts5.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.hispano.travian.com/dorf1.php",
+                "datestart": "3/12/2019",
+                "servername": "ts6.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts7.hispano.travian.com/dorf1.php",
+                "datestart": "5/03/2019",
+                "servername": "ts7.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.hispano.travian.com/dorf1.php",
+                "datestart": "26/09/2019",
+                "servername": "tx3.hispano.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "26/04/2019",
+                "servername": "ts1.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "12/09/2019",
+                "servername": "ts15.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "18/10/2019",
+                "servername": "ts2.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "27/02/2019",
+                "servername": "ts3.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "20/06/2019",
+                "servername": "ts4.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "23/07/2019",
+                "servername": "ts5.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "2/09/2019",
+                "servername": "ts6.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.lusobrasileiro.travian.com/dorf1.php",
+                "datestart": "29/10/2019",
+                "servername": "tx3.lusobrasileiro.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.nordics.travian.com/dorf1.php",
+                "datestart": "2/04/2019",
+                "servername": "ts1.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.nordics.travian.com/dorf1.php",
+                "datestart": "12/09/2019",
+                "servername": "ts15.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.nordics.travian.com/dorf1.php",
+                "datestart": "29/05/2019",
+                "servername": "ts2.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.nordics.travian.com/dorf1.php",
+                "datestart": "24/07/2019",
+                "servername": "ts3.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.nordics.travian.com/dorf1.php",
+                "datestart": "2/09/2019",
+                "servername": "ts4.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.nordics.travian.com/dorf1.php",
+                "datestart": "18/10/2019",
+                "servername": "ts5.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.nordics.travian.com/dorf1.php",
+                "datestart": "29/11/2019",
+                "servername": "ts6.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.nordics.travian.com/dorf1.php",
+                "datestart": "18/11/2019",
+                "servername": "tx3.nordics.travian.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.ae/dorf1.php",
+                "datestart": "2/07/2019",
+                "servername": "ts2.travian.ae"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.ae/dorf1.php",
+                "datestart": "10/05/2019",
+                "servername": "ts3.travian.ae"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=arabia1.kingdoms.com",
+                "datestart": "30/07/2019",
+                "servername": "arabia1.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=arabia1n.kingdoms.com",
+                "datestart": "17/09/2019",
+                "servername": "arabia1n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=arabia2.kingdoms.com",
+                "datestart": "6/11/2019",
+                "servername": "arabia2.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=arabia2n.kingdoms.com",
+                "datestart": "18/12/2019",
+                "servername": "arabia2n.kingdoms.com"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.co.il/dorf1.php",
+                "datestart": "8/05/2019",
+                "servername": "ts1.travian.co.il"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.co.il/dorf1.php",
+                "datestart": "26/09/2019",
+                "servername": "ts2.travian.co.il"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.co.il/dorf1.php",
+                "datestart": "9/07/2019",
+                "servername": "ts3.travian.co.il"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.co.il/dorf1.php",
+                "datestart": "10/12/2019",
+                "servername": "ts4.travian.co.il"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.co.il/dorf1.php",
+                "datestart": "3/09/2019",
+                "servername": "ts15.travian.co.il"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.co.il/dorf1.php",
+                "datestart": "31/10/2019",
+                "servername": "tx3.travian.co.il"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.com.eg/dorf1.php",
+                "datestart": "17/07/2019",
+                "servername": "ts3.travian.com.eg"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.com.eg/dorf1.php",
+                "datestart": "2/04/2019",
+                "servername": "ts4.travian.com.eg"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts5.travian.com.eg/dorf1.php",
+                "datestart": "22/05/2019",
+                "servername": "ts5.travian.com.eg"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.com.my/dorf1.php",
+                "datestart": "28/06/2019",
+                "servername": "ts1.travian.com.my"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.com.my/dorf1.php",
+                "datestart": "20/08/2019",
+                "servername": "ts2.travian.com.my"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.com.my/dorf1.php",
+                "datestart": "29/10/2019",
+                "servername": "ts3.travian.com.my"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.com.my/dorf1.php",
+                "datestart": "11/09/2019",
+                "servername": "ts15.travian.com.my"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.com.my/dorf1.php",
+                "datestart": "5/10/2019",
+                "servername": "tx3.travian.com.my"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.com.sa/dorf1.php",
+                "datestart": "27/06/2019",
+                "servername": "ts3.travian.com.sa"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.com.sa/dorf1.php",
+                "datestart": "17/08/2019",
+                "servername": "ts4.travian.com.sa"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.hu/dorf1.php",
+                "datestart": "26/06/2019",
+                "servername": "ts1.travian.hu"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.hu/dorf1.php",
+                "datestart": "24/04/2019",
+                "servername": "ts2.travian.hu"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.hu/dorf1.php",
+                "datestart": "4/10/2019",
+                "servername": "ts3.travian.hu"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.hu/dorf1.php",
+                "datestart": "7/12/2019",
+                "servername": "ts4.travian.hu"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts6.travian.hu/dorf1.php",
+                "datestart": "22/08/2019",
+                "servername": "ts6.travian.hu"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.hu/dorf1.php",
+                "datestart": "3/09/2019",
+                "servername": "ts15.travian.hu"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=tx3.travian.hu/dorf1.php",
+                "datestart": "29/10/2019",
+                "servername": "tx3.travian.hu"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts1.travian.jp/dorf1.php",
+                "datestart": "25/09/2019",
+                "servername": "ts1.travian.jp"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts2.travian.jp/dorf1.php",
+                "datestart": "18/04/2019",
+                "servername": "ts2.travian.jp"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.jp/dorf1.php",
+                "datestart": "5/12/2019",
+                "servername": "ts3.travian.jp"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts4.travian.jp/dorf1.php",
+                "datestart": "3/07/2019",
+                "servername": "ts4.travian.jp"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts15.travian.jp/dorf1.php",
+                "datestart": "5/09/2019",
+                "servername": "ts15.travian.jp"
+            },
+            {
+                "href": "http://traviantactics.com/botV2/index.html?name=ts3.travian.co.ee/dorf1.php",
+                "datestart": "9/04/2019",
+                "servername": "ts3.travian.co.ee"
+            }
+        ];
+        function redirectpage() {
+            let serverhref = document.getElementById("customserver").value;
+            if (serverhref.indexOf('travian') !== -1 && serverhref.indexOf('travian') === -1) {
+                serverhref = serverhref.replace('https://', '');
+                serverhref = serverhref.replace('http://', '');
+                serverhref = serverhref.replace('/', '');
+                serverhref = serverhref + '/dorf1.php';
+            }
+            window.location.href = "http://traviantactics.com/botV2/index.html?name=" + serverhref;
+        }
+        function showservers() {
+            let serverhref = document.getElementById("customserver").value;
+            let div = document.getElementById("main");
+            div.innerHTML = '';
+            servers.forEach(s => {
+                if (serverhref.length !== 0 && s.servername.indexOf(serverhref) === -1) {
+                    return;
+                }
+                let aTag = document.createElement('a');
+                aTag.setAttribute('href', s.href);
+                aTag.setAttribute('class', 'list-group-item list-group-item-action text-center');
+                aTag.innerText = s.servername;
+                div.appendChild(aTag);
+            })
+
+        }
+        showservers();
+    </script>
+</body>
+
+</html>

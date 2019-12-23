@@ -234,10 +234,10 @@ export default Vue.extend({
       } else if (hostname.indexOf("travian") !== -1) {
         hostname = "https://" + hostname + "/dorf1.php";
       } else {
-        hostname = "http://traviantactics.com/#install";
+        hostname = "http://traviantactics.com/botV2/selectServer.html";
       }
     } else {
-      hostname = "http://traviantactics.com/#install";
+      hostname = "http://traviantactics.com/botV2/selectServer.html";
     }
     this.$store.state.iframesrc = hostname;
 
