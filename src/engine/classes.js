@@ -3069,7 +3069,7 @@ const Player = function () {
         if (deepcoppy) {
             obj = JSON.parse(JSON.stringify(obj));
         }
-        Object.assign(this, obj)
+        Object.assign(this, obj);
     }
     this.getVillage = function (villageid) {
         //console.log(this.villages)
@@ -3871,7 +3871,9 @@ var defaultplayer = {
         "logs": [],
         "tasks": {
             "hero": {
-                "adventure": false
+                "adventure": {
+                    "enabled": false
+                }
             }
         },
         "taskchecktime": {
@@ -3890,7 +3892,11 @@ var defaultplayer = {
             "min": 3,
             "max": 10
         },
-        "redirectsleeptime": true
+        "redirectsleeptime": true,
+        "email": {
+            "enabled": false,
+            "email": "",
+        }
     },
     "translations": {
         "incomingmerchants": "",
@@ -3902,8 +3908,8 @@ var defaultplayer = {
     "INTERVALHERO": 30,
     "INTERVALTRZNICA": 30,
     "IMENAPOLJ": "Woodcutter|Woodcutter|Cropland|Cropland|Woodcutter|Woodcutter|Iron Mine|Iron Mine|Clay Pit|Clay Pit|Clay Pit|Clay Pit|Iron Mine|Iron Mine|Cropland|Cropland|Cropland|Cropland|Iron Mine|Iron Mine|Iron Mine|Iron Mine|Cropland|Cropland|Cropland|Cropland|Woodcutter|Woodcutter|Cropland|Cropland|Clay Pit|Clay Pit|Woodcutter|Woodcutter|Clay Pit|Clay Pit",
-    "username": "Eechu",
-    "password": "Fwmd054",
+    "username": "",
+    "password": "",
     "screen": {
         "width": 2560,
         "height": 1440

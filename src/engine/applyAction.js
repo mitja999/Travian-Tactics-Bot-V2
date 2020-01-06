@@ -174,7 +174,8 @@ const exports = class {
 
         if (rez.villageId != village.villageId) {
             //this.store.state.log.debug("wrong villageId retray")
-            return await this.train(village, trainTask, resources, building, attempts + 1)
+            //return await this.train(village, trainTask, resources, building, attempts + 1)
+            return false;
         }
         let doc = await this.createDocument(rez.document)
         let obrazec = doc.getElementsByName("snd");
@@ -699,7 +700,7 @@ const exports = class {
         return success;
     }
 
-    build = async function (village, villageBuilding, buildTask) {
+    build = async function (village, buildTask, villageBuilding) {
         //this.store.state.log.debug('T4build start', villageBuilding, buildTask);
         let url = this.store.state.Player.url + "/dorf1.php"
         if (!villageBuilding) {
@@ -1093,7 +1094,7 @@ const exports = class {
             rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?id=39", "", "GET", {
                 "Referer": this.store.state.Player.url + "/dorf1.php"
             }, 1);
-            return await this.goToGoldclubPage(attempts + 1)
+            return await this.goToGoldclubPage(attempts + 1);
         }
         if (rez.activeTab != 99) {
             rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?tt=99&id=39", "", "GET", {
@@ -1447,7 +1448,8 @@ const exports = class {
         }, 1);
 
         if (rez.villageId != village.villageId) {
-            return await this.farm(village, FarmTask, farm, attempts + 1)
+            //return await this.farm(village, FarmTask, farm, attempts + 1)
+            return false;
         }
         doc = await this.createDocument(rez.document)
         inputs = doc.getElementsByTagName("form")[0].getElementsByTagName("input");
@@ -1495,9 +1497,6 @@ const exports = class {
             "Content-Type": "application/x-www-form-urlencoded",
         }, 1);
 
-        if (rez.villageId != village.villageId) {
-            return await this.farm(village, FarmTask, farm, attempts + 1)
-        }
         rez.success = true;
         //
         return rez;
@@ -2772,12 +2771,39 @@ const exports = class {
 
                     let test = ImeStavbe.toLowerCase().match(Pirmerjalnik.toLowerCase());
                     let CasKoncanja = SpanTimer.snapshotItem(TaTimer).getAttribute("value") * 1000;
+                    if (test === null) {
+                        try {
+                            let start = doc.body.innerText.indexOf('var bld=');
+                            if (start !== -1) {
+                                let end = doc.body.innerText.indexOf(']', start);
+                                let buildingBuildings = JSON.parse(doc.body.innerText.substring(start + 8, end + 1));
+                                if (buildingBuildings[TaTimer] !== undefined) {
+                                    if (buildingBuildings[TaTimer].gid * 1 <= 4) {
+                                        village.BuildingQueue["2"] = 0 //CasKoncanja
+                                        if (this.store.state.Player.tribeId != 1) {
+                                            village.BuildingQueue["1"] = 0
+                                        }
+                                        village.FildFinishTime = CasKoncanja + Zdaj;
+                                        //let TipStavbe = 1;
+                                    } else {
+                                        //let TipStavbe = 2;
+                                        village.BuildingQueue["1"] = 0 //CasKoncanja
+                                        if (this.store.state.Player.tribeId != 1) {
+                                            village.BuildingQueue["2"] = 0
+                                        }
+                                        village.BuildingFinishTime = CasKoncanja + Zdaj;
+                                    }
+                                    continue;
+                                }
+                            }
+                        } catch (ex) { }
+                    }
                     if (test != null) {
                         village.BuildingQueue["2"] = 0 //CasKoncanja
                         if (this.store.state.Player.tribeId != 1) {
                             village.BuildingQueue["1"] = 0
                         }
-                        village.FildFinishTime = CasKoncanja + Zdaj
+                        village.FildFinishTime = CasKoncanja + Zdaj;
                         //let TipStavbe = 1;
                     } else {
                         //let TipStavbe = 2;
@@ -2785,13 +2811,12 @@ const exports = class {
                         if (this.store.state.Player.tribeId != 1) {
                             village.BuildingQueue["2"] = 0
                         }
-                        village.BuildingFinishTime = CasKoncanja + Zdaj
+                        village.BuildingFinishTime = CasKoncanja + Zdaj;
                     }
 
                 }
 
             }
-
             //this.store.state.log.debug("village.BuildingQueue:",village.BuildingQueue);
 
         }
@@ -3022,8 +3047,8 @@ const exports = class {
 
     analyzeFields_4_4_New = async function (doc, village) {
         let divPoljadoc = doc.evaluate('.//*[@id="resourceFieldContainer"]/div', doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-        if (divPoljadoc.snapshotLength === 18) {
-            for (let i = 0; i < 18; i++) {
+        if (divPoljadoc.snapshotLength >= 18) {
+            for (let i = 0; i < divPoljadoc.snapshotLength; i++) {
                 let resourcefieldparameters = divPoljadoc.snapshotItem(i).getAttribute("class").split(' ');
                 resourcefieldparameters.splice(resourcefieldparameters.findIndex(f => f === "level"), 1);
                 let IdPolja = resourcefieldparameters.find(f => f.indexOf('buildingSlot') !== -1).replace('buildingSlot', '') * 1;
@@ -3044,7 +3069,7 @@ const exports = class {
                 village.buildings[IdPolja].upgradeCosts["4"] = r4 * 1;
             }
 
-            let novCas = new Date()
+            let novCas = new Date();
             novCas = novCas.getTime() + await this.randomXToY(Math.round(60000 * (1 - this.store.state.Player.deviation) * this.store.state.Player.INTERVALGRADNJA), Math.round(60000 * (1 + this.store.state.Player.deviation) * this.store.state.Player.INTERVALGRADNJA));
             village.CASANALIZEGRADNJA1 = novCas;
         } else {

@@ -1,3 +1,9 @@
+<style scoped>
+.containerCustomBody {
+  padding: 5px;
+}
+</style>
+
 <template>
   <vue-draggable-resizable
     class="divBorder"
@@ -44,160 +50,207 @@
           </v-btn>
         </div>
       </div>
-      <v-container fluid grid-list-sm style="margin:5px;">
-        <v-layout row>
-          <div>Version Web {{ $store.state.version.web }}</div>
-          <br />
+      <div class="containerCustomBody">
+        <v-layout
+          column
+          style="overflow-y: auto;"
+          :style="{ height: $store.state.options.style.setting.height + 'px' }"
+        >
+          <v-layout row>
+            <div>Version Web {{ $store.state.version.web }}</div>
+            <br />
+          </v-layout>
+          <v-layout row>
+            <v-flex sm5>Language</v-flex>
+            <v-flex sm6>
+              <v-select
+                :items="[
+                  'en',
+                  'si',
+                  'it',
+                  'com.eg',
+                  'com.sa',
+                  'com.sy',
+                  'ae',
+                  'ro',
+                  'co.id',
+                  'pl',
+                  'asia',
+                  'hu',
+                  'ru',
+                  'com.tr',
+                  'cl',
+                  'net',
+                  'com.my',
+                  'dk',
+                  'bg',
+                  'com.br',
+                  'cz',
+                  'gr',
+                  'rs',
+                  'ir',
+                  'fr',
+                  'lt'
+                ]"
+                v-model="$store.state.options.style.language"
+              ></v-select>
+            </v-flex>
+          </v-layout>
+          <v-layout row>
+            <v-flex sm5>
+              RTL
+            </v-flex>
+            <v-flex sm3
+              ><v-switch
+                style="padding: 0px;    margin: 0px;"
+                v-model="$vuetify.rtl"
+                value="true"
+              ></v-switch>
+            </v-flex>
+          </v-layout>
+          <v-layout row>
+            <v-flex sm5>
+              Task check time
+            </v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="min(second):"
+                min="5"
+                v-model="$store.state.Player.options.taskchecktime.min"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+            <v-flex sm1></v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="max(second):"
+                min="5"
+                v-model="$store.state.Player.options.taskchecktime.max"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+          <v-layout row>
+            <v-flex sm5>
+              Working duration time
+            </v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="min(minutes):"
+                min="1"
+                v-model="$store.state.Player.options.workingdurationtime.min"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+            <v-flex sm1></v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="max(minutes):"
+                min="1"
+                v-model="$store.state.Player.options.workingdurationtime.max"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+          <v-layout row>
+            <v-flex sm5>
+              Sleep time
+            </v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="min(minutes):"
+                min="0"
+                v-model="$store.state.Player.options.sleeptime.min"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+            <v-flex sm1></v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="max(minutes):"
+                min="0"
+                v-model="$store.state.Player.options.sleeptime.max"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+          <v-layout row
+            ><v-flex sm5>Redirect during sleep time</v-flex
+            ><v-flex>
+              <v-switch
+                style="padding: 0px;    margin: 0px;"
+                v-model="$store.state.Player.options.redirectsleeptime"
+              ></v-switch
+            ></v-flex>
+          </v-layout>
+          <v-layout row>
+            <v-flex sm5>
+              Redirect when bot is active
+            </v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="min(minutes):"
+                min="0"
+                v-model="$store.state.Player.options.redirect.min"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+            <v-flex sm1></v-flex>
+            <v-flex sm3>
+              <v-text-field
+                label="max(minutes):"
+                min="0"
+                v-model="$store.state.Player.options.redirect.max"
+                type="number"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+          <v-layout row>
+            <div v-if="$store.state.Player.version == 444">
+              <v-text-field
+                label="username:"
+                v-model="$store.state.Player.options.User.username"
+                hide-details
+                type="text"
+              ></v-text-field>
+              <v-text-field
+                label="password:"
+                v-model="$store.state.Player.options.User.password"
+                hide-details
+                type="password"
+              ></v-text-field>
+            </div>
+          </v-layout>
+          <v-layout row>
+            <v-flex sm2>
+              <v-switch
+                style="padding: 0px;    margin: 0px;"
+                v-model="$store.state.Player.options.email.enabled"
+                value="true"
+                label="mail"
+              ></v-switch
+            ></v-flex>
+            <v-flex sm1> </v-flex>
+            <v-flex sm6>
+              <v-text-field
+                label="notification email:"
+                v-model="$store.state.Player.options.email.email"
+                type="mail"
+              ></v-text-field>
+            </v-flex>
+            <v-flex sm2> </v-flex>
+            <v-flex sm1>
+              <v-btn
+                color="primary"
+                class="headButtonRight"
+                style="margin-right: 30px;"
+                @click="sendTestMail"
+                >Test</v-btn
+              >
+            </v-flex>
+          </v-layout>
         </v-layout>
-        <v-layout row>
-          <div>Version Extension {{ $store.state.version.extension }}</div>
-          <br />
-        </v-layout>
-        <v-layout row style="margin-top:10px;">
-          Language
-          <v-select
-            :items="[
-              'en',
-              'si',
-              'it',
-              'com.eg',
-              'com.sa',
-              'com.sy',
-              'ae',
-              'ro',
-              'co.id',
-              'pl',
-              'asia',
-              'hu',
-              'ru',
-              'com.tr',
-              'cl',
-              'net',
-              'com.my',
-              'dk',
-              'bg',
-              'com.br',
-              'cz',
-              'gr',
-              'rs',
-              'ir',
-              'fr',
-              'lt'
-            ]"
-            v-model="$store.state.options.style.language"
-          ></v-select>
-        </v-layout>
-        <v-layout row>
-          RTL <v-switch v-model="$vuetify.rtl" value="true"></v-switch>
-        </v-layout>
-        <v-layout row>
-          <v-flex sm5>
-            Task check time
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="min(second):"
-              min="5"
-              v-model="$store.state.Player.options.taskchecktime.min"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="max(second):"
-              min="5"
-              v-model="$store.state.Player.options.taskchecktime.max"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <v-flex sm5>
-            Working duration time
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="min(minutes):"
-              min="1"
-              v-model="$store.state.Player.options.workingdurationtime.min"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="max(minutes):"
-              min="1"
-              v-model="$store.state.Player.options.workingdurationtime.max"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <v-flex sm5>
-            Sleep time
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="min(minutes):"
-              min="0"
-              v-model="$store.state.Player.options.sleeptime.min"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="max(minutes):"
-              min="0"
-              v-model="$store.state.Player.options.sleeptime.max"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          Redirect during sleep time
-          <v-switch
-            v-model="$store.state.Player.options.redirectsleeptime"
-          ></v-switch>
-        </v-layout>
-        <v-layout row>
-          <v-flex sm5>
-            Redirect when bot is active
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="min(minutes):"
-              min="0"
-              v-model="$store.state.Player.options.redirect.min"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-          <v-flex sm3>
-            <v-text-field
-              label="max(minutes):"
-              min="0"
-              v-model="$store.state.Player.options.redirect.max"
-              type="number"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <div v-if="$store.state.Player.version == 444">
-            <v-text-field
-              label="username:"
-              v-model="$store.state.Player.options.User.username"
-              hide-details
-              type="text"
-            ></v-text-field>
-            <v-text-field
-              label="password:"
-              v-model="$store.state.Player.options.User.password"
-              hide-details
-              type="password"
-            ></v-text-field>
-          </div>
-        </v-layout>
-        <v-layout row> </v-layout>
-      </v-container>
+      </div>
     </div>
   </vue-draggable-resizable>
 </template>
@@ -221,6 +274,12 @@ export default Vue.extend({
       this.$store.state.options.style.setting.left = left;
       this.$store.state.options.style.setting.top = top;
       this.$store.state.options.coverdiv = false;
+    },
+    sendTestMail() {
+      $store.dispatch("send_email", {
+        subject: "test",
+        message: "test message"
+      });
     }
   },
   watch: {

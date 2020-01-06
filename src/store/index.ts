@@ -3,13 +3,13 @@ import Vuex from "vuex";
 const objects = require('../engine/classes.js');
 const translations = require('../engine/translations.js');
 const { ls } = require('vue-storage-plus');
-import $log from "@/plugins/log";
 
 Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     CheckLogic: require("../engine/checkLogic.js").default,
-    log: $log,
+    log: {} as any,
+    socket: {} as any,
     localStorage: ls,
     Player: new objects.default.Player(),
     Village: new objects.default.village(),
@@ -32,7 +32,7 @@ export default new Vuex.Store({
     windowdimension: "2560-1440",
     counter: 0,
     version: {
-      web: "3.4.33",
+      web: "3.4.38",
       extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",
@@ -70,7 +70,7 @@ export default new Vuex.Store({
           ) {
             state.options.style[propertyName].left =
               window.innerWidth - state.options.style[propertyName].width;
-            //state.options.style[propertyName].width=300;
+            state.options.style[propertyName].width = 300;
           }
           if (
             state.options.style[propertyName].top +
@@ -79,24 +79,34 @@ export default new Vuex.Store({
           ) {
             state.options.style[propertyName].top =
               window.innerHeight - state.options.style[propertyName].height;
-            //state.options.style[propertyName].width=300;
+            state.options.style[propertyName].width = 300;
           }
 
           if (state.options.style[propertyName].top < 30) {
             state.options.style[propertyName].top = 30;
-            //state.options.style[propertyName].width=300;
+            state.options.style[propertyName].width = 300;
           }
           if (state.options.style[propertyName].left < 30) {
             state.options.style[propertyName].left = 30;
-            //state.options.style[propertyName].width=300;
+            state.options.style[propertyName].width = 300;
           }
           if (state.options.style[propertyName].z < 10) {
             state.options.style[propertyName].z = 10;
-            //state.options.style[propertyName].width=300;
+            state.options.style[propertyName].width = 300;
           }
         }
       }
-    }
+    },
+    SOCKET_CONNECT(state) {
+      state.log.debug("conected");
+    },
+
+    SOCKET_DISCONNECT(state) {
+      state.log.debug("disconected");
+    },
+    SOCKET_TIME(state, message) { // <-- this action is triggered when `user_message` is emmited on the server
+
+    },
   },
   getters: {
     getPlayer: state => () => state.Player,
@@ -175,6 +185,17 @@ export default new Vuex.Store({
     },
     getNewBuiding: state => () => {
       return new objects.default.building();
+    }
+  },
+  actions: {
+    send_email({ state }, message) {
+      let data = {
+        to: state.Player.options.email.email,
+        subject: message.subject,
+        message: message.message
+      };
+
+      state.socket.client.emit('sendmail', data);
     }
   }
 });

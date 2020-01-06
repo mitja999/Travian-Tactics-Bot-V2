@@ -46,7 +46,7 @@
       </div>
       <v-layout justify-space-around class="containerCustomBody">
         <v-switch
-          v-model="$store.state.Player.options.tasks.hero.adventure"
+          v-model="$store.state.Player.options.tasks.hero.adventure.enabled"
           label="Enable adventure"
         ></v-switch>
       </v-layout>

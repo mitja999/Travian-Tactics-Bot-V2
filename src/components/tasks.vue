@@ -251,6 +251,7 @@
         </tbody>
             </template>
           </v-data-table>
+        <v-expansion-panels>
           <v-expansion-panel v-show="$store.state.selectedVillage.tasks.farms.length!==0" >
             <v-expansion-panel-content
               v-bind:key="index"
@@ -371,6 +372,7 @@
               </div>-->
             </v-expansion-panel-content>
           </v-expansion-panel>
+        </v-expansion-panels>
         </v-layout>
       </div>
     </div>

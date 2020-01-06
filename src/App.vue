@@ -48,12 +48,6 @@ import tasks from "./components/tasks.vue";
 import logs from "./components/logs.vue";
 import farmfinder from "./components/farmfinder.vue";
 import $store from "@/store";
-class logger {
-  debug(name: string) {
-    console.log(name);
-  }
-}
-
 const options = {
   // required ['debug', 'info', 'warn', 'error', 'fatal']
   logLevel: "debug",
@@ -68,7 +62,18 @@ const options = {
   // optional : defaults to false if not specified
   showConsoleColors: false
 };
-
+declare module "vue/types/vue" {
+  // 3. Declare augmentation for Vue
+  interface Vue {
+    $log: {
+      debug(...args: any[]): void;
+      info(...args: any[]): void;
+      warn(...args: any[]): void;
+      error(...args: any[]): void;
+      fatal(...args: any[]): void;
+    };
+  }
+}
 export default Vue.extend({
   name: "App",
   components: {
@@ -90,8 +95,7 @@ export default Vue.extend({
     //Simulator: require("./engine/buildAlgorythm/simulator.js"),
     //Golder: require("./engine/golder.js"),
     initiated: false,
-    logOut: false,
-    $log: new logger()
+    logOut: false
   }),
   methods: {
     calculateTimerTime() {
@@ -218,7 +222,8 @@ export default Vue.extend({
     }
   },
   created: async function() {
-    //this.$log.debug("start");
+    this.$store.state.log = this.$log;
+    this.$store.state.socket = this.$socket;
     let url = decodeURIComponent(
       window.location.href.substring(window.location.href.indexOf("name=") + 5)
     );
@@ -242,8 +247,7 @@ export default Vue.extend({
     this.$store.state.iframesrc = hostname;
 
     //this.$store.state.localStorage = this.$localStorage;
-    this.$log.debug = console.log;
-    this.$store.state.CheckLogic.init(this.$store.state, this.$log);
+    this.$store.state.CheckLogic.init(this.$store.state);
     this.$store.state.CheckLogic.lock = false;
     await this.$store.state.CheckLogic.getConfig(options);
 
@@ -319,6 +323,7 @@ export default Vue.extend({
     );
 
     this.onResize();
+    window.addEventListener("resize", this.onResize);
     let timerCounter = 6;
     let workingDuration = 99999999;
 

@@ -12,9 +12,11 @@ exports.getPlayer = async function (rez) {
 	return true;
 }
 
-exports.build = async function (village, building, buildTask) {
+exports.build = async function (village, buildTask, building) {
 	this.log.debug('T5build start');
-
+	if (!(await checkResources(village.villageId, building.upgradeCosts))) {
+		return false;
+	}
 	let url = "building/upgrade";
 	let data = {
 		'villageId': village.villageId,
@@ -36,6 +38,8 @@ exports.build = async function (village, building, buildTask) {
 	building.upgradeTime = building.upgradeTime;
 	village.storage = subResources(village.storage, building.upgradeCosts);
 
+	await wait(1000);
+	await this.analyzePlayer();
 	return true;
 }
 
@@ -53,7 +57,6 @@ exports.finishNow = async function (village, building, buildTask) {
 	let response = await request(url, data, "requestT5");
 
 	await wait(1000);
-
 	await this.analyzePlayer();
 	return true;
 }
@@ -88,6 +91,9 @@ exports.analyzePlayer = async function () {
 }
 
 exports.trade = async function (village, tradeTask, resources) {
+	if (!(await checkResources(village.villageId, resources))) {
+		return false;
+	}
 	let url = "trade/sendResources";
 	//{"sourceVillageId":535871416,"resources":[0,1500,0,0,0],"destVillageId":535904183,"recurrences":1}
 	if (tradeTask.villageId === undefined || tradeTask.villageId == 0) {
@@ -106,10 +112,15 @@ exports.trade = async function (village, tradeTask, resources) {
 	village.Merchants.inTransport += merchatsUsed;
 	village.storage = subResources(village.storage, resources);
 
+	await wait(1000);
+	await this.analyzePlayer();
 	return true;
 }
 
 exports.train = async function (village, trainTask, resources, building) {
+	if (!(await checkResources(village.villageId, building.upgradeCosts))) {
+		return false;
+	}
 	let units = {};
 	units[trainTask.type] = trainTask.amount;
 	let url = "building/recruitUnits";
@@ -123,6 +134,8 @@ exports.train = async function (village, trainTask, resources, building) {
 
 	village.storage = subResources(village.storage, resources);
 
+	await wait(1000);
+	await this.analyzePlayer();
 	return true;
 }
 
@@ -725,3 +738,17 @@ exports.analyseBuildRouter = async function (selectedVillage) {
 	return false;
 }.bind(this);
 export default exports;
+
+const checkResources = async (villageId, resources) => {
+
+	let rez = await request("", "", "getT5Player");
+	if (rez !== undefined && rez.player !== undefined) {
+		let updatedRes = rez.player.villages.find(v => v.villageId === villageId).storage;
+		if (resources["1"] * 1 > updatedRes["1"] * 1) return false;
+		if (resources["2"] * 1 > updatedRes["2"] * 1) return false;
+		if (resources["3"] * 1 > updatedRes["3"] * 1) return false;
+		if (resources["4"] * 1 > updatedRes["4"] * 1) return false;
+	}
+
+	return true;
+}
