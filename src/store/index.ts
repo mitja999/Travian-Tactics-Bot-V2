@@ -31,8 +31,9 @@ export default new Vuex.Store({
     executing: false,
     windowdimension: "2560-1440",
     counter: 0,
+    gameUrl: '' as string,
     version: {
-      web: "3.4.38",
+      web: "3.4.42",
       extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",

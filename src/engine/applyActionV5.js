@@ -118,7 +118,7 @@ exports.trade = async function (village, tradeTask, resources) {
 }
 
 exports.train = async function (village, trainTask, resources, building) {
-	if (!(await checkResources(village.villageId, building.upgradeCosts))) {
+	if (!(await checkResources(village.villageId, resources))) {
 		return false;
 	}
 	let units = {};
@@ -694,9 +694,16 @@ function id2xy(a) {
 	};
 }
 
-const request = function (url, data, type) {
+const sleep = async function (ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+const request = async function (url, data, type) {
+	await sleep(Math.random() * 1000 + 1000);
 
-	return new Promise((resolve, reject) => {
+	let deadlinePromise = new Promise(function (resolve, reject) {
+		setTimeout(resolve, 5000, undefined);
+	});
+	let runPromise = new Promise((resolve, reject) => {
 		if (!!window.chrome) {
 			chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
 				'url': url,
@@ -722,7 +729,8 @@ const request = function (url, data, type) {
 			}, _r1);
 		}
 	});
-}.bind(this)
+	return Promise.race([runPromise, deadlinePromise]);
+}
 
 function wait(ms) {
 	return new Promise((resolve) => {
@@ -744,6 +752,7 @@ const checkResources = async (villageId, resources) => {
 	let rez = await request("", "", "getT5Player");
 	if (rez !== undefined && rez.player !== undefined) {
 		let updatedRes = rez.player.villages.find(v => v.villageId === villageId).storage;
+
 		if (resources["1"] * 1 > updatedRes["1"] * 1) return false;
 		if (resources["2"] * 1 > updatedRes["2"] * 1) return false;
 		if (resources["3"] * 1 > updatedRes["3"] * 1) return false;

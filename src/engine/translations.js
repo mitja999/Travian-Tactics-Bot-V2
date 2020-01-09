@@ -26,6 +26,7 @@ class TranslateTemp {
     this.name = "Name";
     this.type = "type";
     this.del = "Del";
+    this.demolish = "Demolish";
     this.turnon = "Turn ON";
     this.turnoff = "Turn OFF";
     this.repetevery = "Repeat every";

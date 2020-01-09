@@ -2247,9 +2247,9 @@ const exports = class {
                 lvl = buildlink.snapshotItem(0).value.match(/[\d\.]+/g)[0] * 1;
             }
         } else {
-            let tablink = await this.checkTab(doc, buildTask)
-            //this.store.state.log.debug('ni linka', "preveri ce lahko zgradis kot novo zgradbo", tablink);
+            let tablink = await this.checkTab(doc, buildTask);
 
+            //this.store.state.log.debug('ni linka', "preveri ce lahko zgradis kot novo zgradbo", tablink);
             if (tablink == "0") {
                 rez.success = false
                 rez.error = true
@@ -2271,7 +2271,7 @@ const exports = class {
 
             tablink = await this.checkTab(doc, buildTask)
             //this.store.state.log.debug('ni linka', "preveri ce lahko zgradis kot novo zgradbo 2", tablink, tablink != "");
-            if (tablink != "") {
+            if (tablink !== "") {
                 this.store.state.log.debug('ni linka');
                 rez.success = false
                 rez.error = true
@@ -2279,9 +2279,9 @@ const exports = class {
                 rez.name = village.name
                 return rez
             }
-            ;
 
-            buildlink = doc.evaluate(".//div[@class='build']//div[@id='build']//div[@id='contract_building" + buildTask.buildingType + "']//button", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+            buildlink = doc.evaluate(".//div[@id='contract_building" + buildTask.buildingType + "']//button", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+
             //this.store.state.log.debug(".//div[@class='build']//div[@id='build']//div[@id='contract_building" + buildTask.buildingType + "']//button", buildlink.snapshotLength);
             if (buildlink.snapshotLength) {
                 let buildgoldlink = doc.evaluate(".//i[@class='goldIcon']", buildlink.snapshotItem(0), null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -2359,7 +2359,6 @@ const exports = class {
         } else if (buildTask.buildingType * 1 == 5 || buildTask.buildingType * 1 == 6 || buildTask.buildingType * 1 == 7 || buildTask.buildingType * 1 == 8 || buildTask.buildingType * 1 == 9) {
             targetcategory = 3;
         }
-
         if (activeTab.snapshotLength) {
             let link = activeTab.snapshotItem(0).getAttribute("href")
             let category = link.split("category=")[1].split("&")[0] * 1
@@ -2387,10 +2386,21 @@ const exports = class {
                 //rez = await this.requestAndAnalyse(this.store.state.Player.url+"/"+link,"","GET", {"Referer":rez.responseURL},Player);
                 //build2(village,villageBuilding,rez,attempts+1,url,buildTask) 
             }
+        } else {
+            let ex = ".//div[@class='scrollingContainer']//a[contains(@class, 'active')]"; // 
+            activeTab = doc.evaluate(ex, doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+            if (activeTab.snapshotLength) {
+                let activeTabUrl = activeTab.snapshotItem(0).getAttribute("href");
+                if (activeTabUrl.indexOf('category=' + targetcategory) === -1) {
+                    activeTabUrl = activeTabUrl.substring(0, activeTabUrl.indexOf('category')) + 'category=' + targetcategory;
+                    return this.store.state.Player.url + "/" + activeTabUrl;
+                }
+            }
         }
 
         return ""
     }
+
 
     updateResources = async function () {
         let now = new Date().getTime()
@@ -3755,18 +3765,12 @@ const exports = class {
     sleep = async function (ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-    request = async function (url, data, type, headers, timeout) {
-        if (!timeout) {
-            timeout = 10000
-        }
-        console.log("request: ", type, url, data);
-        let sleepDuration = Math.floor(Math.random() * 1000) + 500;
-        await this.sleep(sleepDuration);
-
-        return new Promise((resolve, reject) => {
-            setTimeout(function () {
-                resolve({ "document": "", "orign": "", "url": "" })
-            }, timeout)
+    request = async function (url, data, type) {
+        await this.sleep(Math.random() * 1000 + 1000);
+        let deadlinePromise = new Promise(function (resolve, reject) {
+            setTimeout(resolve, 5000, undefined);
+        });
+        let runPromise = new Promise((resolve, reject) => {
             if (!!window.chrome) {
                 chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
                     'url': url,
@@ -3774,30 +3778,25 @@ const exports = class {
                     'type': type,
                     timeout: 10000,
                     timemin: 500,
-                    timemax: 2000
+                    timemax: 2000,
                 }, function (response) {
-                    //console.log('request done', response);
                     resolve(response);
                 })
             } else {
                 let _r1 = {};
-                if (window.sendMessage === undefined) {
-                    resolve(undefined);
-                    return;
-                }
-
                 window.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
                     'url': url,
                     'data': data,
                     'type': type,
                     timeout: 10000,
                     timemin: 500,
-                    timemax: 2000
+                    timemax: 2000,
                 }, function (response) {
                     resolve(response.data);
                 }, _r1);
             }
         });
+        return Promise.race([runPromise, deadlinePromise]);
     }
 
     getCoordfromXY = async function (x, y) {

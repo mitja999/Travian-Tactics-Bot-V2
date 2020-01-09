@@ -35,10 +35,14 @@
       <div label class="headDiv" style>
         <v-chip small class="badge" dark label color="blue-grey darken-1">
           <v-icon dark left>gavel</v-icon>
-          <b>{{ $store.state.lang["building"] }}</b>
+          <b>{{
+            demolish
+              ? $store.state.lang["demolish"]
+              : $store.state.lang["building"]
+          }}</b>
           <label>{{ $store.state.selectedVillage.name }}</label>
         </v-chip>
-        <div class="headdivicons">
+        <div class="headdivicons" style="width: 100px;">
           <v-btn
             class="drag headButtonRight"
             fab
@@ -50,7 +54,7 @@
             <v-icon medium>close</v-icon>
           </v-btn>
           <v-btn
-            class="drag headButtonRight movebutton"
+            class="drag headButtonRight"
             fab
             small
             color="warning"
@@ -240,6 +244,7 @@ export default Vue.extend({
       z: 999,
       enabled: true
     },
+    demolish: false,
     loading1: false,
     //Player:$parent.Player,
     selectedBuilding: $store.getters.getNewBuiding(),

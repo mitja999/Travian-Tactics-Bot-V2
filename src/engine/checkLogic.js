@@ -66,6 +66,7 @@
 			if (rez) {
 				if (rez.orign) {
 					this.store.Player.url = rez.orign;
+					this.store.gameUrl = rez.url;
 				}
 
 				if (rez.document) {
@@ -121,13 +122,13 @@
 								this.log.debug("LOG: before calling " + fname, arg);
 
 								if (tasksToCheckActivity.includes(fname)) {
-									if (!arg[1].enabled) {
+									if (arg[1] !== undefined && !arg[1].enabled) {
 										return false;
 									}
 									arg[1].executionTimes = arg[1].executionTimes === undefined ? [] : arg[1].executionTimes;
 									arg[1].executionTimes.push(Date.now());
 									if (arg[1].executionTimes.length >= 5) {
-										const millis = arg[1].executionTimes[4] - arg[1].executionTimes[0];
+										let millis = arg[1].executionTimes[4] - arg[1].executionTimes[0];
 										arg[1].executionTimes.shift();
 										if (millis <= 240000) {
 											arg[1].enabled = false;
@@ -603,7 +604,7 @@
 			}
 			//status 0=alive, 1 returning, 2 on the way, 7 dead
 			if (this.store.Player.hero.status == 0 && this.store.Player.hero.adventurePoints * 1 > 0) {
-				let rez = await this.ApplyActions.adventure(this.store.Player, this.store.Player.hero.adventure);
+				let rez = await this.ApplyActions.adventure(this.store.Player, this.store.Player.options.tasks.hero.adventure);
 			}
 		}
 		this.log.debug('checkHero end');
@@ -1220,9 +1221,13 @@
 			obj[fname] = async function () {
 				let rv;
 				if (before) {
-					rv = await before(fname, this, arguments);
+					try {
+						rv = await before(fname, this, arguments);
+					} catch (ex) {
+						rv = false;
+						this.log.error(ex);
+					}
 				}
-
 				if (rv) {
 					try {
 						rv = await f.apply(this, arguments); // Calls the original
@@ -1232,7 +1237,11 @@
 				}
 
 				if (after) {
-					await after(fname, this, arguments, rv);
+					try {
+						await after(fname, this, arguments, rv);
+					} catch (ex) {
+						this.log.error(ex);
+					}
 				}
 				return rv;
 			};

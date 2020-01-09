@@ -10,6 +10,7 @@
       <iframe
         id="traviantacticsFrame"
         :src="$store.state.iframesrc"
+        :key="iframeindex"
         style="overflow:hidden; position: fixed; height: 100%; width: 100%; left:0px; top:0px; border: none; z-index: 1; padding: 0px; margin: 0px;"
         alt="Web site is not avaialable"
       ></iframe>
@@ -95,7 +96,9 @@ export default Vue.extend({
     //Simulator: require("./engine/buildAlgorythm/simulator.js"),
     //Golder: require("./engine/golder.js"),
     initiated: false,
-    logOut: false
+    logOut: false,
+    iframeindex: 0,
+    reloadDay: new Date().getUTCDate()
   }),
   methods: {
     calculateTimerTime() {
@@ -326,6 +329,7 @@ export default Vue.extend({
     window.addEventListener("resize", this.onResize);
     let timerCounter = 6;
     let workingDuration = 99999999;
+    let iframeReloadCounter = 3600;
 
     var refreshId = setInterval(async () => {
       if (
@@ -345,6 +349,12 @@ export default Vue.extend({
             ) *
               60 +
             this.$store.state.Player.options.workingdurationtime.min * 60;
+
+          let urlParams = new URLSearchParams(window.location.search);
+          let start = urlParams.get("start");
+          if (start !== undefined && start === "true") {
+            this.$store.state.Player.start = true;
+          }
         }
       } else {
         if (this.$store.state.Player.start) {
@@ -385,6 +395,33 @@ export default Vue.extend({
                 60 +
               this.$store.state.Player.options.workingdurationtime.min * 60 +
               timerCounter;
+          }
+
+          iframeReloadCounter--;
+          if (iframeReloadCounter <= 0) {
+            //this.$store.state.iframesrc = "http://traviantactics.com";
+            this.$store.state.iframesrc = this.$store.state.gameUrl;
+            this.iframeindex++;
+            //this.$store.state.iframesrc = rez.url;
+            iframeReloadCounter = 3600;
+          }
+
+          if (new Date().getUTCDate() !== this.reloadDay) {
+            let endUrl = window.location.href.indexOf("?");
+            if (endUrl !== -1) {
+              window.location.href =
+                window.location.href.substring(0, endUrl) +
+                "?start=" +
+                this.$store.state.Player.start +
+                "&name=" +
+                this.$store.state.gameUrl;
+            } else {
+              window.location.href =
+                "http://traviantactics.com/botV2/index.html?start=" +
+                this.$store.state.Player.start +
+                "&name=" +
+                this.$store.state.gameUrl;
+            }
           }
         }
       }

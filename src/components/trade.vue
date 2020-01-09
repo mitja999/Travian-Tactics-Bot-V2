@@ -374,6 +374,7 @@
                       </div>
                     </td>
                     <td class="tdClass" style="width:40%">
+                      <div v-if='item.name!==""'>{{ "X:" + item.name }}</div>
                       <div>{{ "X:" + item.x }}</div>
                       <div>{{ "Y:" + item.y }}</div>
                     </td>
@@ -506,6 +507,7 @@ export default Vue.extend({
         this.TradeTask.name = this.VillageTo.name;
       } else {
         this.TradeTask.name = "";
+        this.TradeTask.villageId = 0;
       }
       this.$store.state.selectedVillage.tasks.trade.push(
         JSON.parse(JSON.stringify(this.TradeTask))
