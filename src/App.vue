@@ -100,7 +100,8 @@ export default Vue.extend({
     iframeindex: 0,
     reloadDay: new Date().getUTCDate(),
     timerCounter: 6,
-    iframeReloadCounter: 3600
+    iframeReloadCounter: 3600,
+    mobile: false
   }),
   methods: {
     calculateTimerTime() {
@@ -217,16 +218,30 @@ export default Vue.extend({
       return;
     },
     onResize() {
-      this.$store.commit("checkDivs");
-      //this.Simulator.trade;
-      this.$store.state.windowdimension =
-        "" + window.innerWidth + "-" + window.innerHeight;
-      setTimeout(() => {
-        this.$store.state.options.coverdiv = false;
-      }, 300);
+      if (!this.mobile || !this.$store.state.Player.loggedIn) {
+        this.$store.commit("checkDivs");
+        //this.Simulator.trade;
+        this.$store.state.windowdimension =
+          "" + window.innerWidth + "-" + window.innerHeight;
+        setTimeout(() => {
+          this.$store.state.options.coverdiv = false;
+        }, 300);
+      }
+    },
+    isMobile() {
+      if (
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+      ) {
+        return true;
+      } else {
+        return false;
+      }
     }
   },
   created: async function() {
+    this.mobile = this.isMobile();
     this.$store.state.log = this.$log;
     this.$store.state.socket = this.$socket;
     let url = decodeURIComponent(

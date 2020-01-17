@@ -63,7 +63,6 @@
                 v-model="TradeTask.x"
                 hide-details
                 type="number"
-                style="padding: 0; padding-left: 10px;"
               ></v-text-field>
             </v-flex>
             <v-flex xs2 v-show="!showVillage">
@@ -81,7 +80,6 @@
                 v-model="VillageTo"
                 label="Select"
                 single-line
-                style="padding: 0; padding-left: 10px;"
               >
                 <template slot="selection" slot-scope="data">{{
                   data.item.name
