@@ -15,7 +15,7 @@
         alt="Web site is not avaialable"
       ></iframe>
 
-      <build v-show="$store.state.options.style.build.show"></build>
+      <buildView v-show="$store.state.options.style.build.show"></buildView>
       <buildfinder
         v-show="$store.state.options.style.buildfinder.show"
       ></buildfinder>
@@ -44,7 +44,7 @@ import farm from "./components/farm.vue";
 import trade from "./components/trade.vue";
 import train from "./components/train.vue";
 import setting from "./components/setting.vue";
-import build from "./components/build.vue";
+import buildView from "./components/build/build.vue";
 import tasks from "./components/tasks.vue";
 import logs from "./components/logs.vue";
 import farmfinder from "./components/farmfinder.vue";
@@ -80,7 +80,7 @@ export default Vue.extend({
   components: {
     hero,
     sidebar,
-    build,
+    buildView,
     farmfinder,
     logs,
     tasks,
@@ -98,7 +98,9 @@ export default Vue.extend({
     initiated: false,
     logOut: false,
     iframeindex: 0,
-    reloadDay: new Date().getUTCDate()
+    reloadDay: new Date().getUTCDate(),
+    timerCounter: 6,
+    iframeReloadCounter: 3600
   }),
   methods: {
     calculateTimerTime() {
@@ -315,6 +317,44 @@ export default Vue.extend({
     );
 
     this.$store.watch(
+      this.$store.getters.getPlayerOptionsworkingdurationtime,
+      val => {
+        if (this.initiated) {
+          this.$store.state.workingDuration =
+            Math.floor(
+              Math.random() *
+                (this.$store.state.Player.options.workingdurationtime.max * 1 -
+                  this.$store.state.Player.options.workingdurationtime.min * 1)
+            ) *
+              60 +
+            this.$store.state.Player.options.workingdurationtime.min * 60 +
+            this.timerCounter;
+        }
+      },
+      {
+        immediate: true,
+        deep: true
+      }
+    );
+    this.$store.watch(
+      this.$store.getters.getPlayerOptionstaskchecktime,
+      val => {
+        if (this.initiated) {
+          this.timerCounter =
+            Math.floor(
+              Math.random() *
+                (this.$store.state.Player.options.taskchecktime.max * 1 -
+                  this.$store.state.Player.options.taskchecktime.min * 1)
+            ) +
+            this.$store.state.Player.options.taskchecktime.min * 1;
+        }
+      },
+      {
+        immediate: true,
+        deep: true
+      }
+    );
+    this.$store.watch(
       this.$store.getters.getOptions,
       val => {
         this.$store.state.CheckLogic.setConfig();
@@ -327,9 +367,6 @@ export default Vue.extend({
 
     this.onResize();
     window.addEventListener("resize", this.onResize);
-    let timerCounter = 6;
-    let workingDuration = 99999999;
-    let iframeReloadCounter = 3600;
 
     var refreshId = setInterval(async () => {
       if (
@@ -341,7 +378,25 @@ export default Vue.extend({
         await this.getPlayer();
         if (this.$store.state.Player.playerId !== 0) {
           this.$store.state.taskStatus = "Got player";
-          workingDuration =
+          if (this.$store.state.Player.options.default) {
+            this.$store.state.Player.options.default = false;
+            if (this.$store.state.Player.version === 4) {
+              this.$store.state.Player.options.workingdurationtime.max = 360;
+              this.$store.state.Player.options.workingdurationtime.min = 300;
+              this.$store.state.Player.options.taskchecktime.max = 180;
+              this.$store.state.Player.options.taskchecktime.min = 60;
+              this.$store.state.Player.options.sleeptime.max = 240;
+              this.$store.state.Player.options.sleeptime.min = 180;
+            } else {
+              this.$store.state.Player.options.workingdurationtime.max = 99999999;
+              this.$store.state.Player.options.workingdurationtime.min = 99999999;
+              this.$store.state.Player.options.taskchecktime.max = 10;
+              this.$store.state.Player.options.taskchecktime.min = 5;
+              this.$store.state.Player.options.sleeptime.max = 1;
+              this.$store.state.Player.options.sleeptime.min = 1;
+            }
+          }
+          this.$store.state.workingDuration =
             Math.floor(
               Math.random() *
                 (this.$store.state.Player.options.workingdurationtime.max * 1 -
@@ -358,8 +413,8 @@ export default Vue.extend({
         }
       } else {
         if (this.$store.state.Player.start) {
-          if (timerCounter <= 0) {
-            timerCounter =
+          if (this.timerCounter <= 0) {
+            this.timerCounter =
               Math.floor(
                 Math.random() *
                   (this.$store.state.Player.options.taskchecktime.max * 1 -
@@ -369,13 +424,13 @@ export default Vue.extend({
             this.$store.state.taskStatus = "checking";
             await this.$store.state.CheckLogic.checkTasks();
           } else if (!this.$store.state.CheckLogic.lock) {
-            timerCounter--;
-            workingDuration--;
-            this.$store.state.taskStatus = timerCounter + "";
+            this.timerCounter--;
+            this.$store.state.workingDuration--;
+            this.$store.state.taskStatus = this.timerCounter + "";
           }
 
-          if (workingDuration <= 0) {
-            timerCounter =
+          if (this.$store.state.workingDuration <= 0) {
+            this.timerCounter =
               Math.floor(
                 Math.random() *
                   (this.$store.state.Player.options.sleeptime.max * 1 -
@@ -384,7 +439,7 @@ export default Vue.extend({
                 60 +
               this.$store.state.Player.options.sleeptime.min * 60;
 
-            workingDuration =
+            this.$store.state.workingDuration =
               Math.floor(
                 Math.random() *
                   (this.$store.state.Player.options.workingdurationtime.max *
@@ -394,16 +449,20 @@ export default Vue.extend({
               ) *
                 60 +
               this.$store.state.Player.options.workingdurationtime.min * 60 +
-              timerCounter;
+              this.timerCounter;
           }
-
-          iframeReloadCounter--;
-          if (iframeReloadCounter <= 0) {
-            //this.$store.state.iframesrc = "http://traviantactics.com";
-            this.$store.state.iframesrc = this.$store.state.gameUrl;
-            this.iframeindex++;
-            //this.$store.state.iframesrc = rez.url;
-            iframeReloadCounter = 3600;
+          if (
+            this.timerCounter <=
+            this.$store.state.Player.options.taskchecktime.max
+          ) {
+            this.iframeReloadCounter--;
+            if (this.iframeReloadCounter <= 0) {
+              //this.$store.state.iframesrc = "http://traviantactics.com";
+              this.$store.state.iframesrc = this.$store.state.gameUrl;
+              this.iframeindex++;
+              //this.$store.state.iframesrc = rez.url;
+              this.iframeReloadCounter = 3600;
+            }
           }
 
           if (new Date().getUTCDate() !== this.reloadDay) {

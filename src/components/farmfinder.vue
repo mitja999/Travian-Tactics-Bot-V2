@@ -231,7 +231,8 @@ table {
                       label
                       v-model="filterFarm.pop.min"
                       type="number"
-                      min="0"
+                      step="1"
+                      min="1"
                     ></v-text-field>
                   </v-flex>
                   <v-flex xs2>
@@ -241,6 +242,8 @@ table {
                       label
                       v-model="filterFarm.pop.max"
                       type="number"
+                      step="1"
+                      min="1"
                     ></v-text-field>
                   </v-flex>
                 </v-layout>
@@ -398,6 +401,8 @@ table {
                   v-model="FarmTask.timeMinutes"
                   type="number"
                   hint="min"
+                  step="1"
+                  min="1"
                 ></v-text-field>
               </v-flex>
               <v-flex xs2 style="margin-left:5px;">
@@ -406,6 +411,8 @@ table {
                   v-model="FarmTask.timeMinutesMax"
                   type="number"
                   hint="max"
+                  step="1"
+                  min="1"
                 ></v-text-field>
               </v-flex>
               <v-flex xs1 style="margin-left:5px;">

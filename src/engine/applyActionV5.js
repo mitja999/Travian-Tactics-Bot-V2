@@ -698,10 +698,10 @@ const sleep = async function (ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 const request = async function (url, data, type) {
-	await sleep(Math.random() * 1000 + 1000);
+	await sleep(100);
 
 	let deadlinePromise = new Promise(function (resolve, reject) {
-		setTimeout(resolve, 5000, undefined);
+		setTimeout(resolve, 1000, undefined);
 	});
 	let runPromise = new Promise((resolve, reject) => {
 		if (!!window.chrome) {

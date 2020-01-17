@@ -92,6 +92,8 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
                 label="amount:"
                 v-model="TrainTask.amount"
                 type="number"
+                step="1"
+                min="1"
               ></v-text-field>
             </v-flex>
             <v-flex xs3 style="    margin-top: 22px; margin-left: 5px;">
@@ -99,6 +101,8 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
                 label="time:"
                 v-model="TrainTask.timeMinutes"
                 type="number"
+                step="1"
+                min="2"
               ></v-text-field>
             </v-flex>
             <v-flex xs1>

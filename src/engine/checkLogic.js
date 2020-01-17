@@ -127,7 +127,7 @@
 									}
 									arg[1].executionTimes = arg[1].executionTimes === undefined ? [] : arg[1].executionTimes;
 									arg[1].executionTimes.push(Date.now());
-									if (arg[1].executionTimes.length >= 5) {
+									if (arg[1].executionTimes.length >= 10) {
 										let millis = arg[1].executionTimes[4] - arg[1].executionTimes[0];
 										arg[1].executionTimes.shift();
 										if (millis <= 240000) {
@@ -137,7 +137,7 @@
 												"time": new Date().getTime(),
 												"name": fname,
 												"success": false,
-												"text": "task disabled because of 5 tries in 4 minutes",
+												"text": "task disabled because of 10 tries in 4 minutes",
 												"villageId": arg[0].villageId
 											});
 											return false;
@@ -157,7 +157,7 @@
 								if (fname !== 'getPlayer' && fname !== 'analyzePlayer') {
 									this.store.executing = false;
 								}
-								this.log.debug("LOG: after calling " + fname, arg);
+
 								let text = "";
 								let logname = fname;
 								let success = r;
@@ -165,6 +165,7 @@
 									if (r)
 										success = r.success;
 								}
+
 								switch (fname) {
 									case "getPlayer":
 										text = "Analyze player"
@@ -174,13 +175,16 @@
 										if (this.store.Player.version == 4) {
 											lvl = r.lvl
 										}
-										text = "Building: " + this.store.Buildings[arg[1].buildingType][0][1] + ", LocationId: " + arg[1].locationId + ", level: " + lvl;
+
+										text = "Building: " + this.store.Buildings[arg[2].buildingType][0][1] + ", LocationId: " + arg[2].locationId + ", level: " + lvl;
+
 										if (this.store.Player.version == 4) {
 											if (r && r.error) {
 												logname = "Error"
 												text = "Building failed (" + text + "): " + r.errorMessage;
 											}
 										}
+
 										break;
 									case "trade":
 										text = "(" + arg[1].x + "|" + arg[1].y + "), [ Wood=" + arg[2]["1"] + " Clay=" + arg[2]["2"] + " Iron=" + arg[2]["3"] + " Grain=" + arg[2]["4"] + " ]";
@@ -253,6 +257,7 @@
 								try {
 									villageId = arg[0].name;
 								} catch{ }
+
 
 								this.store.Player.options.logs.push({
 									"time": new Date().getTime(),
@@ -695,7 +700,7 @@
 
 						if (isLowerReources(villageBuilding.upgradeCosts, village.storage)) {
 
-							this.log.debug('building started', village, villageBuilding, buildTask);
+							this.log.debug('building started', village, buildTask, villageBuilding);
 							let rez = await this.ApplyActions.build(village, buildTask, villageBuilding);
 						}
 					} else {
@@ -1218,7 +1223,7 @@
 		}
 
 		function wrapFunction(obj, fname, f) {
-			obj[fname] = async function () {
+			return obj[fname] = async function () {
 				let rv;
 				if (before) {
 					try {

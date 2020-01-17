@@ -379,12 +379,10 @@ export default Vue.extend({
           let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
             this.$store.state.selectedVillage
           );
-          console.log("loading1", loading1);
           if (loading1) {
             await this.$store.state.CheckLogic.ApplyActions.analyseBuildRouter(
               this.$store.state.selectedVillage
             );
-            console.log("finished analysing");
             loading1 = false;
           }
         } catch (err) {}
@@ -399,12 +397,10 @@ export default Vue.extend({
           let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
             val
           );
-          console.log("loading1", loading1);
           if (loading1) {
             await this.$store.state.CheckLogic.ApplyActions.analyseBuildRouter(
               val
             );
-            console.log("finished analysing");
             loading1 = false;
           }
         } catch (err) {}
@@ -451,8 +447,6 @@ export default Vue.extend({
           buildings[loc].buildingType = buildtasks[i].buildingType;
           buildings[loc].lvlNext = buildtasks[i].toLvl + 1;
           if (update) {
-            console.log("selectedBuilding", buildings[loc]);
-
             if (buildings[loc] !== undefined)
               this.selectedBuilding = buildings[loc];
           }

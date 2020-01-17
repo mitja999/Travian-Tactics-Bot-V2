@@ -2195,8 +2195,7 @@ const exports = class {
             rez.name = village.name
             return rez
         }
-        let lvl = 1
-            ;
+        let lvl = 1;
         if (rez.villageId != village.villageId) {
             rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET", {
                 "Referer": rez.responseURL
@@ -2344,6 +2343,9 @@ const exports = class {
 
             return await this.build2(village, villageBuilding, rez, attempts + 1, url, buildTask)
         }
+        village.buildings[villageBuilding.locationId].lvl++;
+        village.buildings[villageBuilding.locationId].type = villageBuilding.buildingType;
+        village.buildings[villageBuilding.locationId].lvlNext++;
         rez.lvl = lvl;
         rez.success = true
         return rez
@@ -3064,6 +3066,10 @@ const exports = class {
                 let IdPolja = resourcefieldparameters.find(f => f.indexOf('buildingSlot') !== -1).replace('buildingSlot', '') * 1;
                 let buildingType = resourcefieldparameters.find(f => f.indexOf('gid') !== -1).replace('gid', '') * 1;
                 let level = resourcefieldparameters.find(f => f.indexOf('level') !== -1).replace('level', '') * 1;
+                let construction = resourcefieldparameters.find(f => f.indexOf('underConstruction') !== -1);
+                if (construction !== undefined) {
+                    level++;
+                }
                 let lvnext = level + 1;
                 village.buildings[IdPolja].buildingType = buildingType;
                 village.buildings[IdPolja].lvl = level;
@@ -3768,34 +3774,58 @@ const exports = class {
     request = async function (url, data, type) {
         await this.sleep(Math.random() * 1000 + 1000);
         let deadlinePromise = new Promise(function (resolve, reject) {
-            setTimeout(resolve, 5000, undefined);
+            setTimeout(resolve, 10000, undefined);
         });
-        let runPromise = new Promise((resolve, reject) => {
-            if (!!window.chrome) {
-                chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
-                    'url': url,
-                    'data': data,
-                    'type': type,
-                    timeout: 10000,
-                    timemin: 500,
-                    timemax: 2000,
-                }, function (response) {
-                    resolve(response);
-                })
-            } else {
-                let _r1 = {};
-                window.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
-                    'url': url,
-                    'data': data,
-                    'type': type,
-                    timeout: 10000,
-                    timemin: 500,
-                    timemax: 2000,
-                }, function (response) {
-                    resolve(response.data);
-                }, _r1);
-            }
-        });
+        let runPromise;
+        let a = false;
+        if (a && type === "GET") {
+            this.store.state.iframesrc = url;
+            this.store.state.log.debug("request " + url);
+            await this.sleep(2000);
+            runPromise = new Promise((resolve, reject) => {
+                if (!!window.chrome) {
+                    chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
+                        'url': '',
+                        'data': '',
+                        'type': 'getWindowHTML',
+                        timeout: 10000,
+                        timemin: 500,
+                        timemax: 2000,
+                    }, function (response) {
+                        response.responseURL = response.url;
+                        console.log("request res " + response.url);
+                        resolve(response);
+                    })
+                }
+            });
+        } else {
+            runPromise = new Promise((resolve, reject) => {
+                if (!!window.chrome) {
+                    chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
+                        'url': url,
+                        'data': data,
+                        'type': type,
+                        timeout: 10000,
+                        timemin: 500,
+                        timemax: 2000,
+                    }, function (response) {
+                        resolve(response);
+                    })
+                } else {
+                    let _r1 = {};
+                    window.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
+                        'url': url,
+                        'data': data,
+                        'type': type,
+                        timeout: 10000,
+                        timemin: 500,
+                        timemax: 2000,
+                    }, function (response) {
+                        resolve(response.data);
+                    }, _r1);
+                }
+            });
+        }
         return Promise.race([runPromise, deadlinePromise]);
     }
 

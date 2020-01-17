@@ -31,9 +31,10 @@ export default new Vuex.Store({
     executing: false,
     windowdimension: "2560-1440",
     counter: 0,
+    workingDuration: 99999999,
     gameUrl: '' as string,
     version: {
-      web: "3.4.42",
+      web: "3.4.45",
       extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",
@@ -111,6 +112,8 @@ export default new Vuex.Store({
   },
   getters: {
     getPlayer: state => () => state.Player,
+    getPlayerOptionstaskchecktime: state => () => state.Player.options.taskchecktime,
+    getPlayerOptionsworkingdurationtime: state => () => state.Player.options.workingdurationtime,
     getSelectedVillageId: state => () => state.selectedVillage.villageId,
     troopIcon: state => (id: number) => {
       let tribeIcon = state.Player.tribeId * 1 - 1;

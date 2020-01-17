@@ -58,14 +58,20 @@
       </div>
       <div class="sideMenu">
         <v-flex xs12>
-          <v-layout row wrap>
-            <v-flex
-              xs12
-              style="background-color: #263238!important;border-color: #263238!important; color:white;    text-align: center;"
-            >
-              {{ $store.state.taskStatus }}
-            </v-flex>
-          </v-layout>
+          <v-tooltip bottom min-width="117" color="black">
+            <template v-slot:activator="{ on }">
+              <v-layout row wrap>
+                <v-flex
+                  v-on="on"
+                  xs12
+                  style="background-color: #263238!important;border-color: #263238!important; color:white;    text-align: center;"
+                >
+                  <label> {{ $store.state.taskStatus }}</label>
+                </v-flex>
+              </v-layout>
+            </template>
+            <span>Working time: {{ this.$store.state.workingDuration }}</span>
+          </v-tooltip>
           <v-layout row wrap>
             <v-flex xs6>
               <v-btn

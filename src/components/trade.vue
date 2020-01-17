@@ -54,6 +54,7 @@
                 label
                 hide-details
                 v-model="showVillage"
+                style="margin-top: 0px;"
               ></v-checkbox>
             </v-flex>
             <v-flex xs2 v-show="!showVillage">
@@ -113,7 +114,7 @@
                   hide-details
                   type="number"
                   style="padding: 0; padding-left: 10px;"
-                  min="0"
+                  min="1"
                 ></v-text-field>
               </v-flex>
             </v-layout>
@@ -374,7 +375,7 @@
                       </div>
                     </td>
                     <td class="tdClass" style="width:40%">
-                      <div v-if='item.name!==""'>{{ "X:" + item.name }}</div>
+                      <div v-if="item.name !== ''">{{ "X:" + item.name }}</div>
                       <div>{{ "X:" + item.x }}</div>
                       <div>{{ "Y:" + item.y }}</div>
                     </td>
@@ -482,7 +483,7 @@ export default Vue.extend({
       repeatinterval: 1,
       time: new Date().getTime(),
       name: "",
-      enabled:true
+      enabled: true
     },
     showVillage: false
   }),

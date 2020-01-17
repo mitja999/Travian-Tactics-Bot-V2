@@ -3864,6 +3864,7 @@ var defaultplayer = {
     //novi propertyji 
     "start": false,
     "options": {
+        "default": true,
         "User": {
             "username": "",
             "password": ""
