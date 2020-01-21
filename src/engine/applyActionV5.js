@@ -12,6 +12,14 @@ exports.getPlayer = async function (rez) {
 	return true;
 }
 
+exports.logout = async function (rez) {
+	return true;
+}
+
+exports.loginCustom = async function (rez) {
+	return true;
+}
+
 exports.build = async function (village, buildTask, building) {
 	this.log.debug('T5build start');
 	if (!(await checkResources(village.villageId, building.upgradeCosts))) {
@@ -152,7 +160,7 @@ exports.adventure = async function () {
 	return true;
 }
 
-exports.farm = async function (village, FarmTask, farm) {
+exports.farm = async function (village, farm, FarmTask) {
 	let currTime = Math.floor(new Date().getTime());
 	let url = this.store.Player.url + "/api/?c=troops&a=checkTarget&t" + currTime;
 	let data = JSON.stringify({
@@ -406,7 +414,12 @@ exports.farmGoldClub = async function (village, farmlist) {
 		},
 		"session": this.store.Player.SeesionId
 	};
+
 	for (let i = 0; i < farms.length; i++) {
+		let far = farmlist.selectedFarmlist.farms.find(f => f.entryId === farms[i].data.entryId);
+		if (far !== undefined) {
+			if (!far.enabled) continue;
+		}
 		if (isLowerFarms(farms[i].data.units, village.Troops)) {
 			village.Troops["1"] -= farms[i].data.units["1"];
 			village.Troops["2"] -= farms[i].data.units["2"];

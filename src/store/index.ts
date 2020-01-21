@@ -34,7 +34,7 @@ export default new Vuex.Store({
     workingDuration: 99999999,
     gameUrl: '' as string,
     version: {
-      web: "3.4.46",
+      web: "3.4.48",
       extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",

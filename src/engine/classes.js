@@ -3866,6 +3866,9 @@ var defaultplayer = {
     "options": {
         "default": true,
         "User": {
+            "redirect": true,
+            "logout": true,
+            "autologin": true,
             "username": "",
             "password": ""
         },

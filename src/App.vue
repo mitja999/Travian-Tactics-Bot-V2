@@ -96,7 +96,6 @@ export default Vue.extend({
     //Simulator: require("./engine/buildAlgorythm/simulator.js"),
     //Golder: require("./engine/golder.js"),
     initiated: false,
-    logOut: false,
     iframeindex: 0,
     reloadDay: new Date().getUTCDate(),
     timerCounter: 6,
@@ -136,7 +135,6 @@ export default Vue.extend({
         t = new Date();
         t.setMinutes(t.getMinutes() + s1);
         this.$store.state.taskCheckTime = t;
-        this.logOut = true;
         this.$store.state.iframesrc = "http://traviantactics.com";
 
         //$store.state.Player.url
@@ -445,6 +443,12 @@ export default Vue.extend({
           }
 
           if (this.$store.state.workingDuration <= 0) {
+            if (this.$store.state.Player.options.User.logout) {
+              await this.$store.state.CheckLogic.logout();
+            }
+            if (this.$store.state.Player.options.User.redirect) {
+              await this.$store.state.CheckLogic.redirect();
+            }
             this.timerCounter =
               Math.floor(
                 Math.random() *

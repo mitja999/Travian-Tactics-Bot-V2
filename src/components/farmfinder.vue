@@ -176,7 +176,7 @@ table {
                   color="amber darken-1"
                   @click="
                     showGoldClubFarm = true;
-                    $store.state.CheckLogic.getGoldClubFarmlists({});
+                    goldclubfarmlistsshow();
                   "
                 >
                   <v-icon large>my_location</v-icon>
@@ -184,6 +184,14 @@ table {
               </v-flex>
             </v-layout>
           </v-container>
+          <v-progress-circular
+            :size="70"
+            :width="7"
+            color="primary"
+            indeterminate
+            v-show="showspiner"
+            style="margin-left: 45%;"
+          ></v-progress-circular>
           <div v-if="!showGoldClubFarm">
             <v-data-table
               :headers="headers"
@@ -477,7 +485,8 @@ export default Vue.extend({
         entryIds: [],
         isDefault: true,
         maxEntriesCount: 10,
-        villageId: 0
+        villageId: 0,
+        farms: [] as any[]
       },
       enabled: true
     },
@@ -503,6 +512,7 @@ export default Vue.extend({
     extended: true,
     showGoldClubFarm: false,
     snackbar: false,
+    showspiner: false,
     newFarmListName: "",
     selectedFarmlist: 0,
     copyStatus: { value: 0 }
@@ -596,6 +606,11 @@ export default Vue.extend({
       this.$store.state.options.style.farmfinder.top = top;
       this.$store.state.options.coverdiv = false;
     },
+    async goldclubfarmlistsshow() {
+      this.showspiner = true;
+      await this.$store.state.CheckLogic.getGoldClubFarmlists({});
+      this.showspiner = false;
+    },
     getColor(value: any) {
       if (value * 1 == 1) return "green lighten-1";
       else if (value * 1 == 0) return "red lighten-1";
@@ -649,6 +664,7 @@ export default Vue.extend({
       this.$store.state.selectedVillage.tasks.farms.push(
         JSON.parse(JSON.stringify(this.FarmTask))
       );
+      this.FarmTask.villages = [];
       this.selected = [];
     },
     removeFarmList(index: number) {
@@ -657,23 +673,27 @@ export default Vue.extend({
     async farmFind() {
       this.selected = [];
       this.$store.state.custom.FarmFinderFarms = [];
+      this.showspiner = true;
 
-      this.$store.state.CheckLogic.search({
+      await this.$store.state.CheckLogic.search({
         Coordinates: this.Coordinates,
         url: this.$store.state.Player.url,
         SeesionId: this.$store.state.Player.SeesionId
       });
       this.FarmTask.listName = "";
+      this.showspiner = false;
       //this.searchResult=data.farms;
     },
     async cropFind() {
       this.selected = [];
       this.$store.state.custom.FarmFinderFarms = [];
-      this.$store.state.CheckLogic.cropFind({
+      this.showspiner = true;
+      await this.$store.state.CheckLogic.cropFind({
         Coordinates: this.Coordinates,
         url: this.$store.state.Player.url,
         SeesionId: this.$store.state.Player.SeesionId
       });
+      this.showspiner = false;
     },
     troopIcon(id: number) {
       return this.$store.getters.troopIconFF(id);
@@ -709,10 +729,32 @@ export default Vue.extend({
         "10": 0,
         "11": 0
       };
-
+      if (
+        this.FarmTask.selectedFarmlist !== undefined &&
+        this.FarmTask.selectedFarmlist.farms !== undefined
+      ) {
+        this.FarmTask.selectedFarmlist.farms.forEach(f => {
+          f.enabled = f.enabled === undefined ? true : f.enabled;
+        });
+      }
       this.$store.state.selectedVillage.tasks.farms.push(
         JSON.parse(JSON.stringify(this.FarmTask))
       );
+      this.FarmTask.selectedFarmlist = {
+        listId: "0",
+        listName: "",
+        lastSent: "0",
+        lastChanged: 0,
+        units: { "1": "0", "2": "0", "3": "0", "4": "0", "5": "0", "6": "0" },
+        orderNr: "0",
+        villageIds: [],
+        entryIds: [],
+        isDefault: true,
+        maxEntriesCount: 10,
+        villageId: 0,
+        farms: [] as any[]
+      };
+      this.FarmTask.goldClubFarmlist = false;
     }
   },
   filters: {

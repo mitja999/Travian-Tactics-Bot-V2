@@ -117,6 +117,23 @@ const exports = class {
         return rez;
     }
 
+    logout = async function (village, farmlist, name, copyStatus) {
+        let rez = await this.request(this.store.state.Player.url + "/logout.php", "", "GET", {
+            "Referer": this.store.state.Player.url + "/dorf1.php"
+        }, 1);
+        rez.success = true;
+        return rez;
+    }
+    loginCustom = async function (village, farmlist, name, copyStatus) {
+        let rez = await this.request(this.store.state.Player.url + "/logout.php", "", "GET", {
+            "Referer": this.store.state.Player.url + "/dorf1.php"
+        }, 1);
+        let doc = await this.createDocument(rez.document);
+        this.relogin(doc);
+        rez.success = true;
+        return rez;
+    }
+
     train = async function (village, trainTask, resources, building, attempts) {
         if (!attempts) {
             attempts = 1
@@ -418,13 +435,19 @@ const exports = class {
             rez.name = village.name
             return rez
         }
-        let farmlists = await this.getAllFarmlists(rez)
+        let farmlists = await this.getAllFarmlists(rez, farmlist.selectedFarmlist.listId);
         this.store.state.Player.goldClubFarmlists = farmlists;
         let farmlistExist = false;
         //let currentFarmlist=
         for (let i = 0; i < farmlists.length; i++) {
             if (farmlists[i].listId == farmlist.selectedFarmlist.listId) {
-                farmlist.selectedFarmlist = farmlists[i]
+                farmlists[i].farms.forEach(far => {
+                    let e = farmlist.selectedFarmlist.farms.find(element => element.entryId === far.entryId);
+                    if (e !== undefined) {
+                        far.enabled = e.enabled;
+                    }
+                });
+                farmlist.selectedFarmlist = farmlists[i];
                 farmlistExist = true;
                 break;
             }
@@ -437,20 +460,6 @@ const exports = class {
                 name: village.name
             }
         }
-
-        let parsedRaidData = await this.getTroopData(rez.document)
-        if (parsedRaidData.error) {
-            return parsedRaidData
-        }
-        if (parsedRaidData[farmlist.selectedFarmlist.listId]) {
-        } else {
-            return {
-                error: true,
-                errorMessage: "No troop data for farmlist (" + farmlist.selectedFarmlist.listId + ").",
-                name: village.name
-            }
-        }
-        let troops = parsedRaidData[farmlist.selectedFarmlist.listId].troops
 
         let lid = farmlist.selectedFarmlist.listId;
         let doc = await this.createDocument(rez.document)
@@ -509,23 +518,25 @@ const exports = class {
 
         let nrOfAttacks = 0
         for (let slot = farmlist.farmPosition; slot < farmlist.selectedFarmlist.farms.length; slot++) {
-            let nadaljuj = true;
-            for (let j = 1; j < 11; j++) {
-                //
-                troops[j] -= farmlist.selectedFarmlist.farms[slot].units[j] * 1
-                if (troops[j] < 0) {
-                    nadaljuj = false;
-                    break;
+            if (farmlist.selectedFarmlist.farms[slot].enabled) {
+                let nadaljuj = true;
+                for (let j = 1; j < 11; j++) {
+                    //
+                    farmlist.selectedFarmlist.troops[j] -= farmlist.selectedFarmlist.farms[slot].units[j] * 1
+                    if (farmlist.selectedFarmlist.troops[j] < 0) {
+                        nadaljuj = false;
+                        break;
+                    }
                 }
-            }
-            if (!nadaljuj) {
-                break
-            }
-            data += "&slot%5B" + farmlist.selectedFarmlist.farms[slot].entryId + "%5D=on";
+                if (!nadaljuj) {
+                    break
+                }
+                data += "&slot%5B" + farmlist.selectedFarmlist.farms[slot].entryId + "%5D=on";
 
-            farmlist.farmPosition = slot + 1
-            nrOfAttacks += 1
-            //
+                farmlist.farmPosition = slot + 1
+                nrOfAttacks += 1
+                //
+            }
         }
         //
         if (nrOfAttacks == 0) {
@@ -1118,9 +1129,14 @@ const exports = class {
 
         return parsedRaidData
     }
+    getRaidData = async function (lid, token) {
 
-    getAllFarmlists = async function (rez) {
-        let doc = await this.createDocument(rez.document)
+        var rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidListSlots", "cmd=raidListSlots&lid=" + lid + "&ajaxToken=" + token, "POST");
+        return JSON.parse(rez.document).response.data;
+    }
+
+    getAllFarmlists = async function (rez, farmlistlid) {
+        let doc = await this.createDocument(rez.document);
         let farmlists1 = doc.evaluate(".//div[@id='raidList']//div[@class='listEntry' and contains(@id,'list')]", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         //this.store.state.log.debug(farmlists1.snapshotLength)
         let farmlists = []
@@ -1130,41 +1146,35 @@ const exports = class {
             return parsedRaidData
         }
         for (let i = 0; i < farmlists1.snapshotLength; i++) {
+            let requestedfarm = false;
             let farmlistelement = farmlists1.snapshotItem(i)
             let lid = farmlistelement.getAttribute("id").match(/[\d\.]+/g)[0] * 1;
-            let thisParsedRaidData = parsedRaidData[lid]
+            let thisParsedRaidData = parsedRaidData[lid];
+            let farmlistname = "Unknown";
+            let farmlistname1 = doc.evaluate(".//div[contains(@class,'listTitle')]//div[@class='listTitleText']", farmlistelement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+            if (farmlistname1.snapshotLength) {
+                farmlistname = farmlistname1.snapshotItem(0).childNodes[0].data.trim();
+            }
+
+            if (!thisParsedRaidData && (farmlistlid === lid || farmlistlid === undefined)) {
+                let farmrez = await this.getRaidData(lid, rez.ajaxToken);
+                thisParsedRaidData = farmrez.list;
+                farmlistelement = await this.createDocument(farmrez.html);
+                requestedfarm = true;
+            }
             if (!thisParsedRaidData) {
                 continue
             }
-            //
 
-            let nroffarms1 = doc.evaluate(".//div[contains(@class,'listTitle')]//span[@class='raidListSlotCount']", farmlistelement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-
-            let nrOfFarms = 0;
-            let maxFarms = 100;
-            if (nroffarms1.snapshotLength) {
-                let nrrr = nroffarms1.snapshotItem(0).innerHTML.match(/[\d\.]+/g)
-                if (nrrr.length > 1) {
-                    nrOfFarms = nrrr[0] * 1
-                    maxFarms = nrrr[1] * 1
-                }
-            }
-            //
-            let farmlistname = "Unknown"
-            let farmlistname1 = doc.evaluate(".//div[contains(@class,'listTitle')]//div[@class='listTitleText']", farmlistelement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-            if (farmlistname1.snapshotLength) {
-                //this.store.state.log.debug(farmlistname1.snapshotItem(0).childNodes[0])
-                farmlistname = farmlistname1.snapshotItem(0).childNodes[0].data.trim();
-            }
-            let farmsoffarmlist1 = doc.evaluate(".//div[contains(@class,'listContent')]//div[@class='detail']//table//tbody//tr[contains(@id,'slot-row')]", farmlistelement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-            let farms = []
+            let farmsoffarmlist1 = (requestedfarm ? farmlistelement : doc).evaluate(".//tr[contains(@id,'slot-row')]", farmlistelement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+            let farms = [];
             for (let j = 0; j < farmsoffarmlist1.snapshotLength; j++) {
                 let tafarmaelement = farmsoffarmlist1.snapshotItem(j)
                 let slot_id = tafarmaelement.getAttribute("id").match(/[\d\.]+/g)[0] * 1;
-                let farmname = ""
-                let farmx = 0
-                let farmy = 0
-                let farmvillage1 = doc.evaluate(".//td[@class='village']//a", tafarmaelement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+                let farmname = "";
+                let farmx = 0;
+                let farmy = 0;
+                let farmvillage1 = (requestedfarm ? farmlistelement : doc).evaluate(".//td[@class='village']//a", tafarmaelement, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
                 if (farmvillage1.snapshotLength) {
                     farmname = farmvillage1.snapshotItem(0).innerHTML.replace(/<[^>]*>/g, "").trim()
                     farmx = farmvillage1.snapshotItem(0).getAttribute("href").split("x=")[1].split("&")[0] * 1
@@ -1187,17 +1197,10 @@ const exports = class {
                     "10": 0,
                     "11": 0,
                 }
-                /*for(let k=0;k<troopimg.length&&k<troopspan.length;k++)
-                {
-                    let trooptype=troopimg[k].getAttribute("class").match(/[\d\.]+/g)[0]
-                    trooptype=trooptype[trooptype.length-1]
-                    troops[trooptype]=troopspan[k].innerHTML.match(/[\d\.]+/g)[0] * 1
-    
-                    troops.push(thistroop)
-                }*/
-                let thisParsedRaidDataTroops = thisParsedRaidData.slots[slot_id]
+
+                let thisParsedRaidDataTroops = thisParsedRaidData.slots[slot_id];
                 if (thisParsedRaidDataTroops) {
-                    troops = thisParsedRaidDataTroops.troops
+                    troops = thisParsedRaidDataTroops.troops;
                 }
                 //
                 let lastradi1 = tafarmaelement.getElementsByClassName("lastRaid")[0]
@@ -1241,16 +1244,15 @@ const exports = class {
                     distance: distance,
                     units: troops,
                     report: lastRaid
-                }
+                };
                 //this.store.state.log.debug(thisfarm)
-                farms.push(thisfarm)
+                farms.push(thisfarm);
                 //
             }
             //this.store.state.log.debug(farms)
             let villageId = 0;
-            let villagename = farmlistname.split("-")
-            villagename.splice(villagename.length - 1, 1)
-            villagename = villagename.join("-").trim()
+            let villagename = farmlistname.substring(0, farmlistname.indexOf(" -"))
+
 
 
             for (let j = 0; j < this.store.state.Player.villages.length; j++) {
@@ -1259,12 +1261,14 @@ const exports = class {
                     break;
                 }
             }
+
             farmlists.push({
                 listId: lid,
                 listName: farmlistname,
                 farms: farms,
+                troops: thisParsedRaidData.troops,
                 //nrOfFarms:nrOfFarms,
-                maxEntriesCount: maxFarms,
+                maxEntriesCount: farmsoffarmlist1.snapshotLength,
                 villageId: villageId,
                 requestTime: new Date().getTime()
             })
@@ -1281,7 +1285,7 @@ const exports = class {
         return farmlists
     }
 
-    farm = async function (village, FarmTask, farm, attempts) {
+    farm = async function (village, farm, FarmTask, attempts) {
         if (attempts > 3) {
             //this.store.state.log.debug("more than 3 attempts.")
             return {
@@ -2585,11 +2589,11 @@ const exports = class {
             let tag223 = doc.evaluate(ex, doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
             ex = ".//input[@name='login']"; // and contains(@value, '*')
             let login = doc.evaluate(ex, doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-            let s1 = doc.getElementsByName("s1")
-            let w = doc.getElementsByName("w")
+            let s1 = doc.getElementsByName("s1");
+            let w = doc.getElementsByName("w");
             //console.log("name=" + encodeURIComponent(this.store.state.Player.options.User.username) + "&password=" + encodeURIComponent(this.store.state.Player.options.User.password) + "&s1=" + encodeURIComponent(s1[0].value) + "&w=" + encodeURIComponent(screen.width + ":" + screen.height) + "&login=" + encodeURIComponent(login.snapshotItem(0).value))
             //console.log(this.store.state.Player)
-            return await this.request(this.store.state.Player.url + "/dorf1.php", "name=" + encodeURIComponent(this.store.state.Player.options.User.username) + "&password=" + encodeURIComponent(this.store.state.Player.options.User.password) + "&s1=" + encodeURIComponent(s1[0].value) + "&w=" + encodeURIComponent(screen.width + ":" + screen.height) + "&login=" + encodeURIComponent(login.snapshotItem(0).value), "POST", {})
+            return await this.request(this.store.state.Player.url + "/login.php", "name=" + encodeURIComponent(this.store.state.Player.options.User.username) + "&password=" + encodeURIComponent(this.store.state.Player.options.User.password) + "&s1=" + encodeURIComponent(s1[0].value) + "&w=" + encodeURIComponent(screen.width + ":" + screen.height) + "&login=" + encodeURIComponent(login.snapshotItem(0).value), "POST", {})
 
         }
     }
@@ -2616,9 +2620,7 @@ const exports = class {
         let rez = await this.request(url, data, type, headers);
 
         //this.store.state.log.debug('requestAndAnalyse rez', rez);
-        ;
         if (await this.preveriRequest(rez)) {
-            ;
             let doc = await this.createDocument(rez.document);
             rez.doc = doc;
             //this.store.state.log.debug('Response document:',doc); 
@@ -2637,8 +2639,6 @@ const exports = class {
                 //this.store.state.log.debug(this.store.state.Player);
                 //this.store.state.log.debug('Not logged in. trying to relogin: ');
 
-                rez = await this.relogin(doc)
-                //this.store.state.log.debug('requestAndAnalyse rez (after login):', rez);
                 doc = await this.createDocument(rez.document);
                 let logedin = await this.preveriLogin(doc);
                 rez.loggedin = logedin;

@@ -2,6 +2,10 @@
 .containerCustomBody {
   padding: 5px;
 }
+
+.row {
+  height: 20px;
+}
 </style>
 
 <template>
@@ -114,6 +118,7 @@
             </v-flex>
             <v-flex sm3>
               <v-text-field
+                height="25"
                 label="min(second):"
                 min="5"
                 v-model="$store.state.Player.options.taskchecktime.min"
@@ -174,52 +179,50 @@
               ></v-text-field>
             </v-flex>
           </v-layout>
-          <v-layout row
-            ><v-flex sm5>Redirect during sleep time</v-flex
+          <v-layout row v-if="$store.state.Player.version == 4">
+            <v-flex sm4>During sleep time</v-flex>
+            <v-flex sm2>Logout</v-flex>
+            <v-flex>
+              <v-switch
+                style="padding: 0px;    margin: 0px;"
+                v-model="$store.state.Player.options.User.logout"
+              ></v-switch
+            ></v-flex>
+            <v-flex sm2> Redirect</v-flex
             ><v-flex>
               <v-switch
                 style="padding: 0px;    margin: 0px;"
-                v-model="$store.state.Player.options.redirectsleeptime"
+                v-model="$store.state.Player.options.User.redirect"
               ></v-switch
             ></v-flex>
           </v-layout>
-          <v-layout row>
-            <v-flex sm5>
-              Redirect when bot is active
-            </v-flex>
+          <v-layout row v-if="$store.state.Player.version == 44">
+            <v-flex sm3>Autologin</v-flex
+            ><v-flex sm2>
+              <v-switch
+                style="padding: 0px;    margin: 0px;"
+                v-model="$store.state.Player.options.User.autologin"
+              ></v-switch
+            ></v-flex>
             <v-flex sm3>
-              <v-text-field
-                label="min(minutes):"
-                min="0"
-                v-model="$store.state.Player.options.redirect.min"
-                type="number"
-              ></v-text-field>
-            </v-flex>
-            <v-flex sm1></v-flex>
-            <v-flex sm3>
-              <v-text-field
-                label="max(minutes):"
-                min="0"
-                v-model="$store.state.Player.options.redirect.max"
-                type="number"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <div v-if="$store.state.Player.version == 444">
               <v-text-field
                 label="username:"
                 v-model="$store.state.Player.options.User.username"
                 hide-details
                 type="text"
               ></v-text-field>
+            </v-flex>
+            <v-flex sm1> </v-flex>
+            <v-flex sm3>
               <v-text-field
                 label="password:"
                 v-model="$store.state.Player.options.User.password"
                 hide-details
-                type="password"
+                :type="show1 ? 'text' : 'password'"
+                :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="show1 = !show1"
               ></v-text-field>
-            </div>
+            </v-flex>
           </v-layout>
           <v-layout row>
             <v-flex sm2>
@@ -260,6 +263,7 @@ import Vue from "vue";
 import $store from "@/store";
 export default Vue.extend({
   data: () => ({
+    show1: false,
     sidebarButtonSizeNumeric: 1
   }),
   methods: {

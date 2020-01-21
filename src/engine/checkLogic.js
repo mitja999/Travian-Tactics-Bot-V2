@@ -22,6 +22,7 @@
 
 
 	this.lock = false;
+	this.isredirected = false;
 
 	this.init = function (store) {
 		this.store = store;
@@ -167,6 +168,10 @@
 								}
 
 								switch (fname) {
+									case "logout":
+										debugger;
+										text = "Analyze player"
+										break;
 									case "getPlayer":
 										text = "Analyze player"
 										break;
@@ -208,7 +213,7 @@
 										text = "Hero adventure"
 										break;
 									case "farm":
-										text = "(" + arg[2].x + "|" + arg[2].y + "), " + arg[2].name + " [" + arg[1].amount["1"] + "," + arg[1].amount["2"] + "," + arg[1].amount["3"] + "," + arg[1].amount["4"] + "," + arg[1].amount["5"] + "," + arg[1].amount["6"] + " ]";
+										text = "(" + arg[1].x + "|" + arg[1].y + "), " + arg[1].name + " [" + arg[2].amount["1"] + "," + arg[2].amount["2"] + "," + arg[2].amount["3"] + "," + arg[2].amount["4"] + "," + arg[2].amount["5"] + "," + arg[2].amount["6"] + " ]";
 										if (r && r.fail) {
 											text = "Farming failed: " + text + " (" + r.failmessage + ")"
 										}
@@ -327,7 +332,13 @@
 		}
 		this.lock = true;
 		this.log.debug('checkTasks start');
-
+		if (this.isredirected) {
+			this.isredirected = false;
+			await this.ApplyActions.loginCustom();
+			await sleep(3000);
+			debugger;
+			this.store.iframesrc = this.store.gameUrl;
+		}
 		try {
 			await this.ApplyActions.analyzePlayer();
 		} catch (e) {
@@ -375,6 +386,14 @@
 		this.log.debug('checkTasks done');
 		this.lock = false;
 		this.setTasks();
+	}
+
+	this.logout = async function () {
+		await this.ApplyActions.logout();
+	}
+	this.redirect = async function () {
+		this.isredirected = true;
+		this.store.iframesrc = "http://traviantactics.com";
 	}
 
 	this.search = async function (parameters) {
@@ -471,7 +490,12 @@
 						t.enabled = t.enabled === undefined ? true : t.enabled;
 						t.villages.forEach(f => {
 							f.enabled = f.enabled === undefined ? true : f.enabled;
-						})
+						});
+						if (t.selectedFarmlist !== undefined && t.selectedFarmlist.farms !== undefined) {
+							t.selectedFarmlist.farms.forEach(f => {
+								f.enabled = f.enabled === undefined ? true : f.enabled;
+							});
+						}
 					});
 				} catch (ex) {
 					this.log.debug(ex);
@@ -1131,7 +1155,7 @@
 						if (!village.tasks.farms[j].villages[f].enabled)
 							continue;
 						if (isLowerFarms(village.tasks.farms[j].amount, village.Troops) || this.store.Player.version == 4) {
-							let rez = await this.ApplyActions.farm(village, village.tasks.farms[j], village.tasks.farms[j].villages[f]);
+							let rez = await this.ApplyActions.farm(village, village.tasks.farms[j].villages[f], village.tasks.farms[j]);
 
 							if (rez === undefined) {
 								break;
@@ -1203,12 +1227,16 @@
 		"getGoldClubFarmlists",
 		"farmGoldClub",
 		"coppyFarmlist",
+		"logout",
+		"loginCustom",
 	];
-	const tasksToCheckActivity = ["build",
+	const tasksToCheckActivity = [
+		"build",
 		"trade",
 		"train",
 		"adventure",
-		"farm",];
+		"farm"
+	];
 
 	const wrapObjectFunctions = function (obj, before, after) {
 		let key, value;
@@ -1230,14 +1258,14 @@
 						rv = await before(fname, this, arguments);
 					} catch (ex) {
 						rv = false;
-						this.log.error(ex);
+						console.log(ex);
 					}
 				}
 				if (rv) {
 					try {
 						rv = await f.apply(this, arguments); // Calls the original
 					} catch (ex) {
-						this.log.error(ex);
+						console.log(ex);
 					}
 				}
 
@@ -1245,7 +1273,7 @@
 					try {
 						await after(fname, this, arguments, rv);
 					} catch (ex) {
-						this.log.error(ex);
+						console.log(ex);
 					}
 				}
 				return rv;

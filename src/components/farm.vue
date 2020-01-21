@@ -287,6 +287,33 @@ table {
                   </v-flex>
                 </v-row>
               </div>
+              <div>
+                <v-row
+                  v-for="(farm, i) in FarmTask.selectedFarmlist.farms"
+                  :key="i"
+                  style="height: 30px;"
+                >
+                  <v-flex xs2>
+                    <v-switch
+                      dense
+                      v-model="farm.enabled"
+                      style="padding: 0px;margin-top: 5px;"
+                    ></v-switch>
+                  </v-flex>
+                  <v-flex xs8>
+                    <div style="margin-top: 6px;">
+                      {{ farm.name + "(" + farm.x + "," + farm.y + ")" }}
+                    </div>
+                  </v-flex>
+                  <v-flex xs2>
+                    {{
+                      farm.report !== undefined
+                        ? farm.report.raidedResSum + "/" + farm.report.capacity
+                        : ""
+                    }}
+                  </v-flex>
+                </v-row>
+              </div>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -383,37 +410,6 @@ export default Vue.extend({
       this.$store.state.options.style.farm.top = top;
       this.$store.state.options.coverdiv = false;
     },
-    /*customFilter(items, search, filter) {
-      return items.filter(
-        row =>
-          //distance
-          Number(
-            Math.sqrt(
-              (row.x - this.Coordinates.x) * (row.x - this.Coordinates.x) +
-                (row.y - this.Coordinates.y) * (row.y - this.Coordinates.y)
-            ).toFixed(1)
-          ) < search.distance.val &&
-          //pop
-          (row.population * 1 > search.pop.min &&
-            row.population * 1 < search.pop.max) &&
-          //active players
-          (search.activePlayers.val ? row.player.active == "0" : true) &&
-          //no ally
-          (search.noAlly.val ? row.player.ally.id === undefined : true)
-      );
-    },*/
-    addTaskFarm() {
-      this.FarmTask.villages = [];
-      this.selected.forEach((farm: any) => {
-        farm.enabled = true;
-        this.FarmTask.villages.push(farm);
-      });
-      this.$store.state.selectedVillage.tasks.farms.push(
-        JSON.parse(JSON.stringify(this.FarmTask))
-      );
-      debugger;
-      this.selected = [];
-    },
     removeFarmList(index: number) {
       this.$store.state.selectedVillage.tasks.farms.splice(index, 1);
     },
@@ -424,21 +420,8 @@ export default Vue.extend({
       );
       this.componentKey++;
     },
-    async farmFind() {
-      this.selected = [];
-      this.$store.state.custom.FarmFinderFarms = [];
-      /*this.$parent.$parent.CheckLogic.search({
-        Coordinates: this.Coordinates,
-        url: this.$store.state.Player.url,
-        SeesionId: this.$store.state.Player.SeesionId
-      });*/
-      //this.searchResult=data.farms;
-    },
     troopIcon(id: number) {
       return this.$store.getters.troopIconSmall(id);
-    },
-    stop() {
-      this.$store.state.custom.farmfinder.stopped = true;
     },
     async copyFarmlist(selectedFarmlist: number) {
       let startBotAfter = this.$store.state.start;
