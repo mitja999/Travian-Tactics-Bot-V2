@@ -2942,7 +2942,7 @@ const options = {
             "left": 891,
             "top": 255,
             "width": 360,
-            "height": 190,
+            "height": 300,
             "z": 999
         },
         "buildfinder": {
@@ -2958,16 +2958,16 @@ const options = {
             "show": false,
             "left": 186,
             "top": 169,
-            "width": 309,
-            "height": 154,
+            "width": 500,
+            "height": 300,
             "z": 999
         },
         "farmfinder": {
             "show": false,
             "left": 186,
             "top": 169,
-            "width": 309,
-            "height": 154,
+            "width": 600,
+            "height": 400,
             "z": 999,
             "minwidth": 500
         },
@@ -3032,6 +3032,14 @@ const options = {
             "left": 200,
             "top": 200,
             "width": 300,
+            "height": 600,
+            "z": 999
+        },
+        "commercials": {
+            "show": true,
+            "left": 200,
+            "top": 200,
+            "width": 400,
             "height": 600,
             "z": 999
         }

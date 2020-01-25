@@ -2,6 +2,9 @@
 .tdClass {
   padding: 0;
 }
+.v-input--switch__track {
+  opacity: 80;
+}
 </style>
 
 <template>
@@ -26,7 +29,16 @@
           <v-icon dark left>dvr</v-icon>
           <b>Logs</b>
         </v-chip>
-        <div class="headdivicons" style="width:200px">
+        <div class="headdivicons" style="width:250px">
+          <v-switch
+            color="blue darken-3"
+            v-model="showrequests"
+            value="1"
+            style="    float: left;
+    top: 10px;
+    padding-bottom: 101px;
+    margin-top: 0px;"
+          ></v-switch>
           <v-btn
             class="drag headButtonRight"
             fab
@@ -73,12 +85,23 @@
             ]"
             :sort-by="['time']"
             :sort-desc="[true]"
-            :items="$store.state.Player.options.logs"
+            :items="
+              $store.state.Player.options.logs.filter(i =>
+                showrequests ? true : i.type === undefined
+              )
+            "
             class="elevation-1"
           >
             <template v-slot:body="{ items }">
               <tbody>
-                <tr v-for="(item, index) in items" :key="index">
+                <tr
+                  v-for="(item, index) in items"
+                  :key="index"
+                  v-bind:style="{
+                    backgroundColor:
+                      item.type === undefined ? '#E3F2FD' : '#EDE7F6'
+                  }"
+                >
                   <td class="tdClass">
                     {{ new Date(item.time).toLocaleString() }}
                   </td>
@@ -100,7 +123,8 @@ import Vue from "vue";
 import $store from "@/store";
 export default Vue.extend({
   data: () => ({
-    z: 999
+    z: 999,
+    showrequests: false
   }),
   methods: {
     clearLogs() {

@@ -26,6 +26,9 @@
       <setting v-show="$store.state.options.style.setting.show"></setting>
       <tasks v-show="$store.state.options.style.tasks.show"></tasks>
 
+      <commercials
+        v-show="$store.state.options.style.commercials.show"
+      ></commercials>
       <logs v-show="$store.state.options.style.logs.show"></logs>
       <farmfinder
         v-show="$store.state.options.style.farmfinder.show"
@@ -38,6 +41,7 @@
 <script lang="ts">
 import Vue from "vue";
 import hero from "./components/hero.vue";
+import commercials from "./components/commercials.vue";
 import sidebar from "./components/sidebar.vue";
 import buildfinder from "./components/buildfinder.vue";
 import farm from "./components/farm.vue";
@@ -88,7 +92,8 @@ export default Vue.extend({
     train,
     trade,
     farm,
-    buildfinder
+    buildfinder,
+    commercials
   },
   data: () => ({
     applyActionV5: require("./engine/applyActionV5.js").default,
@@ -98,7 +103,7 @@ export default Vue.extend({
     initiated: false,
     iframeindex: 0,
     reloadDay: new Date().getUTCDate(),
-    timerCounter: 6,
+
     iframeReloadCounter: 3600,
     mobile: false
   }),
@@ -341,7 +346,7 @@ export default Vue.extend({
             ) *
               60 +
             this.$store.state.Player.options.workingdurationtime.min * 60 +
-            this.timerCounter;
+            this.$store.state.timerCounter;
         }
       },
       {
@@ -353,7 +358,7 @@ export default Vue.extend({
       this.$store.getters.getPlayerOptionstaskchecktime,
       val => {
         if (this.initiated) {
-          this.timerCounter =
+          this.$store.state.timerCounter =
             Math.floor(
               Math.random() *
                 (this.$store.state.Player.options.taskchecktime.max * 1 -
@@ -378,8 +383,27 @@ export default Vue.extend({
       }
     );
 
+    this.$store.watch(
+      this.$store.getters.getSelectedVillageId,
+      async val => {
+        if (this.$store.state.options.style.build.show) {
+          let loading1 = await this.$store.state.CheckLogic.analyseBuildings(
+            val
+          );
+        }
+      },
+      {
+        immediate: true,
+        deep: true
+      }
+    );
+
     this.onResize();
     window.addEventListener("resize", this.onResize);
+
+    var refreshId = setInterval(async () => {
+      this.$store.state.options.style.commercials.show = true;
+    }, 600000);
 
     var refreshId = setInterval(async () => {
       if (
@@ -390,6 +414,7 @@ export default Vue.extend({
         this.$store.state.taskStatus = "Get player";
         await this.getPlayer();
         if (this.$store.state.Player.playerId !== 0) {
+          this.$store.state.options.style.commercials.show = true;
           this.$store.state.taskStatus = "Got player";
           if (this.$store.state.Player.options.default) {
             this.$store.state.Player.options.default = false;
@@ -426,8 +451,8 @@ export default Vue.extend({
         }
       } else {
         if (this.$store.state.Player.start) {
-          if (this.timerCounter <= 0) {
-            this.timerCounter =
+          if (this.$store.state.timerCounter <= 0) {
+            this.$store.state.timerCounter =
               Math.floor(
                 Math.random() *
                   (this.$store.state.Player.options.taskchecktime.max * 1 -
@@ -435,11 +460,15 @@ export default Vue.extend({
               ) +
               this.$store.state.Player.options.taskchecktime.min * 1;
             this.$store.state.taskStatus = "checking";
+            let currtime = new Date().getTime();
             await this.$store.state.CheckLogic.checkTasks();
+            this.$store.state.workingDuration -= Math.floor(
+              (new Date().getTime() - currtime) / 1000
+            );
           } else if (!this.$store.state.CheckLogic.lock) {
-            this.timerCounter--;
+            this.$store.state.timerCounter--;
             this.$store.state.workingDuration--;
-            this.$store.state.taskStatus = this.timerCounter + "";
+            this.$store.state.taskStatus = this.$store.state.timerCounter + "";
           }
 
           if (this.$store.state.workingDuration <= 0) {
@@ -449,7 +478,7 @@ export default Vue.extend({
             if (this.$store.state.Player.options.User.redirect) {
               await this.$store.state.CheckLogic.redirect();
             }
-            this.timerCounter =
+            this.$store.state.timerCounter =
               Math.floor(
                 Math.random() *
                   (this.$store.state.Player.options.sleeptime.max * 1 -
@@ -468,10 +497,10 @@ export default Vue.extend({
               ) *
                 60 +
               this.$store.state.Player.options.workingdurationtime.min * 60 +
-              this.timerCounter;
+              this.$store.state.timerCounter;
           }
           if (
-            this.timerCounter <=
+            this.$store.state.timerCounter <=
             this.$store.state.Player.options.taskchecktime.max
           ) {
             this.iframeReloadCounter--;

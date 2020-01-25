@@ -34,19 +34,19 @@ export default new Vuex.Store({
     workingDuration: 99999999,
     gameUrl: '' as string,
     version: {
-      web: "3.4.48",
+      web: "3.4.52",
       extension: "3.4.26"
     },
     iframesrc: "https://traviantactics.com",
     images: {
       r1:
-        "https://gpack.travian.com/1241c234/mainPage/img_ltr/general/resources/lumber_small.png",
+        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/lumber_small.png",
       r2:
-        "https://gpack.travian.com/1241c234/mainPage/img_ltr/general/resources/clay_small.png",
+        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/clay_small.png",
       r3:
-        "https://gpack.travian.com/1241c234/mainPage/img_ltr/general/resources/iron_small.png",
+        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/iron_small.png",
       r4:
-        "https://gpack.travian.com/1241c234/mainPage/img_ltr/general/resources/crop_small.png"
+        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/crop_small.png"
     },
     mapZoom: 3,
     map: {
@@ -58,7 +58,8 @@ export default new Vuex.Store({
       top: 400
     },
     redirectPagesV4: ["/karte.php", "/statistiken.php", "/messages.php", "/berichte.php", "/dorf1.php", "/dorf2.php", "/hero.php", "/hero.php?t=4"],
-    redirectPagesV5: ["/#/page:village", "/#/page:resources/", "/#/page:map/", "/#/page:village/herotab:Auctions/window:hero/cp:1", "/#/page:village/herotab:CardGame/window:hero/cp:1", "/#/page:village/herotab:Inventory/window:hero"]
+    redirectPagesV5: ["/#/page:village", "/#/page:resources/", "/#/page:map/", "/#/page:village/herotab:Auctions/window:hero/cp:1", "/#/page:village/herotab:CardGame/window:hero/cp:1", "/#/page:village/herotab:Inventory/window:hero"],
+    timerCounter: 6
   },
 
   mutations: {
@@ -119,7 +120,7 @@ export default new Vuex.Store({
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
       let TroopUrl =
-        "https://gpack.travian.com/1241c234/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/f315f521/mainPage/img/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -135,7 +136,7 @@ export default new Vuex.Store({
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
       let TroopUrl =
-        "https://gpack.travian.com/1241c234/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/f315f521/mainPage/img/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -152,7 +153,7 @@ export default new Vuex.Store({
       id = id % 10;
 
       let TroopUrl =
-        "https://gpack.travian.com/1241c234/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/f315f521/mainPage/img/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -167,7 +168,7 @@ export default new Vuex.Store({
     getIcon: state => (id: number) => {
       let tribeIcon = "";
       let TroopUrl =
-        "https://gpack.travian.com/1241c234/mainPage/img_ltr/general/resources/" +
+        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/" +
         id +
         ".png";
       return {

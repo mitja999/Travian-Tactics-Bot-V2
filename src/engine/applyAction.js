@@ -516,8 +516,11 @@ const exports = class {
             farmlist.farmPosition = 0
         }
 
-        let nrOfAttacks = 0
-        for (let slot = farmlist.farmPosition; slot < farmlist.selectedFarmlist.farms.length; slot++) {
+        let nrOfAttacks = 0;
+        let slot = farmlist.farmPosition;
+        let num = 0;
+        while (num < farmlist.selectedFarmlist.farms.length) {
+            num++;
             if (farmlist.selectedFarmlist.farms[slot].enabled) {
                 let nadaljuj = true;
                 for (let j = 1; j < 11; j++) {
@@ -533,11 +536,14 @@ const exports = class {
                 }
                 data += "&slot%5B" + farmlist.selectedFarmlist.farms[slot].entryId + "%5D=on";
 
-                farmlist.farmPosition = slot + 1
                 nrOfAttacks += 1
                 //
             }
+
+            slot = (slot + 1) % farmlist.selectedFarmlist.farms.length;
         }
+        farmlist.farmPosition = slot;
+
         //
         if (nrOfAttacks == 0) {
             return {
@@ -785,7 +791,7 @@ const exports = class {
         return rez
     }
 
-    analyzePlayer = async function () {
+    analyzePlayer = async function (village) {
         let timeNow = new Date()
         timeNow = timeNow.getTime()
         //this.store.state.log.debug('T4analyzePlayer start', this.store.state.Player);
@@ -800,89 +806,87 @@ const exports = class {
         }
         let tradevillages = await this.getAllVillagesWithTrade();
 
-        for (let i = 0; i < this.store.state.Player.villages.length; i++) {
-            let village = this.store.state.Player.villages[i]
 
-            if (village.CASANALIZEGRADNJA1 < timeNow) {
-                let dorf1task = false;
-                for (let j = 0; j < village.tasks.build.length; j++) {
-                    if (village.tasks.build[j].buildingType * 1 <= 4 || village.tasks.build[j].buildingType * 1 == 46) {
-                        dorf1task = true;
-                        break;
-                    }
-                }
-                if (dorf1task) {
-                    let rez = await this.analyzeDorf1(village, 1)
-
-                    ret.analysedDorf1.push({
-                        village: village,
-                        time: new Date().getTime()
-                    });
-                    //this.store.state.log.debug('rez', rez);
-                    //this.store.state.log.debug('T4analyzePlayer dorf1 done', this.store.state.Player);
+        if (village.CASANALIZEGRADNJA1 < timeNow) {
+            let dorf1task = false;
+            for (let j = 0; j < village.tasks.build.length; j++) {
+                if (village.tasks.build[j].buildingType * 1 <= 4 || village.tasks.build[j].buildingType * 1 == 46) {
+                    dorf1task = true;
+                    break;
                 }
             }
+            if (dorf1task) {
+                let rez = await this.analyzeDorf1(village, 1)
 
-            if (village.CASANALIZEGRADNJA2 < timeNow) {
-                let dorf2task = false;
-                for (let j = 0; j < village.tasks.build.length; j++) {
-                    if (village.tasks.build[j].buildingType * 1 > 4 & village.tasks.build[j].buildingType * 1 != 46) {
-                        dorf2task = true;
-                        break;
-                    }
-                }
-                if (village.tasks.farms.length > 0) {
+                ret.analysedDorf1.push({
+                    village: village,
+                    time: new Date().getTime()
+                });
+                //this.store.state.log.debug('rez', rez);
+                //this.store.state.log.debug('T4analyzePlayer dorf1 done', this.store.state.Player);
+            }
+        }
+
+        if (village.CASANALIZEGRADNJA2 < timeNow) {
+            let dorf2task = false;
+            for (let j = 0; j < village.tasks.build.length; j++) {
+                if (village.tasks.build[j].buildingType * 1 > 4 & village.tasks.build[j].buildingType * 1 != 46) {
                     dorf2task = true;
-                }
-                if (village.tasks.trade.length > 0) {
-                    dorf2task = true;
-                }
-                if (village.tasks.train.length > 0) {
-                    dorf2task = true;
-                }
-                if (dorf2task) {
-                    let rez = await this.analyzeDorf2(village, 1)
-                    ret.analysedDorf2.push({
-                        village: village,
-                        time: new Date().getTime()
-                    });
-                    // this.store.state.log.debug('rez', rez);
-                    //this.store.state.log.debug('T4analyzePlayer dorf2 done', this.store.state.Player);
+                    break;
                 }
             }
-
-            if (village.CASANALIZETRZNICA < timeNow && tradevillages.length > 0) {
-                let maketplacetask = tradevillages.indexOf(village) > -1;
-
-                if (maketplacetask) {
-                    let rez = await this.analyzeMarketplace(village, 1)
-                    ret.analysedMarketplace.push({
-                        village: village,
-                        time: new Date().getTime()
-                    });
-                    //this.store.state.log.debug('rez', rez);
-                    //this.store.state.log.debug('T4analyzePlayer dorf2 done', this.store.state.Player);
-                }
+            if (village.tasks.farms.length > 0) {
+                dorf2task = true;
             }
-
-
-            if (village.FildFinishTime < timeNow) {
-                //this.store.state.log.debug('BuildingQueue', 1, village.FildFinishTime, timeNow);
-                village.FildFinishTime = 99999999999999
-                if (this.store.state.Player.tribeId != 1) {
-                    village.BuildingQueue["1"] = 1
-                }
-                village.BuildingQueue["2"] = 1
+            if (village.tasks.trade.length > 0) {
+                dorf2task = true;
             }
-            if (village.BuildingFinishTime < timeNow) {
-                village.BuildingFinishTime = 99999999999999
-                if (this.store.state.Player.tribeId != 1) {
-                    village.BuildingQueue["2"] = 1
-                }
+            if (village.tasks.train.length > 0) {
+                dorf2task = true;
+            }
+            if (dorf2task) {
+                let rez = await this.analyzeDorf2(village, 1)
+                ret.analysedDorf2.push({
+                    village: village,
+                    time: new Date().getTime()
+                });
+                // this.store.state.log.debug('rez', rez);
+                //this.store.state.log.debug('T4analyzePlayer dorf2 done', this.store.state.Player);
+            }
+        }
+
+        if (village.CASANALIZETRZNICA < timeNow && tradevillages.length > 0) {
+            let maketplacetask = tradevillages.indexOf(village) > -1;
+
+            if (maketplacetask) {
+                let rez = await this.analyzeMarketplace(village, 1)
+                ret.analysedMarketplace.push({
+                    village: village,
+                    time: new Date().getTime()
+                });
+                //this.store.state.log.debug('rez', rez);
+                //this.store.state.log.debug('T4analyzePlayer dorf2 done', this.store.state.Player);
+            }
+        }
+
+
+        if (village.FildFinishTime < timeNow) {
+            //this.store.state.log.debug('BuildingQueue', 1, village.FildFinishTime, timeNow);
+            village.FildFinishTime = 99999999999999
+            if (this.store.state.Player.tribeId != 1) {
                 village.BuildingQueue["1"] = 1
             }
-
+            village.BuildingQueue["2"] = 1
         }
+        if (village.BuildingFinishTime < timeNow) {
+            village.BuildingFinishTime = 99999999999999
+            if (this.store.state.Player.tribeId != 1) {
+                village.BuildingQueue["2"] = 1
+            }
+            village.BuildingQueue["1"] = 1
+        }
+
+
 
         return ret;
     }
@@ -1574,13 +1578,14 @@ const exports = class {
     }
 
 
-    checkAnalyseBuildRouter = async function (selectedVillage) {
-        let zdaj = new Date().getTime()
-        if (this.store.state.selectedVillage.CASANALIZEGRADNJA1 < zdaj || this.store.state.selectedVillage.CASANALIZEGRADNJA2 < zdaj) {
-            return true
+    analyseBuildings = async function (villId) {
+        let now = new Date().getTime();
+        let selectedVillage = this.store.state.Player.villages.find(v => v.villageId == villId);
+        if (this.store.state.selectedVillage.CASANALIZEGRADNJA1 < now || this.store.state.selectedVillage.CASANALIZEGRADNJA2 < now) {
+            await this.analyseBuildRouter(selectedVillage);
         }
 
-        return false;
+        return true;
     }
 
     analyseBuildRouter = async function (selectedVillage) {
@@ -3748,7 +3753,7 @@ const exports = class {
                         PrihajajoceSurovine.push(vracamke);
 
                     } else if (lastninapoti && classpoljezsur == "none") {
-                        this.store.state.log.debug("returnfrom", 5)
+                        requestloglog.debug("returnfrom", 5)
                         //let CasVracanja = new Date();
                         let VracanjeCezSekund = SekundePotovanja + PrihodCezSekund;
                         CasVracanja.setSeconds(CasVracanja.getSeconds() + VracanjeCezSekund);
@@ -3772,12 +3777,20 @@ const exports = class {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     request = async function (url, data, type) {
-        await this.sleep(Math.random() * 1000 + 1000);
+        await this.sleep(Math.random() * 100 + 1000);
         let deadlinePromise = new Promise(function (resolve, reject) {
             setTimeout(resolve, 10000, undefined);
         });
         let runPromise;
         let a = false;
+        this.store.state.Player.options.logs.push({
+            "time": (new Date()).getTime(),
+            "name": this.store.state.taskStatus,
+            "success": true,
+            "text": url,
+            "villageId": type,
+            "type": "request"
+        });
         if (a && type === "GET") {
             this.store.state.iframesrc = url;
             this.store.state.log.debug("request " + url);

@@ -47,7 +47,6 @@ exports.build = async function (village, buildTask, building) {
 	village.storage = subResources(village.storage, building.upgradeCosts);
 
 	await wait(1000);
-	await this.analyzePlayer();
 	return true;
 }
 
@@ -65,7 +64,6 @@ exports.finishNow = async function (village, building, buildTask) {
 	let response = await request(url, data, "requestT5");
 
 	await wait(1000);
-	await this.analyzePlayer();
 	return true;
 }
 
@@ -114,6 +112,7 @@ exports.trade = async function (village, tradeTask, resources) {
 		"recurrences": 1
 	};
 	let response = await request(url, data, "requestT5");
+
 	let merchatsUsed = sumResources(resources) / village.Merchants.carry;
 	village.Merchants.merchantsFree -= merchatsUsed;
 	village.Merchants.maxCapacity = village.Merchants.merchantsFree * village.Merchants.carry;
@@ -121,7 +120,6 @@ exports.trade = async function (village, tradeTask, resources) {
 	village.storage = subResources(village.storage, resources);
 
 	await wait(1000);
-	await this.analyzePlayer();
 	return true;
 }
 
@@ -140,10 +138,10 @@ exports.train = async function (village, trainTask, resources, building) {
 	};
 	let response = await request(url, data, "requestT5");
 
+
 	village.storage = subResources(village.storage, resources);
 
 	await wait(1000);
-	await this.analyzePlayer();
 	return true;
 }
 
@@ -154,7 +152,6 @@ exports.adventure = async function () {
 		dialogId: 0,
 		command: "activate"
 	};
-	let response = await request(url, data, "requestT5");
 	this.store.Player.hero.status = 2;
 
 	return true;
@@ -198,7 +195,6 @@ exports.farm = async function (village, farm, FarmTask) {
 	};
 	url = "troops/send";
 
-	response = await request(url, data, "requestT5");
 	village.Troops["1"] -= FarmTask.amount["1"];
 	village.Troops["2"] -= FarmTask.amount["2"];
 	village.Troops["3"] -= FarmTask.amount["3"];
@@ -415,7 +411,11 @@ exports.farmGoldClub = async function (village, farmlist) {
 		"session": this.store.Player.SeesionId
 	};
 
-	for (let i = 0; i < farms.length; i++) {
+	let i = farmlist.farmPosition;
+	let n = 0;
+	let numberofAttaacks = 0;
+	while (n < farmlist.selectedFarmlist.farms.length) {
+		n++;
 		let far = farmlist.selectedFarmlist.farms.find(f => f.entryId === farms[i].data.entryId);
 		if (far !== undefined) {
 			if (!far.enabled) continue;
@@ -428,18 +428,26 @@ exports.farmGoldClub = async function (village, farmlist) {
 			village.Troops["5"] -= farms[i].data.units["5"];
 			village.Troops["6"] -= farms[i].data.units["6"];
 			sendFarmsGC.params.entryIds.push(farms[i].data.entryId * 1);
+			numberofAttaacks++;
 		}
+		else {
+			break;
+		}
+		i = (i + 1) % farmlist.selectedFarmlist.farms.length
 	}
+
+	farmlist.farmPosition = i;
 	currTime = Math.floor(new Date().getTime());
 	//data={"destVillageId":farm.villageId,"villageId":village.villageId,"movementType":FarmTask.movementType,"redeployHero":false,"units":FarmTask.amount,"spyMission":FarmTask.movementType==6};
-	url = "troops/startFarmListRaid";
-	data = {
-		"entryIds": sendFarmsGC.params.entryIds,
-		"listIds": farmlist.selectedFarmlist.listId * 1,
-		"villageId": village.villageId
-	};
+	if (numberofAttaacks > 0) {
+		url = "troops/startFarmListRaid";
+		data = {
+			"entryIds": sendFarmsGC.params.entryIds,
+			"listIds": farmlist.selectedFarmlist.listId * 1,
+			"villageId": village.villageId
+		};
+	}
 	//url= player.url+ "/api/?c=troops&a=startPartialFarmListRaid&t"+currTime;
-	response = await request(url, data, "requestT5");
 	return true;
 }
 
@@ -751,7 +759,7 @@ function wait(ms) {
 	});
 }
 
-exports.checkAnalyseBuildRouter = async function (selectedVillage) {
+exports.analyseBuildings = async function (selectedVillage) {
 	return false;
 }.bind(this)
 

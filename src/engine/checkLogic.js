@@ -147,7 +147,7 @@
 								}
 
 								this.store.taskStatus = fname;
-								if (!this.store.Player.start && !(fname === "analyseBuildRouter" || fname === "checkAnalyseBuildRouter" || fname === "cropFind" || fname === "search" || fname === "initAA" || fname === "onRouted" || fname === "analyzePlayer" || fname === "getPlayer" || fname === "getGoldClubFarmlists" || fname === "coppyFarmlist")) {
+								if (!this.store.Player.start && !(fname === "analyseBuildings" || fname === "cropFind" || fname === "search" || fname === "initAA" || fname === "onRouted" || fname === "analyzePlayer" || fname === "getPlayer" || fname === "getGoldClubFarmlists" || fname === "coppyFarmlist")) {
 									return false;
 								}
 								return true;
@@ -158,6 +158,7 @@
 								if (fname !== 'getPlayer' && fname !== 'analyzePlayer') {
 									this.store.executing = false;
 								}
+								this.store.taskStatus = this.store.timerCounter;
 
 								let text = "";
 								let logname = fname;
@@ -165,6 +166,9 @@
 								if (this.store.Player.version == 4) {
 									if (r)
 										success = r.success;
+								}
+								if (success && arg !== undefined && arg[1] !== undefined && arg[1].executionTimes !== undefined && arg[1].executionTimes.length > 0) {
+									arg[1].executionTimes.shift();
 								}
 
 								switch (fname) {
@@ -240,9 +244,7 @@
 										return;
 									case "coppyFarmlist":
 										return;
-									case "analyseBuildRouter":
-										return;
-									case "checkAnalyseBuildRouter":
+									case "analyseBuildings":
 										return;
 									case "farmGoldClub":
 										text = "goldclub attacks sent.";
@@ -339,48 +341,53 @@
 			debugger;
 			this.store.iframesrc = this.store.gameUrl;
 		}
-		try {
-			await this.ApplyActions.analyzePlayer();
-		} catch (e) {
-			taskTimers.analyze.time = new Date().getTime() + 10 * 60 * 1000;
-			reportError(e, "analyzePlayer");
-			return;
+
+		for (let i = 0; i < this.store.Player.villages.length; i++) {
+			let village = this.store.Player.villages[i];
+			try {
+				await this.ApplyActions.analyzePlayer(village);
+			} catch (e) {
+				taskTimers.analyze.time = new Date().getTime() + 10 * 60 * 1000;
+				reportError(e, "analyzePlayer");
+				return;
+			}
+			try {
+				if (new Date().getTime() > taskTimers.build.time)
+					await checkBuild(village);
+			} catch (e) {
+				taskTimers.build.time = new Date().getTime() + 10 * 60 * 1000;
+				reportError(e, "checkBuild");
+			}
+			try {
+				if (new Date().getTime() > taskTimers.trade.time)
+					await checkTrade(village);
+			} catch (e) {
+				taskTimers.trade.time = new Date().getTime() + 10 * 60 * 1000;
+				reportError(e, "checkTrade");
+			}
+			try {
+				if (new Date().getTime() > taskTimers.train.time)
+					await checkTrain(village);
+			} catch (e) {
+				taskTimers.train.time = new Date().getTime() + 10 * 60 * 1000;
+				reportError(e, "checkTrain");
+			}
+			try {
+				if (new Date().getTime() > taskTimers.farm.time)
+					await checkFarm(village);
+			} catch (e) {
+				taskTimers.farm.time = new Date().getTime() + 10 * 60 * 1000;
+				reportError(e, "checkFarm");
+
+			}
 		}
-		try {
-			if (new Date().getTime() > taskTimers.build.time)
-				await checkBuild();
-		} catch (e) {
-			taskTimers.build.time = new Date().getTime() + 10 * 60 * 1000;
-			reportError(e, "checkBuild");
-		}
-		try {
-			if (new Date().getTime() > taskTimers.trade.time)
-				await checkTrade();
-		} catch (e) {
-			taskTimers.trade.time = new Date().getTime() + 10 * 60 * 1000;
-			reportError(e, "checkTrade");
-		}
+
 		try {
 			if (new Date().getTime() > taskTimers.hero.time)
 				await checkHero();
 		} catch (e) {
 			taskTimers.hero.time = new Date().getTime() + 10 * 60 * 1000;
 			reportError(e, "checkHero");
-		}
-		try {
-			if (new Date().getTime() > taskTimers.train.time)
-				await checkTrain();
-		} catch (e) {
-			taskTimers.train.time = new Date().getTime() + 10 * 60 * 1000;
-			reportError(e, "checkTrain");
-		}
-		try {
-			if (new Date().getTime() > taskTimers.farm.time)
-				await checkFarm();
-		} catch (e) {
-			taskTimers.farm.time = new Date().getTime() + 10 * 60 * 1000;
-			reportError(e, "checkFarm");
-
 		}
 
 		this.log.debug('checkTasks done');
@@ -458,6 +465,13 @@
 	this.setConfig = async function () {
 		//this.log.debug("set tasks", this.store.options);
 		this.store.localStorage.set("settings", this.store.options);
+		return true;
+	}
+
+	this.analyseBuildings = async function (villageId) {
+		if (this.ApplyActions !== undefined) {
+			this.ApplyActions.analyseBuildings(villageId);
+		}
 		return true;
 	}
 
@@ -639,171 +653,284 @@
 		this.log.debug('checkHero end');
 	}.bind(this)
 
-	const checkBuild = async function () {
+	const checkBuild = async function (village) {
 		this.log.debug('checkBuild start');
-		for (let i = 0; i < this.store.Player.villages.length; i++) {
-			let village = this.store.Player.villages[i];
-			if (village.BuildingQueueTimes[1] !== undefined && village.BuildingQueueTimes[1] !== 0)
-				if (village.BuildingQueueTimes[1] - (new Date().getTime() / 1000) < 300) {
-					let rez = await this.ApplyActions.finishNow(village, {
-						"queueType": 1
-					}, {
-						"queueType": 1
-					});
-				}
-			if (village.BuildingQueueTimes[2] !== undefined && village.BuildingQueueTimes[2] !== 0)
-				if (village.BuildingQueueTimes[2] - (new Date().getTime() / 1000) < 300) {
-					let rez = await this.ApplyActions.finishNow(village, {
-						"queueType": 2
-					}, {
-						"queueType": 2
-					});
-				}
-
-			if (village.tasks.build.length == 0) {
-				continue;
+		if (village.BuildingQueueTimes[1] !== undefined && village.BuildingQueueTimes[1] !== 0)
+			if (village.BuildingQueueTimes[1] - (new Date().getTime() / 1000) < 300) {
+				let rez = await this.ApplyActions.finishNow(village, {
+					"queueType": 1
+				}, {
+					"queueType": 1
+				});
 			}
-			let buildtasksToRemove = []
-			for (let j = 0; j < village.tasks.build.length; j++) {
-				let buildTask = village.tasks.build[j];
-				if (!buildTask.enabled)
-					continue;
-				let locationId = undefined;
-				let lowestBuilding = 30;
-				let lowestBuilding2 = 30;
+		if (village.BuildingQueueTimes[2] !== undefined && village.BuildingQueueTimes[2] !== 0)
+			if (village.BuildingQueueTimes[2] - (new Date().getTime() / 1000) < 300) {
+				let rez = await this.ApplyActions.finishNow(village, {
+					"queueType": 2
+				}, {
+					"queueType": 2
+				});
+			}
+
+		let buildtasksToRemove = []
+		for (let j = 0; j < village.tasks.build.length; j++) {
+			let buildTask = village.tasks.build[j];
+			if (!buildTask.enabled)
+				continue;
+			let locationId = undefined;
+			let lowestBuilding = 30;
+			let lowestBuilding2 = 30;
 
 
-				if (buildTask.locationId.length !== undefined) {
-					for (let l = 1; l < 19; l++) {
-						if (buildTask.locationId.includes(village.buildings[l].buildingType + "")) {
-							let villageBuilding = village.buildings[l];
-							if (villageBuilding.lvlNext < lowestBuilding2) {
-								lowestBuilding2 = villageBuilding.lvlNext
-							}
-							if (villageBuilding.lvlNext < lowestBuilding && isLowerReources(villageBuilding.upgradeCosts, village.storage) & villageBuilding.lvlNext <= buildTask.toLvl) {
-								locationId = l;
-								lowestBuilding = villageBuilding.lvlNext;
-							}
+			if (buildTask.locationId.length !== undefined) {
+				for (let l = 1; l < 19; l++) {
+					if (buildTask.locationId.includes(village.buildings[l].buildingType + "")) {
+						let villageBuilding = village.buildings[l];
+						if (villageBuilding.lvlNext < lowestBuilding2) {
+							lowestBuilding2 = villageBuilding.lvlNext
+						}
+						if (villageBuilding.lvlNext < lowestBuilding && isLowerReources(villageBuilding.upgradeCosts, village.storage) & villageBuilding.lvlNext <= buildTask.toLvl) {
+							locationId = l;
+							lowestBuilding = villageBuilding.lvlNext;
 						}
 					}
-				} else {
-					locationId = buildTask.locationId;
+				}
+			} else {
+				locationId = buildTask.locationId;
+			}
+
+			if (locationId === undefined) {
+				if (lowestBuilding2 > buildTask.toLvl) {
+					buildtasksToRemove.unshift(j)
+				}
+				continue;
+			}
+
+			if ((village.BuildingQueue["2"] == 0 && locationId <= 18) || (village.BuildingQueue["1"] == 0 && locationId > 18)) {
+
+				continue;
+			}
+
+			if (village.buildings[locationId].buildingType == 0) {
+				let res1 = {
+					"1": this.store.Buildings[buildTask.buildingType][1][0],
+					"2": this.store.Buildings[buildTask.buildingType][1][1],
+					"3": this.store.Buildings[buildTask.buildingType][1][2],
+					"4": this.store.Buildings[buildTask.buildingType][1][3]
 				}
 
-				if (locationId === undefined) {
-					if (lowestBuilding2 > buildTask.toLvl) {
-						buildtasksToRemove.unshift(j)
-					}
-					continue;
+				if (isLowerReources(res1, village.storage)) {
+					let villageBuilding = village.buildings[locationId];
+					let rez = await this.ApplyActions.build(village, buildTask, villageBuilding);
 				}
+			} else {
+				let villageBuilding = village.buildings[locationId];
 
-				if ((village.BuildingQueue["2"] == 0 && locationId <= 18) || (village.BuildingQueue["1"] == 0 && locationId > 18)) {
+				if (villageBuilding.lvlNext == villageBuilding.lvl) {
 
-					continue;
-				}
+					buildtasksToRemove.unshift(j)
+				} else if (villageBuilding.lvlNext <= buildTask.toLvl) {
 
-				if (village.buildings[locationId].buildingType == 0) {
-					let res1 = {
-						"1": this.store.Buildings[buildTask.buildingType][1][0],
-						"2": this.store.Buildings[buildTask.buildingType][1][1],
-						"3": this.store.Buildings[buildTask.buildingType][1][2],
-						"4": this.store.Buildings[buildTask.buildingType][1][3]
-					}
+					if (isLowerReources(villageBuilding.upgradeCosts, village.storage)) {
 
-					if (isLowerReources(res1, village.storage)) {
-						let villageBuilding = village.buildings[locationId];
+						this.log.debug('building started', village, buildTask, villageBuilding);
 						let rez = await this.ApplyActions.build(village, buildTask, villageBuilding);
 					}
 				} else {
-					let villageBuilding = village.buildings[locationId];
-
-					if (villageBuilding.lvlNext == villageBuilding.lvl) {
-
-						buildtasksToRemove.unshift(j)
-					} else if (villageBuilding.lvlNext <= buildTask.toLvl) {
-
-						if (isLowerReources(villageBuilding.upgradeCosts, village.storage)) {
-
-							this.log.debug('building started', village, buildTask, villageBuilding);
-							let rez = await this.ApplyActions.build(village, buildTask, villageBuilding);
-						}
-					} else {
-						buildtasksToRemove.unshift(j)
-					}
+					buildtasksToRemove.unshift(j)
 				}
 			}
-
-			for (let j = 0; j < buildtasksToRemove.length; j++) {
-				this.log.debug('build to remove:', buildtasksToRemove[j]);
-				village.tasks.build.splice(buildtasksToRemove[j], 1)
-			}
 		}
+
+		for (let j = 0; j < buildtasksToRemove.length; j++) {
+			this.log.debug('build to remove:', buildtasksToRemove[j]);
+			village.tasks.build.splice(buildtasksToRemove[j], 1)
+		}
+
 		this.log.debug('checkBuild done');
 		return true
 	}.bind(this)
 
-	const checkTrade = async function () {
+	const checkTrade = async function (village) {
 
 		this.log.debug('checkTrade start');
-		for (let i = 0; i < this.store.Player.villages.length; i++) {
+		//updateInncomingResources(village)
+		updateMerchants(village)
 
-			let village = this.store.Player.villages[i];
-			//updateInncomingResources(village)
-			updateMerchants(village)
+		if (village.tasks.trade.length == 0) {
+			return;
+		}
+		for (let j = 0; j < village.tasks.trade.length; j++) {
 
-			if (village.tasks.trade.length == 0) {
+			if (!village.tasks.trade[j].enabled)
+				continue;
+
+			let resources = village.tasks.trade[j].resources;
+			if (village.tasks.trade[j].time > new Date().getTime()) {
 				continue;
 			}
-			for (let j = 0; j < village.tasks.trade.length; j++) {
+			//Pre trade
+			switch (village.tasks.trade[j].type) {
+				case "1x":
+					break;
+				case "Return":
+					break;
+			}
+			if (village.tasks.trade[j].type == "Send by %") {
+				resources = resourcesToBeSentByPercent(village, village.tasks.trade[j]);
+				resources = { "1": resources[0], "2": resources[1], "3": resources[2], "4": resources[3] };
+			}
 
-				if (!village.tasks.trade[j].enabled)
-					continue;
+			if (village.Merchants.maxCapacity >= sumResources(resources) && isLowerReources(resources, village.storage) && sumResources(resources) > 0) {
+				let rez = await this.ApplyActions.trade(village, village.tasks.trade[j], resources);
 
-				let resources = village.tasks.trade[j].resources;
-				if (village.tasks.trade[j].time > new Date().getTime()) {
-					continue;
+				if (village.tasks.trade[j].type == "Every x minutes") {
+					village.tasks.trade[j].time = new Date().getTime() + village.tasks.trade[j].repeatinterval * 60000
 				}
-				//Pre trade
+				else if (village.tasks.trade[j].type == "Return") {
+					village.tasks.trade[j].time = new Date().getTime() + (distance(village.x, village.y, village.tasks.trade[j].x, village.tasks.trade[j].y) / village.Merchants.speed) * 60 * 60 * 1000 * 2;
+				}
+				if (!rez) {
+					return;
+				}
+				//Post trade
 				switch (village.tasks.trade[j].type) {
 					case "1x":
+						village, village.tasks.trade.splice(j, 1);
 						break;
 					case "Return":
+
 						break;
 				}
-				if (village.tasks.trade[j].type == "Send by %") {
-					resources = resourcesToBeSentByPercent(village, village.tasks.trade[j]);
-					resources = { "1": resources[0], "2": resources[1], "3": resources[2], "4": resources[3] };
+				//}
+			}
+
+
+
+		}
+
+		this.log.debug('checkTrade done');
+	}.bind(this)
+
+	const checkTrain = async function (village) {
+
+		this.log.debug('checkTrain start');
+		for (let j = 0; j < village.tasks.train.length; j++) {
+
+			if (!village.tasks.train[j].enabled)
+				continue;
+			if (village.tasks.train[j].time > new Date().getTime()) {
+				continue;
+			}
+			village.tasks.train[j].type = ((this.store.Player.tribeId - 1) * 10) + (village.tasks.train[j].type * 1 % 10);
+			let t = village.tasks.train[j].type % 10;
+
+			let resources = {};
+			if (this.store.Player.version === 5) {
+				resources["1"] = this.store.troopCost[t].costs[1] * village.tasks.train[j].amount;
+				resources["2"] = this.store.troopCost[t].costs[2] * village.tasks.train[j].amount;
+				resources["3"] = this.store.troopCost[t].costs[3] * village.tasks.train[j].amount;
+				resources["4"] = this.store.troopCost[t].costs[4] * village.tasks.train[j].amount;
+			} else {
+				resources["1"] = this.store.uc[t][1] * village.tasks.train[j].amount;
+				resources["2"] = this.store.uc[t][2] * village.tasks.train[j].amount;
+				resources["3"] = this.store.uc[t][3] * village.tasks.train[j].amount;
+				resources["4"] = this.store.uc[t][4] * village.tasks.train[j].amount;
+			}
+
+
+			if (isLowerReources(resources, village.storage)) {
+
+				let buildingType = 0;
+				let building = undefined;
+				if (t == 1 || t == 2 || t == 3) {
+					buildingType = 19;
+				} else if (t == 4 || t == 5 || t == 6) {
+					buildingType = 20;
+				} else if (t == 7 || t == 8) {
+					buildingType = 21;
+				} else if (t == 9 || t == 0) {
+
+					buildingType = 25;
+					for (let b = 0; b < village.buildings.length; b++) {
+						if (village.buildings[b].buildingType == 26) {
+							buildingType = 26;
+						}
+					}
+				}
+				//teutons
+				if (this.store.Player.tribeId * 1 == 2 && t == 4) {
+					buildingType = 19;
+				}
+				//gauls
+				if ((this.store.Player.tribeId * 1 == 3 || this.store.Player.tribeId * 1 == 7) && t == 3) {
+					buildingType = 20;
 				}
 
-				if (village.Merchants.maxCapacity >= sumResources(resources) && isLowerReources(resources, village.storage) && sumResources(resources) > 0) {
-					let rez = await this.ApplyActions.trade(village, village.tasks.trade[j], resources);
-
-					if (village.tasks.trade[j].type == "Every x minutes") {
-						village.tasks.trade[j].time = new Date().getTime() + village.tasks.trade[j].repeatinterval * 60000
+				for (let b = 0; b < village.buildings.length; b++) {
+					if (village.buildings[b].buildingType == buildingType) {
+						building = village.buildings[b];
 					}
-					else if (village.tasks.trade[j].type == "Return") {
-						village.tasks.trade[j].time = new Date().getTime() + (distance(village.x, village.y, village.tasks.trade[j].x, village.tasks.trade[j].y) / village.Merchants.speed) * 60 * 60 * 1000 * 2;
-					}
-					if (!rez) {
-						return;
-					}
-					//Post trade
-					switch (village.tasks.trade[j].type) {
-						case "1x":
-							village, village.tasks.trade.splice(j, 1);
-							break;
-						case "Return":
-
-							break;
-					}
-					//}
 				}
 
-
-
+				if (building !== undefined) {
+					let rez = await this.ApplyActions.train(village, village.tasks.train[j], resources, building);
+					village.tasks.train[j].time = new Date().getTime() + village.tasks.train[j].timeMinutes * 60 * 1000;
+				}
 			}
 		}
-		this.log.debug('checkTrade done');
+
+		this.log.debug('checkTrain done');
+	}.bind(this)
+
+	const checkFarm = async function (village) {
+		this.log.debug('checkFarm start');
+		for (let j = 0; j < village.tasks.farms.length; j++) {
+
+			if (!village.tasks.farms[j].enabled)
+				continue;
+			if (village.tasks.farms[j].time > new Date().getTime()) {
+				continue;
+			}
+			if (!village.tasks.farms[j].goldClubFarmlist) {
+				for (let f = village.tasks.farms[j].farmPosition; f < village.tasks.farms[j].villages.length; f++) {
+
+					if (!village.tasks.farms[j].villages[f].enabled)
+						continue;
+					if (isLowerFarms(village.tasks.farms[j].amount, village.Troops) || this.store.Player.version == 4) {
+						let rez = await this.ApplyActions.farm(village, village.tasks.farms[j].villages[f], village.tasks.farms[j]);
+
+						if (rez === undefined) {
+							break;
+						}
+						if (rez.fail) {
+							break;
+						}
+						village.tasks.farms[j].farmPosition = f;
+					}
+				}
+
+				if (village.tasks.farms[j].farmPosition == (village.tasks.farms[j].villages.length - 1)) {
+					village.tasks.farms[j].farmPosition = 0;
+				}
+			} else {
+				let rez = await this.ApplyActions.farmGoldClub(village, village.tasks.farms[j]);
+
+			}
+			village.tasks.farms[j].timeMinutes *= 1;
+			let randomMinutes = village.tasks.farms[j].timeMinutes;
+			if (village.tasks.farms[j].timeMinutesMax !== undefined) {
+				village.tasks.farms[j].timeMinutesMax *= 1;
+				if (village.tasks.farms[j].timeMinutesMax > village.tasks.farms[j].timeMinutes) {
+
+					randomMinutes = Math.floor(Math.random() * (village.tasks.farms[j].timeMinutesMax - village.tasks.farms[j].timeMinutes)) + village.tasks.farms[j].timeMinutes;
+				}
+			}
+
+			village.tasks.farms[j].time = new Date().getTime() + randomMinutes * 60 * 1000;
+		}
+
+		this.log.debug('checkFarm done');
 	}.bind(this)
 
 	const resourcesToBeSentByPercent = function (village, task) {
@@ -1059,137 +1186,6 @@
 	}
 
 
-	const checkTrain = async function () {
-
-		this.log.debug('checkTrain start');
-		for (let i = 0; i < this.store.Player.villages.length; i++) {
-			let village = this.store.Player.villages[i];
-			if (village.tasks.train.length == 0) {
-				continue;
-			}
-			for (let j = 0; j < village.tasks.train.length; j++) {
-
-				if (!village.tasks.train[j].enabled)
-					continue;
-				if (village.tasks.train[j].time > new Date().getTime()) {
-					continue;
-				}
-				village.tasks.train[j].type = ((this.store.Player.tribeId - 1) * 10) + (village.tasks.train[j].type * 1 % 10);
-				let t = village.tasks.train[j].type % 10;
-
-				let resources = {};
-				if (this.store.Player.version === 5) {
-					resources["1"] = this.store.troopCost[t].costs[1] * village.tasks.train[j].amount;
-					resources["2"] = this.store.troopCost[t].costs[2] * village.tasks.train[j].amount;
-					resources["3"] = this.store.troopCost[t].costs[3] * village.tasks.train[j].amount;
-					resources["4"] = this.store.troopCost[t].costs[4] * village.tasks.train[j].amount;
-				} else {
-					resources["1"] = this.store.uc[t][1] * village.tasks.train[j].amount;
-					resources["2"] = this.store.uc[t][2] * village.tasks.train[j].amount;
-					resources["3"] = this.store.uc[t][3] * village.tasks.train[j].amount;
-					resources["4"] = this.store.uc[t][4] * village.tasks.train[j].amount;
-				}
-
-
-				if (isLowerReources(resources, village.storage)) {
-
-					let buildingType = 0;
-					let building = undefined;
-					if (t == 1 || t == 2 || t == 3) {
-						buildingType = 19;
-					} else if (t == 4 || t == 5 || t == 6) {
-						buildingType = 20;
-					} else if (t == 7 || t == 8) {
-						buildingType = 21;
-					} else if (t == 9 || t == 0) {
-
-						buildingType = 25;
-						for (let b = 0; b < village.buildings.length; b++) {
-							if (village.buildings[b].buildingType == 26) {
-								buildingType = 26;
-							}
-						}
-					}
-					//teutons
-					if (this.store.Player.tribeId * 1 == 2 && t == 4) {
-						buildingType = 19;
-					}
-					//gauls
-					if ((this.store.Player.tribeId * 1 == 3 || this.store.Player.tribeId * 1 == 7) && t == 3) {
-						buildingType = 20;
-					}
-
-					for (let b = 0; b < village.buildings.length; b++) {
-						if (village.buildings[b].buildingType == buildingType) {
-							building = village.buildings[b];
-						}
-					}
-
-					if (building !== undefined) {
-						let rez = await this.ApplyActions.train(village, village.tasks.train[j], resources, building);
-						village.tasks.train[j].time = new Date().getTime() + village.tasks.train[j].timeMinutes * 60 * 1000;
-					}
-				}
-			}
-		}
-		this.log.debug('checkTrain done');
-	}.bind(this)
-
-	const checkFarm = async function () {
-		this.log.debug('checkFarm start');
-		for (let i = 0; i < this.store.Player.villages.length; i++) {
-			let village = this.store.Player.villages[i];
-			if (village.tasks.farms.length == 0) {
-				continue;
-			}
-			for (let j = 0; j < village.tasks.farms.length; j++) {
-
-				if (!village.tasks.farms[j].enabled)
-					continue;
-				if (village.tasks.farms[j].time > new Date().getTime()) {
-					continue;
-				}
-				if (!village.tasks.farms[j].goldClubFarmlist) {
-					for (let f = village.tasks.farms[j].farmPosition; f < village.tasks.farms[j].villages.length; f++) {
-
-						if (!village.tasks.farms[j].villages[f].enabled)
-							continue;
-						if (isLowerFarms(village.tasks.farms[j].amount, village.Troops) || this.store.Player.version == 4) {
-							let rez = await this.ApplyActions.farm(village, village.tasks.farms[j].villages[f], village.tasks.farms[j]);
-
-							if (rez === undefined) {
-								break;
-							}
-							if (rez.fail) {
-								break;
-							}
-							village.tasks.farms[j].farmPosition = f;
-						}
-					}
-
-					if (village.tasks.farms[j].farmPosition == (village.tasks.farms[j].villages.length - 1)) {
-						village.tasks.farms[j].farmPosition = 0;
-					}
-				} else {
-					let rez = await this.ApplyActions.farmGoldClub(village, village.tasks.farms[j]);
-
-				}
-				village.tasks.farms[j].timeMinutes *= 1;
-				let randomMinutes = village.tasks.farms[j].timeMinutes;
-				if (village.tasks.farms[j].timeMinutesMax !== undefined) {
-					village.tasks.farms[j].timeMinutesMax *= 1;
-					if (village.tasks.farms[j].timeMinutesMax > village.tasks.farms[j].timeMinutes) {
-
-						randomMinutes = Math.floor(Math.random() * (village.tasks.farms[j].timeMinutesMax - village.tasks.farms[j].timeMinutes)) + village.tasks.farms[j].timeMinutes;
-					}
-				}
-
-				village.tasks.farms[j].time = new Date().getTime() + randomMinutes * 60 * 1000;
-			}
-		}
-		this.log.debug('checkFarm done');
-	}.bind(this)
-
 	function sumResources(res1) {
 		return res1["1"] * 1 + res1["2"] * 1 + res1["3"] * 1 + res1["4"] * 1;
 	}
@@ -1229,6 +1225,7 @@
 		"coppyFarmlist",
 		"logout",
 		"loginCustom",
+		"analyseBuildings"
 	];
 	const tasksToCheckActivity = [
 		"build",

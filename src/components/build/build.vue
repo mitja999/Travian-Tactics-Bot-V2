@@ -376,33 +376,9 @@ export default Vue.extend({
         try {
           //analyze dorf1
           //console.log($parent.$parent.CheckLogic);
-          let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
-            this.$store.state.selectedVillage
+          let loading1 = await this.$store.state.CheckLogic.analyseBuildings(
+            this.$store.state.selectedVillage.villageId
           );
-          if (loading1) {
-            await this.$store.state.CheckLogic.ApplyActions.analyseBuildRouter(
-              this.$store.state.selectedVillage
-            );
-            loading1 = false;
-          }
-        } catch (err) {}
-      }
-    },
-    "this.$store.state.selectedVillage": async function(val) {
-      //console.log("selected village changed")
-      if (this.$store.state.options.style.build.show == true) {
-        try {
-          //analyze dorf1
-          //console.log($parent.$parent.CheckLogic)
-          let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
-            val
-          );
-          if (loading1) {
-            await this.$store.state.CheckLogic.ApplyActions.analyseBuildRouter(
-              val
-            );
-            loading1 = false;
-          }
         } catch (err) {}
       }
     }

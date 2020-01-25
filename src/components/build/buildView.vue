@@ -376,7 +376,7 @@ export default Vue.extend({
         try {
           //analyze dorf1
           //console.log($parent.$parent.CheckLogic);
-          let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
+          let loading1 = await this.$store.state.CheckLogic.ApplyActions.analyseBuildings(
             this.$store.state.selectedVillage
           );
           if (loading1) {
@@ -394,7 +394,7 @@ export default Vue.extend({
         try {
           //analyze dorf1
           //console.log($parent.$parent.CheckLogic)
-          let loading1 = await this.$store.state.CheckLogic.ApplyActions.checkAnalyseBuildRouter(
+          let loading1 = await this.$store.state.CheckLogic.ApplyActions.analyseBuildings(
             val
           );
           if (loading1) {
