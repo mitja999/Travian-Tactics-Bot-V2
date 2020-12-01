@@ -42,13 +42,13 @@ export default new Vuex.Store({
     iframesrc: "https://traviantactics.com",
     images: {
       r1:
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/lumber_small.png",
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/general/resources/lumber_small.png",
       r2:
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/clay_small.png",
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/general/resources/clay_small.png",
       r3:
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/iron_small.png",
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/general/resources/iron_small.png",
       r4:
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/crop_small.png"
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/general/resources/crop_small.png"
     },
     mapZoom: 3,
     map: {
@@ -122,7 +122,7 @@ export default new Vuex.Store({
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
       let TroopUrl =
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/u/section/u" +
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -138,7 +138,7 @@ export default new Vuex.Store({
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
       let TroopUrl =
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/u/section/u" +
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
@@ -155,7 +155,7 @@ export default new Vuex.Store({
       id = id % 10;
 
       let TroopUrl =
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/u/v3_gauls2.gif";
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/u/v3_gauls2.gif";
       return {
         background: "url(" + TroopUrl + ")  no-repeat -" + (id - 1) * 19 + "px 0",
         width: "16px",
@@ -167,7 +167,7 @@ export default new Vuex.Store({
     getIcon: state => (id: number) => {
       let tribeIcon = "";
       let TroopUrl =
-        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/" +
+        "https://gpack.travian.com/20b0b1f1/mainPage/img_ltr/general/resources/" +
         id +
         ".png";
       return {
