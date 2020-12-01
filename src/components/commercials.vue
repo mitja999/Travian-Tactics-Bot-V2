@@ -54,7 +54,11 @@
         <v-layout row v-if="commercialstab === 0">
           <div class="text-center" style="width:100%">
             <v-label>Support us with donation</v-label>
-            <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+            <form
+              target="_blank"
+              action="https://www.paypal.com/cgi-bin/webscr"
+              method="post"
+            >
               <input type="hidden" name="cmd" value="_s-xclick" />
               <input
                 type="hidden"
@@ -80,7 +84,7 @@
           <div class="text-center" style="width:100%">
             <v-label>Support us with good review</v-label>
             <v-rating
-              value="5"
+              :value="stars"
               background-color="orange lighten-3"
               color="orange"
             ></v-rating>
@@ -88,7 +92,11 @@
               target="_blank"
               href="https://chrome.google.com/webstore/detail/traviantactics/gegegmbnpdigalgfkegjgnfcpmolijdg/reviews"
             >
-              <img src="img/chrome.png" alt="Chrome store" />
+              <img
+                src="img/chrome.png"
+                alt="Chrome store"
+                style="width: 250px;"
+              />
             </a>
             <br />
             <a
@@ -99,6 +107,7 @@
                 class=" iconBig "
                 src="img/firefoxLogo.png"
                 alt="firefox store"
+                style="width: 250px;"
             /></a>
           </div>
         </v-layout>
@@ -106,7 +115,7 @@
         <v-layout row v-if="commercialstab === 2">
           <a
             href="http://s.click.aliexpress.com/e/_sjA2Du?bz=300*250"
-            target="_parent"
+            target="_blank"
             ><img
               width="300"
               height="250"
@@ -129,7 +138,8 @@ export default Vue.extend({
     link: "http://traviantactics.com/Reklame3.php",
     timerID: 0,
     keyframe: 1,
-    commercialstab: 0
+    commercialstab: 0,
+    stars: 5,
   }),
   methods: {
     resize(left: number, top: number, width: number, height: number) {
@@ -143,10 +153,10 @@ export default Vue.extend({
       this.$store.state.options.style.commercials.left = left;
       this.$store.state.options.style.commercials.top = top;
       this.$store.state.options.coverdiv = false;
-    }
+    },
   },
   created: async function() {
-    this.timerID = setInterval(() => {
+    /*this.timerID = setInterval(() => {
       switch (this.keyframe % 4) {
         case 0:
           this.commercialstab = 0;
@@ -164,7 +174,7 @@ export default Vue.extend({
           break;
       }
       this.keyframe++;
-    }, 120000);
-  }
+    }, 60000);*/
+  },
 });
 </script>

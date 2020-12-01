@@ -11,6 +11,7 @@ export default new Vuex.Store({
     log: {} as any,
     socket: {} as any,
     localStorage: ls,
+    requestInProgress: false,
     Player: new objects.default.Player(),
     Village: new objects.default.village(),
     selectedVillage: new objects.default.village(),
@@ -22,6 +23,7 @@ export default new Vuex.Store({
     custom: objects.default.custom,
     options: objects.default.options,
     start: false,
+    window: window as any,
     landType: objects.default.landType,
     lang: new translations.default.Translate(),
     taskCheckTime: new Date(),
@@ -34,19 +36,19 @@ export default new Vuex.Store({
     workingDuration: 99999999,
     gameUrl: '' as string,
     version: {
-      web: "3.4.52",
-      extension: "3.4.26"
+      web: "3.5.3",
+      extension: "3.5.1"
     },
     iframesrc: "https://traviantactics.com",
     images: {
       r1:
-        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/lumber_small.png",
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/lumber_small.png",
       r2:
-        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/clay_small.png",
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/clay_small.png",
       r3:
-        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/iron_small.png",
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/iron_small.png",
       r4:
-        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/crop_small.png"
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/crop_small.png"
     },
     mapZoom: 3,
     map: {
@@ -120,11 +122,11 @@ export default new Vuex.Store({
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
       let TroopUrl =
-        "https://gpack.travian.com/f315f521/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
-        "-ltr.png";
+        ".png";
       return {
         background: "url(" + TroopUrl + ")",
         width: "120px",
@@ -136,11 +138,11 @@ export default new Vuex.Store({
       let tribeIcon = state.Player.tribeId * 1 - 1;
       id = id % 10;
       let TroopUrl =
-        "https://gpack.travian.com/f315f521/mainPage/img/u/section/u" +
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/u/section/u" +
         (tribeIcon === 0 ? "" : tribeIcon) +
         "" +
         id +
-        "-ltr.png";
+        ".png";
       return {
         background: "url(" + TroopUrl + ")",
         width: "120px",
@@ -153,22 +155,19 @@ export default new Vuex.Store({
       id = id % 10;
 
       let TroopUrl =
-        "https://gpack.travian.com/f315f521/mainPage/img/u/section/u" +
-        (tribeIcon === 0 ? "" : tribeIcon) +
-        "" +
-        id +
-        "-ltr.png";
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/u/v3_gauls2.gif";
       return {
-        background: "url(" + TroopUrl + ")",
-        width: "120px",
-        height: "120px",
-        zoom: 0.35
+        background: "url(" + TroopUrl + ")  no-repeat -" + (id - 1) * 19 + "px 0",
+        width: "16px",
+        height: "16px",
+        margin: "auto",
+        zoom: 1.5
       };
     },
     getIcon: state => (id: number) => {
       let tribeIcon = "";
       let TroopUrl =
-        "https://gpack.travian.com/f315f521/mainPage/img_ltr/general/resources/" +
+        "https://gpack.travian.com/7b2b4596/mainPage/img_ltr/general/resources/" +
         id +
         ".png";
       return {
@@ -190,6 +189,69 @@ export default new Vuex.Store({
     },
     getNewBuiding: state => () => {
       return new objects.default.building();
+    },
+    sleep: () => async function (ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    request: (state, getters) => async (url: string, data: any, type: string, retry: number = 0) => {
+
+      console.log("request start ", url, data, type, retry);
+      if (retry > 5) return undefined;
+
+      if (state.Player.loggedIn) {
+        state.options.coverdiv = true;
+      }
+      console.log("readyState", window.document.readyState);
+
+      await getters.sleep(Math.random() * 100 + 1000);
+
+      state.Player.options.logs.push({
+        "time": (new Date()).getTime(),
+        "name": state.taskStatus,
+        "success": true,
+        "text": url,
+        "villageId": type,
+        "type": "request"
+      });
+
+      state.log.debug("request " + url);
+      if (type === "GET" && retry === 0) {
+        state.iframesrc = url;
+        type = "getWindowHTML";
+      }
+
+      let runPromise = new Promise((resolve, reject) => {
+        if (!!state.window.chrome) {
+          state.window.chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
+            'url': url,
+            'data': data,
+            'type': type,
+          }, async (response: any) => {
+            console.log("request res ", response);
+            state.options.coverdiv = false;
+
+            if (response === null || response === undefined || response.loading) {
+              resolve(await getters.request(url, data, type, retry + 1));
+            }
+            else {
+              if (response !== null && response !== undefined && response.document !== undefined) {
+                let parser = new DOMParser();
+                if (type === "getWindowHTML") {
+                  response.doc = parser.parseFromString(response.document, "text/html");
+                }
+              }
+              resolve(response);
+
+            }
+          });
+        }
+      });
+
+      let deadlinePromise = new Promise(function (resolve, reject) {
+        setTimeout(resolve, 10000, undefined);
+      });
+
+      return Promise.race([runPromise, deadlinePromise]);
     }
   },
   actions: {

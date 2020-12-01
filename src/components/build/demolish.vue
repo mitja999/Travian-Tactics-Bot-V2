@@ -156,7 +156,7 @@
           column
           style="overflow-y: auto;"
           :style="{
-            height: $store.state.options.style.build.height - 60 + 'px'
+            height: $store.state.options.style.build.height - 60 + 'px',
           }"
         >
           <v-data-table
@@ -252,7 +252,7 @@ export default Vue.extend({
       width: 360,
       height: 190,
       z: 999,
-      enabled: true
+      enabled: true,
     },
     demolish: false,
     loading1: false,
@@ -272,12 +272,12 @@ export default Vue.extend({
         pop: 0,
         cp: 0,
         negative: 0,
-        resorces: 0
-      }
+        resorces: 0,
+      },
     },
     taskSimulator: {
-      tasks: []
-    }
+      tasks: [],
+    },
   }),
   methods: {
     resize(left: number, top: number, width: number, height: number) {
@@ -298,7 +298,7 @@ export default Vue.extend({
         buildingType: this.selectedBuilding.buildingType,
         toLvl: this.selectedLevel,
         priority: 1,
-        enabled: true
+        enabled: true,
       };
       if (objj.buildingType == 0) {
         objj.buildingType = this.newBuilding;
@@ -365,7 +365,7 @@ export default Vue.extend({
         item.lvl
       );
     },
-    buildingvalue: (item: any) => item
+    buildingvalue: (item: any) => item,
   },
   watch: {
     /* "options.criterium": {
@@ -386,7 +386,7 @@ export default Vue.extend({
         try {
           //analyze dorf1
           //console.log($parent.$parent.CheckLogic);
-          let loading1 = await this.$store.state.CheckLogic.ApplyActions.analyseBuildings(
+          let loading1 = await this.$store.state.CheckLogic.ApplyActions.analyzeBuildings(
             this.$store.state.selectedVillage
           );
           if (loading1) {
@@ -404,7 +404,7 @@ export default Vue.extend({
         try {
           //analyze dorf1
           //console.log($parent.$parent.CheckLogic)
-          let loading1 = await this.$store.state.CheckLogic.ApplyActions.analyseBuildings(
+          let loading1 = await this.$store.state.CheckLogic.ApplyActions.analyzeBuildings(
             val
           );
           if (loading1) {
@@ -415,7 +415,7 @@ export default Vue.extend({
           }
         } catch (err) {}
       }
-    }
+    },
   },
   mounted: function() {
     if (this.$store.state.selectedVillage.buildings[1] !== undefined)
@@ -483,7 +483,7 @@ export default Vue.extend({
       if (building === undefined) return;
       if (building.buildingType == 0) {
         building = {
-          buildingType: this.newBuilding
+          buildingType: this.newBuilding,
         };
       }
       let lvlNext = 1;
@@ -513,7 +513,7 @@ export default Vue.extend({
       }
 
       return levels;
-    }
-  }
+    },
+  },
 });
 </script>

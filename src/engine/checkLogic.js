@@ -1,4 +1,8 @@
-﻿const exports = function () {
+﻿
+const applyActionV5 = require("./applyActionV5.js");
+const applyActionV4 = require("./applyActionV4.js");
+
+const exports = function () {
 	let taskTimers = {
 		analyze: {
 			time: 0
@@ -26,7 +30,7 @@
 
 	this.init = function (store) {
 		this.store = store;
-		this.log = store.log;
+		this.log = store.state.log;
 		this.ApplyActions = undefined;
 	}
 	const getWindowHTMLdata = {
@@ -54,20 +58,21 @@
 
 			if (getWindowHTMLdata.classes[i]["class"] == "r1" || getWindowHTMLdata.classes[i]["class"] == "r2" || getWindowHTMLdata.classes[i]["class"] == "r3" || getWindowHTMLdata.classes[i]["class"] == "r4") {
 				if (classes[getWindowHTMLdata.classes[i]["class"]]) {
-					vue1.store.images[getWindowHTMLdata.classes[i]["class"]] = classes[getWindowHTMLdata.classes[i]["class"]]["backgroundImage"].split('"')[1]
+					vue1.store.state.images[getWindowHTMLdata.classes[i]["class"]] = classes[getWindowHTMLdata.classes[i]["class"]]["backgroundImage"].split('"')[1]
 				}
 			}
 		}
 	}
-	this.loadPlayer = async function (aa, aa5) {
-		this.log.debug("loadPlayer", this.ApplyActions, this.store.Player.loggedIn);
-		if (this.ApplyActions === undefined || !this.store.Player.loggedIn) {
-			let rez = await request("", getWindowHTMLdata, "getWindowHTML");
-			//this.log.debug("getWindowHTML", rez);
+	this.loadPlayer = async function () {
+		this.log.debug("loadPlayer", this.ApplyActions, this.store.state.Player.loggedIn, applyActionV4, applyActionV5);
+		if (this.ApplyActions === undefined || !this.store.state.Player.loggedIn) {
+			let rez = await this.store.getters.request("", getWindowHTMLdata, "getWindowHTML");
+			this.log.debug("getWindowHTML", rez);
 			if (rez) {
 				if (rez.orign) {
-					this.store.Player.url = rez.orign;
-					this.store.gameUrl = rez.url;
+
+					this.store.state.Player.url = rez.orign;
+					this.store.state.gameUrl = rez.url;
 				}
 
 				if (rez.document) {
@@ -76,12 +81,12 @@
 
 						if (this.ApplyActions === undefined) {
 							wrapObject = true;
-							this.ApplyActions = aa5;
+							this.ApplyActions = applyActionV5.default;
 							await this.ApplyActions.initAA(this.log, this.store);
-							this.store.Player.version = 5;
+							this.store.state.Player.version = 5;
 						}
 						await this.ApplyActions.getPlayer(rez);
-						this.store.Player.loggedIn = true;
+						this.store.state.Player.loggedIn = true;
 
 					} else {
 						if (rez.document.indexOf('Travian.Game.version') !== -1) {
@@ -89,19 +94,20 @@
 
 							if (this.ApplyActions === undefined) {
 								wrapObject = true;
-								this.ApplyActions = aa;
-								this.store.Player.version = 4;
+								this.ApplyActions = applyActionV4.default;
+								await this.ApplyActions.initAA(this.log, this.store);
+								this.store.state.Player.version = 4;
 							}
 							if (rez.classes) {
 								setImages(rez.classes, this)
 							}
-							let loggedin = await this.ApplyActions.getPlayer(rez);
-							if (!loggedin) {
-								return
+							try {
+								await this.ApplyActions.getPlayer(rez);
+							} catch{
+								return false;
 							}
-							this.store.Player.loggedIn = true;
-							this.store.Player.villages = this.store.Player.villages.filter(function (value, index, arr) {
-
+							this.store.state.Player.loggedIn = true;
+							this.store.state.Player.villages = this.store.state.Player.villages.filter(function (value, index, arr) {
 								return value.villageId !== 0;
 
 							});
@@ -113,11 +119,11 @@
 							async function (fname, o, arg) {
 								if (fname !== 'getPlayer' && fname !== 'analyzePlayer') {
 
-									while (this.store.executing) {
+									while (this.store.state.executing) {
 										this.log.debug("request already in progress, waiting " + fname, arg);
 										await sleep(1000);
 									}
-									this.store.executing = true;
+									this.store.state.executing = true;
 								}
 
 								this.log.debug("LOG: before calling " + fname, arg);
@@ -128,13 +134,13 @@
 									}
 									arg[1].executionTimes = arg[1].executionTimes === undefined ? [] : arg[1].executionTimes;
 									arg[1].executionTimes.push(Date.now());
-									if (arg[1].executionTimes.length >= 10) {
+									if (arg[1].executionTimes.length >= 100) {
 										let millis = arg[1].executionTimes[4] - arg[1].executionTimes[0];
 										arg[1].executionTimes.shift();
 										if (millis <= 240000) {
 											arg[1].enabled = false;
 											arg[1].executionTimes = [];
-											this.store.Player.options.logs.push({
+											this.store.state.Player.options.logs.push({
 												"time": new Date().getTime(),
 												"name": fname,
 												"success": false,
@@ -146,8 +152,8 @@
 									}
 								}
 
-								this.store.taskStatus = fname;
-								if (!this.store.Player.start && !(fname === "analyseBuildings" || fname === "cropFind" || fname === "search" || fname === "initAA" || fname === "onRouted" || fname === "analyzePlayer" || fname === "getPlayer" || fname === "getGoldClubFarmlists" || fname === "coppyFarmlist")) {
+								this.store.state.taskStatus = fname;
+								if (!this.store.state.Player.start && !(fname === "analyzeBuildings" || fname === "cropFind" || fname === "search" || fname === "initAA" || fname === "onRouted" || fname === "analyzePlayer" || fname === "getPlayer" || fname === "getGoldClubFarmlists" || fname === "coppyFarmlist")) {
 									return false;
 								}
 								return true;
@@ -156,14 +162,14 @@
 
 								this.log.debug("LOG: after calling " + fname, arg);
 								if (fname !== 'getPlayer' && fname !== 'analyzePlayer') {
-									this.store.executing = false;
+									this.store.state.executing = false;
 								}
-								this.store.taskStatus = this.store.timerCounter;
+								this.store.state.taskStatus = this.store.state.timerCounter;
 
 								let text = "";
 								let logname = fname;
 								let success = r;
-								if (this.store.Player.version == 4) {
+								if (this.store.state.Player.version == 4) {
 									if (r)
 										success = r.success;
 								}
@@ -173,21 +179,16 @@
 
 								switch (fname) {
 									case "logout":
-										debugger;
 										text = "Analyze player"
 										break;
 									case "getPlayer":
 										text = "Analyze player"
 										break;
 									case "build":
-										let lvl = arg[1].lvlNext;
-										if (this.store.Player.version == 4) {
-											lvl = r.lvl
-										}
 
-										text = "Building: " + this.store.Buildings[arg[2].buildingType][0][1] + ", LocationId: " + arg[2].locationId + ", level: " + lvl;
+										text = "Building: " + this.store.state.Buildings[arg[2].buildingType][0][1] + ", LocationId: " + arg[2].locationId + ", level: " + arg[2].lvlNext;
 
-										if (this.store.Player.version == 4) {
+										if (this.store.state.Player.version == 4) {
 											if (r && r.error) {
 												logname = "Error"
 												text = "Building failed (" + text + "): " + r.errorMessage;
@@ -197,7 +198,7 @@
 										break;
 									case "trade":
 										text = "(" + arg[1].x + "|" + arg[1].y + "), [ Wood=" + arg[2]["1"] + " Clay=" + arg[2]["2"] + " Iron=" + arg[2]["3"] + " Grain=" + arg[2]["4"] + " ]";
-										if (this.store.Player.version == 4) {
+										if (this.store.state.Player.version == 4) {
 											if (r && r.error) {
 												logname = "Error"
 												text = "Trade failed (" + text + "): " + r.errorMessage;
@@ -206,7 +207,7 @@
 										break;
 									case "train":
 										text = "Type: " + arg[1].type + ", Amount: " + arg[1].amount;
-										if (this.store.Player.version == 4) {
+										if (this.store.state.Player.version == 4) {
 											if (r && r.error) {
 												logname = "Error"
 												text = "Train failed (" + text + "): " + r.errorMessage;
@@ -244,11 +245,11 @@
 										return;
 									case "coppyFarmlist":
 										return;
-									case "analyseBuildings":
+									case "analyzeBuildings":
 										return;
 									case "farmGoldClub":
 										text = "goldclub attacks sent.";
-										if (this.store.Player.version == 4) {
+										if (this.store.state.Player.version == 4) {
 											if (r && r.error) {
 												logname = "Error"
 												text = "farmGoldClub failed: " + r.errorMessage;
@@ -266,22 +267,22 @@
 								} catch{ }
 
 
-								this.store.Player.options.logs.push({
+								this.store.state.Player.options.logs.push({
 									"time": new Date().getTime(),
 									"name": logname,
 									"success": success,
 									"text": text,
 									"villageId": villageId
 								});
-								if (this.store.Player.options.logs.length > 500) {
+								if (this.store.state.Player.options.logs.length > 500) {
 
-									this.store.Player.options.logs.splice(400, this.store.Player.options.logs.length - 400)
+									this.store.state.Player.options.logs.splice(400, this.store.state.Player.options.logs.length - 400)
 								}
 								if (r && r.error) {
 									let throwerror = this.checkLastLogs()
 									this.log.debug("throwerror", throwerror)
 									if (throwerror) {
-										//this.store.Player.start = false;
+										//this.store.state.Player.start = false;
 										//clearInterval(v.timer);
 										throw r.errorMessage
 									}
@@ -303,10 +304,10 @@
 	}
 
 	this.checkLastLogs = function () {
-		let logslength = this.store.Player.options.logs.length
+		let logslength = this.store.state.Player.options.logs.length
 		let numberOfFails = 0
-		for (let i = 0; i < 50 & i < this.store.Player.options.logs.length; i++) {
-			let log = this.store.Player.options.logs[i]
+		for (let i = 0; i < 50 & i < this.store.state.Player.options.logs.length; i++) {
+			let log = this.store.state.Player.options.logs[i]
 			if (log.time > new Date().getTime() - 300000 & log.name == "Error") {
 				numberOfFails += 1
 			} else {
@@ -315,7 +316,7 @@
 		}
 		//console.log("numberOfFails", numberOfFails)
 		if (numberOfFails > 10) {
-			this.store.Player.options.logs.unshift({
+			this.store.state.Player.options.logs.unshift({
 				"time": new Date().getTime(),
 				"name": "Error",
 				"success": true,
@@ -338,14 +339,14 @@
 			this.isredirected = false;
 			await this.ApplyActions.loginCustom();
 			await sleep(3000);
-			debugger;
-			this.store.iframesrc = this.store.gameUrl;
+			this.store.state.iframesrc = this.store.state.gameUrl;
 		}
 
-		for (let i = 0; i < this.store.Player.villages.length; i++) {
-			let village = this.store.Player.villages[i];
+		await this.ApplyActions.analyzePlayer();
+		for (let i = 0; i < this.store.state.Player.villages.length; i++) {
+			let village = this.store.state.Player.villages[i];
 			try {
-				await this.ApplyActions.analyzePlayer(village);
+				await this.ApplyActions.analyzeVillage(village);
 			} catch (e) {
 				taskTimers.analyze.time = new Date().getTime() + 10 * 60 * 1000;
 				reportError(e, "analyzePlayer");
@@ -389,7 +390,6 @@
 			taskTimers.hero.time = new Date().getTime() + 10 * 60 * 1000;
 			reportError(e, "checkHero");
 		}
-
 		this.log.debug('checkTasks done');
 		this.lock = false;
 		this.setTasks();
@@ -400,94 +400,94 @@
 	}
 	this.redirect = async function () {
 		this.isredirected = true;
-		this.store.iframesrc = "http://traviantactics.com";
+		this.store.state.iframesrc = "http://traviantactics.com";
 	}
 
 	this.search = async function (parameters) {
-		this.store.custom.farmfinder.progress = 0.0;
-		this.store.custom.farmfinder.showProgress = true;
-		this.store.custom.farmfinder.running = true;
-		let start = this.store.Player.start;
-		this.store.Player.start = false;
+		this.store.state.custom.farmfinder.progress = 0.0;
+		this.store.state.custom.farmfinder.showProgress = true;
+		this.store.state.custom.farmfinder.running = true;
+		let start = this.store.state.Player.start;
+		this.store.state.Player.start = false;
 		await this.ApplyActions.search(parameters);
-		this.store.Player.start = start;
-		this.store.custom.farmfinder.progress = 100;
-		this.store.custom.farmfinder.showProgress = false;
-		this.store.custom.farmfinder.running = false;
+		this.store.state.Player.start = start;
+		this.store.state.custom.farmfinder.progress = 100;
+		this.store.state.custom.farmfinder.showProgress = false;
+		this.store.state.custom.farmfinder.running = false;
 	}
 
 	this.cropFind = async function (parameters) {
-		this.store.custom.farmfinder.progress = 0.0;
-		this.store.custom.farmfinder.showProgress = true;
-		this.store.custom.farmfinder.running = true;
-		let start = this.store.Player.start;
-		this.store.Player.start = false;
+		this.store.state.custom.farmfinder.progress = 0.0;
+		this.store.state.custom.farmfinder.showProgress = true;
+		this.store.state.custom.farmfinder.running = true;
+		let start = this.store.state.Player.start;
+		this.store.state.Player.start = false;
 		await this.ApplyActions.cropFind(parameters);
-		this.store.Player.start = start;
-		this.store.custom.farmfinder.progress = 100;
-		this.store.custom.farmfinder.showProgress = false;
-		this.store.custom.farmfinder.running = false;
+		this.store.state.Player.start = start;
+		this.store.state.custom.farmfinder.progress = 100;
+		this.store.state.custom.farmfinder.showProgress = false;
+		this.store.state.custom.farmfinder.running = false;
 	}
 
 	this.getGoldClubFarmlists = async function (parameters) {
-		this.store.custom.farmfinder.progress = 0.0;
-		this.store.custom.farmfinder.showProgress = true;
-		this.store.custom.farmfinder.running = true;
-		let start = this.store.Player.start;
-		this.store.Player.start = false;
+		this.store.state.custom.farmfinder.progress = 0.0;
+		this.store.state.custom.farmfinder.showProgress = true;
+		this.store.state.custom.farmfinder.running = true;
+		let start = this.store.state.Player.start;
+		this.store.state.Player.start = false;
 		await this.ApplyActions.getGoldClubFarmlists(parameters);
-		this.store.Player.start = start;
-		this.store.custom.farmfinder.progress = 100;
-		this.store.custom.farmfinder.showProgress = false;
-		this.store.custom.farmfinder.running = false;
+		this.store.state.Player.start = start;
+		this.store.state.custom.farmfinder.progress = 100;
+		this.store.state.custom.farmfinder.showProgress = false;
+		this.store.state.custom.farmfinder.running = false;
 	}
 
 	this.coppyFarmlist = async function (village, farmlist, name, copyStatus) {
 
-		let start = this.store.Player.start;
-		this.store.Player.start = false;
+		let start = this.store.state.Player.start;
+		this.store.state.Player.start = false;
 		await this.ApplyActions.coppyFarmlist(village, farmlist, name, copyStatus);
-		this.store.Player.start = start;
+		this.store.state.Player.start = start;
 	}
 
 	this.getConfig = async function () {
-		this.log.debug("getConfig", this.store.Player);
-		let configLs = this.store.localStorage.get("settings");
+		this.log.debug("getConfig", this.store.state.Player);
+		let configLs = this.store.state.localStorage.get("settings");
 		if (configLs !== false) {
-			copyProperties(this.store.options, configLs);
+			copyProperties(this.store.state.options, configLs);
 		}
-		this.store.options.init = true;
+		this.store.state.options.init = true;
 
 		return true;
 	}
 
 
 	this.setConfig = async function () {
-		//this.log.debug("set tasks", this.store.options);
-		this.store.localStorage.set("settings", this.store.options);
+		//this.log.debug("set tasks", this.store.state.options);
+		this.store.state.localStorage.set("settings", this.store.state.options);
 		return true;
 	}
 
-	this.analyseBuildings = async function (villageId) {
+	this.analyzeBuildings = async function (villageId) {
 		if (this.ApplyActions !== undefined) {
-			this.ApplyActions.analyseBuildings(villageId);
+			this.ApplyActions.analyzeBuildings(villageId);
 		}
 		return true;
 	}
 
 	this.getTasks = async function () {
 
-		this.log.debug('Get localStorage getTasks data: ', this.store.Player.playerId);
+		this.log.debug('Get localStorage getTasks data: ', this.store.state.Player.playerId);
 
-		if (this.store.Player.playerId === 0) {
-			this.log.debug("no playerId", this.store.Player.playerId);
+		if (this.store.state.Player.playerId === 0) {
+			this.log.debug("no playerId", this.store.state.Player.playerId);
 			return true;
 		}
 
-		let loggedIn = this.store.Player.loggedIn;
+		let loggedIn = this.store.state.Player.loggedIn;
 
-		this.log.debug("getConfig", this.store.Player);
-		let villageTasks = this.store.localStorage.get(this.store.Player.playerId + "");
+		this.log.debug("getConfig", this.store.state.Player);
+		let villageTasks = this.store.state.localStorage.get(this.store.state.Player.playerId + "");
 		if (villageTasks !== false && villageTasks !== null) {
 			for (let i = 0; i < villageTasks.length; i++) {
 				try {
@@ -514,45 +514,45 @@
 				} catch (ex) {
 					this.log.debug(ex);
 				}
-				for (let j = 0; j < this.store.Player.villages.length; j++) {
-					if (this.store.Player.villages[j].villageId === villageTasks[i].villageId) {
-						copyProperties(this.store.Player.villages[j].tasks, villageTasks[i].tasks);
+				for (let j = 0; j < this.store.state.Player.villages.length; j++) {
+					if (this.store.state.Player.villages[j].villageId === villageTasks[i].villageId) {
+						copyProperties(this.store.state.Player.villages[j].tasks, villageTasks[i].tasks);
 					}
 				}
 			}
 		}
 
-		let playerOptions = this.store.localStorage.get(this.store.Player.playerId + "options");
+		let playerOptions = this.store.state.localStorage.get(this.store.state.Player.playerId + "options");
 		if (playerOptions !== false) {
-			copyProperties(this.store.Player.options, playerOptions);
+			copyProperties(this.store.state.Player.options, playerOptions);
 
 		}
-		this.store.Player.loggedIn = loggedIn;
-		this.store.Player.tasksLoad = true;
+		this.store.state.Player.loggedIn = loggedIn;
+		this.store.state.Player.tasksLoad = true;
 
-		this.store.windowdimension = "L" + window.innerWidth + "-" + window.innerHeight;
+		this.store.state.windowdimension = "L" + window.innerWidth + "-" + window.innerHeight;
 
-		let parsedUrl = new URL(this.store.Player.url);
+		let parsedUrl = new URL(this.store.state.Player.url);
 
-		let userInfo = await request("", "", "getCredentials", "", 0, parsedUrl.hostname);
+		/*let userInfo = await this.store.getters.request("", "", "getCredentials", "", 0, parsedUrl.hostname);
 		if (userInfo.length === 1) {
 			if (userInfo[0].users.length === 1) {
-				this.store.Player.options.User.username = userInfo[0].users[0].password;
-				this.store.Player.options.User.password = userInfo[0].users[0].name;
+				this.store.state.Player.options.User.username = userInfo[0].users[0].password;
+				this.store.state.Player.options.User.password = userInfo[0].users[0].name;
 			} else if (userInfo[0].users.length !== 0) {
-				let user = userInfo[0].users.find(d => d.password === this.store.Player.name);
+				let user = userInfo[0].users.find(d => d.password === this.store.state.Player.name);
 				if (user !== undefined) {
-					this.store.Player.options.User.username = user.password;
-					this.store.Player.options.User.password = user.name;
+					this.store.state.Player.options.User.username = user.password;
+					this.store.state.Player.options.User.password = user.name;
 				}
 			}
-		}
+		}*/
 		return true;
 	}
 
 
 	this.setTasks = async function () {
-		if (this.store.Player.playerId === 0) {
+		if (this.store.state.Player.playerId === 0) {
 			return true;
 		}
 		if (this.lock) {
@@ -560,94 +560,37 @@
 		}
 		this.log.debug("saving tasks.");
 
-		if (this.store.Player.tasksLoad === false) return true;
+		if (this.store.state.Player.tasksLoad === false) return true;
 
 		let villageTasks = [];
 
-		for (let i = 0; i < this.store.Player.villages.length; i++) {
-			if (this.store.Player.villages[i] !== undefined) {
+		for (let i = 0; i < this.store.state.Player.villages.length; i++) {
+			if (this.store.state.Player.villages[i] !== undefined) {
 				villageTasks.push({
-					villageId: this.store.Player.villages[i].villageId,
-					tasks: this.store.Player.villages[i].tasks
+					villageId: this.store.state.Player.villages[i].villageId,
+					tasks: this.store.state.Player.villages[i].tasks
 				});
 			}
 		}
 		//this.log.debug("set tasks", villageTasks);
-		this.store.localStorage.set(this.store.Player.playerId + "", villageTasks);
-		this.store.localStorage.set(this.store.Player.playerId + "options", this.store.Player.options);
+		this.store.state.localStorage.set(this.store.state.Player.playerId + "", villageTasks);
+		this.store.state.localStorage.set(this.store.state.Player.playerId + "options", this.store.state.Player.options);
 		return true;
 	}
 
-	const request = function (url, data, type, headers, timeout, hostname) {
-		if (!timeout) {
-			timeout = 10000
-		}
-		let headers1 = {
-			"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-			"Upgrade-Insecure-Requests": 1
-		}
-		if (type == "POST") {
-			headers1["Content-Type"] = "application/json;charset=UTF-8"
-		}
-		if (headers) {
-			for (header in request.headers) {
-				headers1[header] = headers[header];
-			}
-		}
-		//this.log.debug('request start', url, data, type, headers1);
-		return new Promise((resolve, reject) => {
-			setTimeout(function () {
-				resolve({ "document": "", "orign": "", "url": "" })
-			}, timeout)
-			if (!!window.chrome) {
-				chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
-					'url': url,
-					'data': data,
-					'type': type,
-					timeout: 10000,
-					timemin: 500,
-					timemax: 2000,
-					headers: headers1,
-					hostname: hostname
-				}, function (response) {
-					resolve(response);
-				})
-			} else {
-				let _r1 = {};
-				if (window.sendMessage === undefined) {
-					resolve(undefined);
-					return;
-				}
-
-				window.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
-					'url': url,
-					'data': data,
-					'type': type,
-					timeout: 10000,
-					timemin: 500,
-					timemax: 2000,
-					headers: headers1,
-					hostname: hostname
-				}, function (response) {
-					resolve(response.data);
-				}, _r1);
-			}
-		});
-	}.bind(this)
-	this.request = request;
 
 	const checkHero = async function () {
 		this.log.debug('checkHero start');
-		if (this.store.Player.options.tasks.hero.adventure.enabled) {
-			if (this.store.Player.hero.time) {
-				if (this.store.Player.hero.time < new Date().getTime()) {
-					this.store.Player.hero.status = 0
-					this.store.Player.hero.adventurePoints = 1
+		if (this.store.state.Player.options.tasks.hero.adventure.enabled) {
+			if (this.store.state.Player.hero.time) {
+				if (this.store.state.Player.hero.time < new Date().getTime()) {
+					this.store.state.Player.hero.status = 0
+					this.store.state.Player.hero.adventurePoints = 1
 				}
 			}
 			//status 0=alive, 1 returning, 2 on the way, 7 dead
-			if (this.store.Player.hero.status == 0 && this.store.Player.hero.adventurePoints * 1 > 0) {
-				let rez = await this.ApplyActions.adventure(this.store.Player, this.store.Player.options.tasks.hero.adventure);
+			if (this.store.state.Player.hero.status == 0 && this.store.state.Player.hero.adventurePoints * 1 > 0) {
+				let rez = await this.ApplyActions.adventure(this.store.state.Player, this.store.state.Player.options.tasks.hero.adventure);
 			}
 		}
 		this.log.debug('checkHero end');
@@ -681,7 +624,6 @@
 			let lowestBuilding = 30;
 			let lowestBuilding2 = 30;
 
-
 			if (buildTask.locationId.length !== undefined) {
 				for (let l = 1; l < 19; l++) {
 					if (buildTask.locationId.includes(village.buildings[l].buildingType + "")) {
@@ -710,22 +652,21 @@
 
 				continue;
 			}
-
+			let villageBuilding = village.buildings[locationId];
+			let bt = JSON.parse(JSON.stringify(buildTask));
+			bt.locationId = locationId;
 			if (village.buildings[locationId].buildingType == 0) {
 				let res1 = {
-					"1": this.store.Buildings[buildTask.buildingType][1][0],
-					"2": this.store.Buildings[buildTask.buildingType][1][1],
-					"3": this.store.Buildings[buildTask.buildingType][1][2],
-					"4": this.store.Buildings[buildTask.buildingType][1][3]
+					"1": this.store.state.Buildings[buildTask.buildingType][1][0],
+					"2": this.store.state.Buildings[buildTask.buildingType][1][1],
+					"3": this.store.state.Buildings[buildTask.buildingType][1][2],
+					"4": this.store.state.Buildings[buildTask.buildingType][1][3]
 				}
 
 				if (isLowerReources(res1, village.storage)) {
-					let villageBuilding = village.buildings[locationId];
-					let rez = await this.ApplyActions.build(village, buildTask, villageBuilding);
+					let rez = await this.ApplyActions.build(village, bt, villageBuilding);
 				}
 			} else {
-				let villageBuilding = village.buildings[locationId];
-
 				if (villageBuilding.lvlNext == villageBuilding.lvl) {
 
 					buildtasksToRemove.unshift(j)
@@ -734,7 +675,7 @@
 					if (isLowerReources(villageBuilding.upgradeCosts, village.storage)) {
 
 						this.log.debug('building started', village, buildTask, villageBuilding);
-						let rez = await this.ApplyActions.build(village, buildTask, villageBuilding);
+						let rez = await this.ApplyActions.build(village, bt, villageBuilding);
 					}
 				} else {
 					buildtasksToRemove.unshift(j)
@@ -822,22 +763,21 @@
 			if (village.tasks.train[j].time > new Date().getTime()) {
 				continue;
 			}
-			village.tasks.train[j].type = ((this.store.Player.tribeId - 1) * 10) + (village.tasks.train[j].type * 1 % 10);
+			village.tasks.train[j].type = ((this.store.state.Player.tribeId - 1) * 10) + (village.tasks.train[j].type * 1 % 10);
 			let t = village.tasks.train[j].type % 10;
 
 			let resources = {};
-			if (this.store.Player.version === 5) {
-				resources["1"] = this.store.troopCost[t].costs[1] * village.tasks.train[j].amount;
-				resources["2"] = this.store.troopCost[t].costs[2] * village.tasks.train[j].amount;
-				resources["3"] = this.store.troopCost[t].costs[3] * village.tasks.train[j].amount;
-				resources["4"] = this.store.troopCost[t].costs[4] * village.tasks.train[j].amount;
+			if (this.store.state.Player.version === 5) {
+				resources["1"] = this.store.state.troopCost[t].costs[1] * village.tasks.train[j].amount;
+				resources["2"] = this.store.state.troopCost[t].costs[2] * village.tasks.train[j].amount;
+				resources["3"] = this.store.state.troopCost[t].costs[3] * village.tasks.train[j].amount;
+				resources["4"] = this.store.state.troopCost[t].costs[4] * village.tasks.train[j].amount;
 			} else {
-				resources["1"] = this.store.uc[t][1] * village.tasks.train[j].amount;
-				resources["2"] = this.store.uc[t][2] * village.tasks.train[j].amount;
-				resources["3"] = this.store.uc[t][3] * village.tasks.train[j].amount;
-				resources["4"] = this.store.uc[t][4] * village.tasks.train[j].amount;
+				resources["1"] = this.store.state.uc[t][1] * village.tasks.train[j].amount;
+				resources["2"] = this.store.state.uc[t][2] * village.tasks.train[j].amount;
+				resources["3"] = this.store.state.uc[t][3] * village.tasks.train[j].amount;
+				resources["4"] = this.store.state.uc[t][4] * village.tasks.train[j].amount;
 			}
-
 
 			if (isLowerReources(resources, village.storage)) {
 
@@ -859,11 +799,11 @@
 					}
 				}
 				//teutons
-				if (this.store.Player.tribeId * 1 == 2 && t == 4) {
+				if (this.store.state.Player.tribeId * 1 == 2 && t == 4) {
 					buildingType = 19;
 				}
 				//gauls
-				if ((this.store.Player.tribeId * 1 == 3 || this.store.Player.tribeId * 1 == 7) && t == 3) {
+				if ((this.store.state.Player.tribeId * 1 == 3 || this.store.state.Player.tribeId * 1 == 7) && t == 3) {
 					buildingType = 20;
 				}
 
@@ -897,7 +837,7 @@
 
 					if (!village.tasks.farms[j].villages[f].enabled)
 						continue;
-					if (isLowerFarms(village.tasks.farms[j].amount, village.Troops) || this.store.Player.version == 4) {
+					if (isLowerFarms(village.tasks.farms[j].amount, village.Troops) || this.store.state.Player.version == 4) {
 						let rez = await this.ApplyActions.farm(village, village.tasks.farms[j].villages[f], village.tasks.farms[j]);
 
 						if (rez === undefined) {
@@ -1071,9 +1011,9 @@
 	}
 
 	const getVillageFromXY = function (x, y) {
-		for (let i = 0; i < this.store.Player.villages.length; i++) {
-			if (this.store.Player.villages[i]["x"] == x && this.store.Player.villages[i]["y"] == y) {
-				return this.store.Player.villages[i]
+		for (let i = 0; i < this.store.state.Player.villages.length; i++) {
+			if (this.store.state.Player.villages[i]["x"] == x && this.store.state.Player.villages[i]["y"] == y) {
+				return this.store.state.Player.villages[i]
 			}
 		}
 		return false
@@ -1225,7 +1165,8 @@
 		"coppyFarmlist",
 		"logout",
 		"loginCustom",
-		"analyseBuildings"
+		"analyzeBuildings",
+		"analyzeVillage"
 	];
 	const tasksToCheckActivity = [
 		"build",
@@ -1259,11 +1200,7 @@
 					}
 				}
 				if (rv) {
-					try {
-						rv = await f.apply(this, arguments); // Calls the original
-					} catch (ex) {
-						console.log(ex);
-					}
+					rv = await f.apply(this, arguments); // Calls the original
 				}
 
 				if (after) {
@@ -1296,7 +1233,7 @@
 								} else {
 									switch (key) {
 										case "village":
-											arrayMain[i] = JSON.parse(JSON.stringify(this.store.Village));
+											arrayMain[i] = JSON.parse(JSON.stringify(this.store.state.Village));
 											arrayMain[i].tasks.villageId = arrayMain[i].villageId;
 											copyProperties(arrayMain[i], arrayOther[i]);
 											break;

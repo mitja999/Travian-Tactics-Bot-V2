@@ -67,6 +67,10 @@ exports.finishNow = async function (village, building, buildTask) {
 	return true;
 }
 
+exports.analyzeVillage = async function () {
+
+}
+
 exports.analyzePlayer = async function () {
 	this.log.debug('T5analyzePlayer start');
 	let rez = await request("", "", "getT5Player");
@@ -87,12 +91,12 @@ exports.analyzePlayer = async function () {
 				"upgradeTime": 0
 			});
 		}
-		copyProperties(this.store.Player, rez.player, this.store);
-		this.log.debug('T5analyzePlayer done', this.store.Player);
+		copyProperties(this.store.state.Player, rez.player, this.store);
+		this.log.debug('T5analyzePlayer done', this.store.state.Player);
 		return true;
 	}
 
-	this.log.debug('T5analyzePlayer failed', this.store.Player);
+	this.log.debug('T5analyzePlayer failed', this.store.state.Player);
 	return false;
 }
 
@@ -152,14 +156,15 @@ exports.adventure = async function () {
 		dialogId: 0,
 		command: "activate"
 	};
-	this.store.Player.hero.status = 2;
+	this.store.state.Player.hero.status = 2;
+	let response = await request(url, data, "requestT5");
 
 	return true;
 }
 
 exports.farm = async function (village, farm, FarmTask) {
 	let currTime = Math.floor(new Date().getTime());
-	let url = this.store.Player.url + "/api/?c=troops&a=checkTarget&t" + currTime;
+	let url = this.store.state.Player.url + "/api/?c=troops&a=checkTarget&t" + currTime;
 	let data = JSON.stringify({
 		"controller": "troops",
 		"action": "checkTarget",
@@ -172,7 +177,7 @@ exports.farm = async function (village, farm, FarmTask) {
 			"heroPresent": false,
 			"selectedUnits": FarmTask.amount
 		},
-		"session": this.store.Player.SeesionId
+		"session": this.store.state.Player.SeesionId
 	});
 	let response = JSON.parse((await request(url, data, "POST")).document);
 	if (response.error !== undefined) {
@@ -194,6 +199,7 @@ exports.farm = async function (village, farm, FarmTask) {
 		"spyMission": "resources"
 	};
 	url = "troops/send";
+	response = await request(url, data, "requestT5");
 
 	village.Troops["1"] -= FarmTask.amount["1"];
 	village.Troops["2"] -= FarmTask.amount["2"];
@@ -256,10 +262,10 @@ exports.search = async function (parameters) {
 		"session": parameters.SeesionId
 	});
 	let response = await request(url, data, "POST");
-	this.store.custom.farmfinder.progress = 100;
+	this.store.state.custom.farmfinder.progress = 100;
 	let a = JSON.parse(response.document)
 
-	this.store.custom.FarmFinderFarms.push.apply(this.store.custom.FarmFinderFarms, FindFarms(JSON.parse(response.document), parameters.Coordinates));
+	this.store.state.custom.FarmFinderFarms.push.apply(this.store.state.custom.FarmFinderFarms, FindFarms(JSON.parse(response.document), parameters.Coordinates));
 
 	return true;
 }
@@ -313,10 +319,10 @@ exports.cropFind = async function (parameters) {
 		"session": parameters.SeesionId
 	});
 	let response = await request(url, data, "POST");
-	this.store.custom.farmfinder.progress = 100;
+	this.store.state.custom.farmfinder.progress = 100;
 	let a = JSON.parse(response.document)
 
-	this.store.custom.FarmFinderFarms.push.apply(this.store.custom.FarmFinderFarms, FindCrop(JSON.parse(response.document), parameters.Coordinates));
+	this.store.state.custom.FarmFinderFarms.push.apply(this.store.state.custom.FarmFinderFarms, FindCrop(JSON.parse(response.document), parameters.Coordinates));
 
 	return true;
 }
@@ -333,69 +339,100 @@ exports.onRouted = async function (selectedVillage, route, type) {
 exports.getGoldClubFarmlists = async function (parameters) {
 
 	let currTime = Math.floor(new Date().getTime());
-	let url = this.store.Player.url + "/api/?c=cache&a=get&t" + currTime;
+	let url = this.store.state.Player.url + "/api/?c=cache&a=get&t" + currTime;
 	let data = JSON.stringify({
 		"controller": "cache",
 		"action": "get",
 		"params": {
 			"names": ["Collection:FarmList:"]
 		},
-		"session": this.store.Player.SeesionId
+		"session": this.store.state.Player.SeesionId
 	});
 	let response = await request(url, data, "POST");
 
 	let rez = JSON.parse(response.document);
-	this.store.Player.goldClubFarmlists = [];
+	this.store.state.Player.goldClubFarmlists = [];
 	let farmLists = [];
-	rez.cache[0].data.cache.forEach(function (farmList) {
+	rez.cache[0].data.cache.forEach(async (farmList) => {
 		let farmlistData = {
 			"listId": farmList.data.listId,
 			"listName": farmList.data.listName,
 			farms: [],
 			"maxEntriesCount": 10,
 			"requestTime": new Date().getTime()
-		};
 
-		farmList.data.entryIds.forEach(function (entry, index) {
-			let farm = {
-				villageId: farmList.data.villageIds[index],
-				entryId: entry,
-				name: "",
-				"units": {
-					"1": "0",
-					"2": "0",
-					"3": "0",
-					"4": "0",
-					"5": "0",
-					"6": "0"
+		};
+		let data = JSON.stringify({
+			"controller": "cache",
+			"action": "get",
+			"params": {
+				"names": ["Collection:FarmListEntry:" + farmList.data.listId]
+			},
+			"session": this.store.state.Player.SeesionId
+		});
+
+		let responseFarmlist = await request(url, data, "POST");
+		let rezFarms = JSON.parse(responseFarmlist.document);
+
+		if (rezFarms.cache === undefined) return;
+		debugger
+		rezFarms.cache[0].data.cache.forEach((entry, index) => {
+			/*{
+				"entryId": "8815",
+					"villageId": "537313244",
+						"villageName": "pista's village",
+							"units": {
+					"1": "2",
+						"2": "0",
+							"3": "0",
+								"4": "0",
+									"5": "0",
+										"6": "0"
 				},
-				report: {
-					capacity: 0,
-					notificationType: "0",
-					raidedResSum: 0,
-					reportId: "",
-					time: "0"
-				}
-			};
-			farmlistData.farms.push(farm);
+				"targetOwnerId": "1949",
+					"belongsToKing": "1940",
+						"population": "9",
+							"coords": {
+					"x": "-36",
+						"y": "13"
+				},
+				"isOasis": false,
+					"lastReport": null
+			}
+		});*/
+			entry.data.name = entry.data.villageName;
+			entry.data.x = entry.data.coords.x;
+			entry.data.y = entry.data.coords.y;
+			delete entry.data.villageName;
+			delete entry.data.coords;
+			if (entry.data.lastReport !== undefined && entry.data.lastReport !== null) {
+
+				entry.data.report = entry.data.lastReport;
+			} else {
+				entry.data.report = { raidedResSum: 0, capacity: 0 };
+			}
+			//delete entry.data.lastReport;
+			farmlistData.farms.push(JSON.parse(JSON.stringify(entry.data)));
 		});
 		farmLists.push(farmlistData);
-	}.bind(farmLists));
-	this.store.Player.goldClubFarmlists = farmLists;
-	return true;
+
+		this.store.state.Player.goldClubFarmlists = farmLists;
+		return true;
+	});
 }
+
 
 exports.farmGoldClub = async function (village, farmlist) {
 
 	let currTime = Math.floor(new Date().getTime());
-	let url = this.store.Player.url + "/api/?c=cache&a=get&t" + currTime;
+	let url = this.store.state.Player.url + "/api/?c=cache&a=get&t" + currTime;
 	let data = JSON.stringify({
 		"controller": "cache",
 		"action": "get",
 		"params": {
 			"names": ["Collection:FarmListEntry:" + farmlist.selectedFarmlist.listId]
 		},
-		"session": this.store.Player.SeesionId
+		"session": this.store.state.Player.SeesionId
 	});
 	let response = await request(url, data, "POST");
 	let farms = JSON.parse(response.document).cache[0].data.cache;
@@ -408,7 +445,7 @@ exports.farmGoldClub = async function (village, farmlist) {
 			"entryIds": [],
 			"villageId": village.villageId
 		},
-		"session": this.store.Player.SeesionId
+		"session": this.store.state.Player.SeesionId
 	};
 
 	let i = farmlist.farmPosition;
@@ -446,6 +483,7 @@ exports.farmGoldClub = async function (village, farmlist) {
 			"listIds": farmlist.selectedFarmlist.listId * 1,
 			"villageId": village.villageId
 		};
+		response = await request(url, data, "requestT5");
 	}
 	//url= player.url+ "/api/?c=troops&a=startPartialFarmListRaid&t"+currTime;
 	return true;
@@ -456,14 +494,14 @@ exports.coppyFarmlist = async function (village, farmlist, name, copyStatus) {
 	let totalRequests = 2 + farmlist.villages.length;
 	let requestNumber = 0;
 	let currTime = Math.floor(new Date().getTime());
-	let url = this.store.Player.url + "/api/?c=farmList&a=createList&t" + currTime;
+	let url = this.store.state.Player.url + "/api/?c=farmList&a=createList&t" + currTime;
 	let data = JSON.stringify({
 		"controller": "farmList",
 		"action": "createList",
 		"params": {
 			"name": name
 		},
-		"session": this.store.Player.SeesionId
+		"session": this.store.state.Player.SeesionId
 	});
 	let response = await request(url, data, "POST");
 	//{"cache":[{"name":"Collection:FarmList:","data":{"cache":[{"name":"FarmList:4428","data":{"listId":4428,"listName":"test","lastSent":0,"lastChanged":0,"units":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0},"orderNr":5,"villageIds":[],"entryIds":[],"isDefault":false,"maxEntriesCount":100}}],"operation":2}}],"ignoreSerial":1,"time":1515180303413,"serialNo":139808,"response":[]}
@@ -474,7 +512,7 @@ exports.coppyFarmlist = async function (village, farmlist, name, copyStatus) {
 	for (let i = 0; i < farmlist.villages.length; i++) {
 
 		currTime = Math.floor(new Date().getTime());
-		url = this.store.Player.url + "/api/?c=farmList&a=addEntry&t" + currTime;
+		url = this.store.state.Player.url + "/api/?c=farmList&a=addEntry&t" + currTime;
 		data = JSON.stringify({
 			"controller": "farmList",
 			"action": "addEntry",
@@ -482,7 +520,7 @@ exports.coppyFarmlist = async function (village, farmlist, name, copyStatus) {
 				"villageId": farmlist.villages[i].villageId,
 				"listId": createdFarmList.cache[0].data.cache[0].data.listId
 			},
-			"session": this.store.Player.SeesionId
+			"session": this.store.state.Player.SeesionId
 		});
 		let response = await request(url, data, "POST");
 		let createdFarm = JSON.parse(response.document);
@@ -655,7 +693,7 @@ const copyProperties = function (main, other, store) {
 							if (arrayMain[i] !== undefined) {
 								copyProperties(arrayMain[i], arrayOther[i], store);
 							} else if (key === "villages") {
-								arrayMain[i] = JSON.parse(JSON.stringify(store.Village));
+								arrayMain[i] = JSON.parse(JSON.stringify(store.state.Village));
 								copyProperties(arrayMain[i], arrayOther[i], store);
 								arrayMain[i].tasks.villageId = arrayMain[i].villageId;
 
@@ -722,7 +760,7 @@ const request = async function (url, data, type) {
 	await sleep(100);
 
 	let deadlinePromise = new Promise(function (resolve, reject) {
-		setTimeout(resolve, 1000, undefined);
+		setTimeout(resolve, 100000, undefined);
 	});
 	let runPromise = new Promise((resolve, reject) => {
 		if (!!window.chrome) {
@@ -759,13 +797,10 @@ function wait(ms) {
 	});
 }
 
-exports.analyseBuildings = async function (selectedVillage) {
+exports.analyzeBuildings = async function (selectedVillage) {
 	return false;
 }.bind(this)
 
-exports.analyseBuildRouter = async function (selectedVillage) {
-	return false;
-}.bind(this);
 export default exports;
 
 const checkResources = async (villageId, resources) => {

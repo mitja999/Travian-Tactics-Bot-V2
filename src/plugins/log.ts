@@ -2,11 +2,10 @@
 
 import Vue from 'vue';
 import logger from 'vuejs-logger';
-const isProduction = process.env.NODE_ENV === 'production';
 
 const options = {
     isEnabled: true,
-    logLevel: isProduction ? 'error' : 'debug',
+    logLevel: 'debug',
     stringifyArguments: false,
     showLogLevel: true,
     showMethodName: false,
@@ -14,7 +13,7 @@ const options = {
     showConsoleColors: true
 };
 
-Vue.use(logger, options);
+Vue.use(logger as any, options as any);
 declare module 'vue/types/vue' {
     // 3. Declare augmentation for Vue
     interface VueConstructor {

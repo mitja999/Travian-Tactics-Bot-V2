@@ -32,17 +32,33 @@ const exports = class {
         return true;
     }
 
+    tradeNew = async function (village, tradeTask, resources) {
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET");
+
+        if (rez.villageId != village.villageId) {
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET");
+        }
+
+        let building = village.buildings.find(b => b.type === 17);
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=" + building.locationId, "", "GET");
+
+        if (rez.activeTab) {
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?t=5&id=" + location, "", "GET");
+        }
+        let doc = await this.createDocument(rez.document)
+
+    }
+
     trade = async function (village, tradeTask, resources) {
         //console.log("trade",village)
+        await this.tradeNew(village, tradeTask, resources);
         let wood = resources["1"] == 0 ? "" : resources["1"]
         let clay = resources["2"] == 0 ? "" : resources["2"]
         let iron = resources["3"] == 0 ? "" : resources["3"]
         let crop = resources["4"] == 0 ? "" : resources["4"]
 
         //this.store.state.log.debug("sendTrade:", village, tradeTask, resources, this.store.state.Player)
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET");
 
         rez = await this.AnalyseMarketplace(rez, village, 1, 1)
 
@@ -64,13 +80,7 @@ const exports = class {
 
                 let data = "cmd=prepareMarketplace&r1=" + wood + "&r2=" + clay + "&r3=" + iron + "&r4=" + crop + "&dname=&x=" + tradeTask.x + "&y=" + tradeTask.y + "&id=" + idd.value + "&t=" + t1.value + "&x2=1&ajaxToken=" + ajaxToken;
                 //this.store.state.log.debug("found inputs:", data)
-                rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=prepareMarketplace", data, "POST", {
-                    "Referer": rez.responseURL,
-                    "Accept": "application/json, text/javascript, */*; q=0.01",
-                    "X-Request": "JSON",
-                    "X-Requested-With": "XMLHttpRequest",
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-                })
+                rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=prepareMarketplace", data, "POST");
                 //console.log("rez1",rez)
                 let resobj = JSON.parse(rez.document)
                 console.log("rez1", resobj);
@@ -96,9 +106,7 @@ const exports = class {
                 data = "cmd=prepareMarketplace&t=" + t2.value + "&id=" + idd2.value + "&a=" + aaa.value + "&sz=" + sz.value + "&kid=" + kid.value + "&c=" + c.value + "&x2=" + x2.value + "&r1=" + resources["1"] + "&r2=" + resources["2"] + "&r3=" + resources["3"] + "&r4=" + resources["4"] + "&ajaxToken=" + ajaxToken;
 
 
-                rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=prepareMarketplace", data, "POST", {
-                    "Referer": rez.responseURL
-                })
+                rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=prepareMarketplace", data, "POST");
                 resobj = JSON.parse(rez.document)
                 if (resobj.response.error || resobj.response.data.errorMessage) {
                     console.log("error", resobj, rez.document)
@@ -118,23 +126,43 @@ const exports = class {
     }
 
     logout = async function (village, farmlist, name, copyStatus) {
-        let rez = await this.request(this.store.state.Player.url + "/logout.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.store.getters.request(this.store.state.Player.url + "/logout.php", "", "GET");
         rez.success = true;
         return rez;
     }
     loginCustom = async function (village, farmlist, name, copyStatus) {
-        let rez = await this.request(this.store.state.Player.url + "/logout.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.store.getters.request(this.store.state.Player.url + "/logout.php", "", "GET");
         let doc = await this.createDocument(rez.document);
         this.relogin(doc);
         rez.success = true;
         return rez;
     }
 
+    trainNew = async function (village, trainTask, resources, building, attempts) {
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET");
+
+        if (rez.villageId != village.villageId) {
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET");
+        }
+
+        let page = "";
+        if (building.buildingType === 25 || building.buildingType === 26) page = "s=1&";
+
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?" + page + "id=" + building.locationId, "", "GET");
+
+        rez = await this.store.getters.request('', '', "getWindowHTML");
+        rez = await this.store.getters.request(this.store.state.Player.url, {
+            value: trainTask.amount, selector: "div.action.troop.troop" + (trainTask.type % 10) + " > div > div.details > div.cta > input"
+        }, "setvalue");
+
+
+        rez = await this.store.getters.request(this.store.state.Player.url, {
+            value: trainTask.amount, selector: "#s1"
+        }, "click");
+    }
+
     train = async function (village, trainTask, resources, building, attempts) {
+        return this.trainNew(village, trainTask, resources, building, attempts);
         if (!attempts) {
             attempts = 1
         }
@@ -154,15 +182,11 @@ const exports = class {
             }
         }
         //console.log(village, trainTask, resources, building, attempts)
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET");
 
         //
         if (rez.villageId != village.villageId) {
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": rez.responseURL,
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET");
         }
         //
         //console.log(village, trainTask, resources, building, attempts)
@@ -185,9 +209,7 @@ const exports = class {
         }*/
         let page = "";
         if (building.buildingType === 25 || building.buildingType === 26) page = "s=1&";
-        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?" + page + "id=" + building.locationId, "", "GET", {
-            "Referer": rez.responseURL
-        }, 1);
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?" + page + "id=" + building.locationId, "", "GET");
 
         if (rez.villageId != village.villageId) {
             //this.store.state.log.debug("wrong villageId retray")
@@ -237,10 +259,7 @@ const exports = class {
         }
         data += "&s1=ok";
         //
-        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php" + "?id=" + building.locationId, data, "POST", {
-            "Referer": rez.responseURL,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }, 1);
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php" + "?id=" + building.locationId, data, "POST");
         //this.store.state.log.debug("troop train done",data)
         //
         rez.success = true;
@@ -288,7 +307,7 @@ const exports = class {
         let totalRequests = 2 + villages.length;
         let requestNumber = 0;
         let rez1 = await this.goToGoldclubPage(0, village)
-        let ref = rez1.responseURL
+        let ref = rez1.url
         requestNumber++;
         copyStatus.value = Math.round(requestNumber / totalRequests * 100);
         let ret = await this.createNewFarmlist(village, farmlist, name, copyStatus, rez1, 0)
@@ -310,42 +329,12 @@ const exports = class {
     }
 
     addFarmToGoldclubFarmlist = async function (lid, x, y, troops, rez1, attempts) {
-        let ref = rez1.responseURL
-        let rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "cmd=raidList&method=ActionAddSlotForm&listId=" + lid + "&weAreAdding=&x=&y=&context=rallyPoint&ajaxToken=" + rez1.ajaxToken, "POST", {
-            "Referer": ref,
-            //":authority":this.store.state.Player.server2,
-            //":method": "POST",
-            //":path": "/ajax.php?cmd=raidList",
-            //":scheme": "https",
-            "accept": "application/json, text/javascript, */*; q=0.01",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "x-request": "JSON",
-            "x-requested-with": "XMLHttpRequest"
-        });
+        let ref = rez1.url
+        let rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "cmd=raidList&method=ActionAddSlotForm&listId=" + lid + "&weAreAdding=&x=&y=&context=rallyPoint&ajaxToken=" + rez1.ajaxToken, "POST");
         //console.log("prvi rez",rez)
-        rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "cmd=raidList&method=ActionAddSlot&listId=" + lid + "&slotId=&x=" + x + "&y=" + y + "&t1=" + troops["1"] + "&t2=" + troops["2"] + "&t3=" + troops["3"] + "&t4=" + troops["4"] + "&t5=" + troops["5"] + "&t6=" + troops["6"] + "&t7=" + troops["7"] + "&t8=" + troops["8"] + "&t9=" + troops["9"] + "&t10=" + troops["10"] + "&ajaxToken=" + rez1.ajaxToken, "POST", {
-            "Referer": ref,
-            //":authority":this.store.state.Player.server2,
-            //":method": "POST",
-            //":path": "/ajax.php?cmd=raidList",
-            //":scheme": "https",
-            "accept": "application/json, text/javascript, */*; q=0.01",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "x-request": "JSON",
-            "x-requested-with": "XMLHttpRequest"
-        });
+        rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "cmd=raidList&method=ActionAddSlot&listId=" + lid + "&slotId=&x=" + x + "&y=" + y + "&t1=" + troops["1"] + "&t2=" + troops["2"] + "&t3=" + troops["3"] + "&t4=" + troops["4"] + "&t5=" + troops["5"] + "&t6=" + troops["6"] + "&t7=" + troops["7"] + "&t8=" + troops["8"] + "&t9=" + troops["9"] + "&t10=" + troops["10"] + "&ajaxToken=" + rez1.ajaxToken, "POST");
         //console.log("drugi rez",rez)
-        rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidListSlots", "cmd=raidListSlots&lid=" + lid + "&sort=distance&direction=asc&ajaxToken=" + rez1.ajaxToken, "POST", {
-            "Referer": ref,
-            //":authority":this.store.state.Player.server2,
-            //":method": "POST",
-            //":path": "/ajax.php?cmd=raidList",
-            //":scheme": "https",
-            "accept": "application/json, text/javascript, */*; q=0.01",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "x-request": "JSON",
-            "x-requested-with": "XMLHttpRequest"
-        });
+        rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=raidListSlots", "cmd=raidListSlots&lid=" + lid + "&sort=distance&direction=asc&ajaxToken=" + rez1.ajaxToken, "POST");
         //console.log("tretji rez",rez)
         return true
     }
@@ -354,20 +343,10 @@ const exports = class {
         let totalRequests = 3 + farmlist.villages.length;
         let requestNumber = 0;
         //let rez1=await this.goToGoldclubPage(attempts,village)
-        let ref = rez1.responseURL
+        let ref = rez1.url
         requestNumber++;
         copyStatus.value = Math.round(requestNumber / totalRequests * 100);
-        let rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "cmd=raidList&method=actionAddListForm&ajaxToken=" + rez1.ajaxToken, "POST", {
-            "Referer": ref,
-            //":authority":this.store.state.Player.server2,
-            //":method": "POST",
-            //":path": "/ajax.php?cmd=raidList",
-            //":scheme": "https",
-            "accept": "application/json, text/javascript, */*; q=0.01",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "x-request": "JSON",
-            "x-requested-with": "XMLHttpRequest"
-        });
+        let rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "cmd=raidList&method=actionAddListForm&ajaxToken=" + rez1.ajaxToken, "POST");
         let retobj = JSON.parse(rez.document)
 
         if (retobj.response) {
@@ -379,17 +358,7 @@ const exports = class {
                     /*console.log(retobj.response.data.html)request(url, data, type, headers, addwindowsize);
                     let doc = await this.createDocument(retobj.response.data.html)
                     let obrazec = doc.getElementsByName("snd");*/
-                    rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "did=" + village.villageId + "&listName=" + encodeURI(name) + "&cmd=raidList&method=actionAddList&ajaxToken=" + rez1.ajaxToken, "POST", {
-                        "Referer": ref,
-                        //":authority":this.store.state.Player.server2,
-                        //":method": "POST",
-                        //":path": "/ajax.php?cmd=raidList",
-                        //":scheme": "https",
-                        "accept": "application/json, text/javascript, */*; q=0.01",
-                        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-                        "x-request": "JSON",
-                        "x-requested-with": "XMLHttpRequest"
-                    });
+                    rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=raidList", "did=" + village.villageId + "&listName=" + encodeURI(name) + "&cmd=raidList&method=actionAddList&ajaxToken=" + rez1.ajaxToken, "POST");
                     retobj = JSON.parse(rez.document)
                     if (retobj.response) {
                         if (retobj.response.error) {
@@ -399,9 +368,7 @@ const exports = class {
                     else {
                         return { "fail": true }
                     }
-                    rez = await this.requestAndAnalyse(ref, "", "GET", {
-                        "Referer": ref
-                    }, 1);
+                    rez = await this.requestAndAnalyse(ref, "", "GET");
                     return this.getMaxLid(rez)
 
                 }
@@ -552,9 +519,7 @@ const exports = class {
                 name: village.name
             }
         }
-        let rez2 = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?gid=16&tt=99", data, "POST", {
-            "Referer": rez.responseURL
-        }, 1);
+        let rez2 = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?gid=16&tt=99", data, "POST");
         //
         rez2.success = true;
         rez2.message = "Attacks sent to " + nrOfAttacks + " farms."
@@ -603,9 +568,7 @@ const exports = class {
         }
         //parameters.Coordinates={x:1,y:1,distance:10}
         //custom.FarmFinderFarms.push.apply(found farms);
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php?x=" + cropfinder.x + "&y=" + cropfinder.y, "", "GET", {
-            "Referer": parameters.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php?x=" + cropfinder.x + "&y=" + cropfinder.y, "", "GET");
 
         let kvadrati = await this.UstvariIskanja(cropfinder);
 
@@ -684,9 +647,7 @@ const exports = class {
 
         let kvadrati = await this.UstvariIskanja(cropfinder)
         //this.store.state.log.debug("kvadrati", kvadrati)
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php?x=" + cropfinder.x + "&y=" + cropfinder.y, "", "GET", {
-            "Referer": parameters.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php?x=" + cropfinder.x + "&y=" + cropfinder.y, "", "GET");
         //this.store.state.log.debug("rez", rez)
         let ajaxToken = rez.ajaxToken;
         let farme = []
@@ -730,9 +691,7 @@ const exports = class {
             url = this.store.state.Player.url + "/dorf2.php";
         }
         //this.store.state.log.debug('url', url, this.store.state.Player);
-        let rez = await this.requestAndAnalyse(url, "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(url, "", "GET");
         rez = await this.build2(village, villageBuilding, rez, 0, url, buildTask);
         //this.store.state.log.debug('T4build done');
         return rez;
@@ -755,37 +714,27 @@ const exports = class {
 
     analyzeDorf1 = async function (village, withouterrorhandler) {
 
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf1.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf1.php", "", "GET");
 
         if (rez.villageId != village.villageId) {
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf1.php?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf1.php?newdid=" + village.villageId + "&", "", "GET");
         }
         return rez
     }
 
     analyzeDorf2 = async function (village, withouterrorhandler) {
 
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET");
 
         if (rez.villageId != village.villageId) {
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET");
         }
         return rez
     }
 
     analyzeMarketplace = async function (village, withouterrorhandler) {
 
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php", "", "GET");
 
         rez = await this.AnalyseMarketplace(rez, village, 1, withouterrorhandler)
         return rez
@@ -795,7 +744,7 @@ const exports = class {
         let timeNow = new Date()
         timeNow = timeNow.getTime()
         //this.store.state.log.debug('T4analyzePlayer start', this.store.state.Player);
-        await this.updateResources()
+        await this.updateResources(village)
 
         let ret = {
             T4: true,
@@ -891,16 +840,6 @@ const exports = class {
         return ret;
     }
 
-
-    preveriRequest = async function (rez) {
-        if (rez) {
-            if (rez.document) {
-                return true
-            }
-        }
-        return false
-    }
-
     ananalizirajNaselje = async (doc, url, originalDocText, rez) => {
         //let Player=v//.Player
 
@@ -930,7 +869,6 @@ const exports = class {
         rez.villageId = villageid;
         //let village = this.store.state.Player.getVillage(villageid);
         let village = this.store.state.Player.villages.find(v => v.villageId === villageid);
-
         if (!village) {
             //this.store.state.log.debug("Village not found:", [villageid, village]);
 
@@ -973,11 +911,26 @@ const exports = class {
         return true;
     }
 
+    adventureNew = async function () {
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/hero.php?t=3", "", "GET");
+        if (rez.document.indexOf('adventureSendButton') !== -1) {
+            rez = await this.store.getters.request(this.store.state.Player.url, {
+                value: '', selector: ".goTo > form > div > a"
+            }, "click");
+            rez = await this.store.getters.request('', '', "getWindowHTML");
+            if (rez.document.indexOf('"adventureSend"').length !== -1) {
+                rez = await this.store.getters.request(this.store.state.Player.url, {
+                    value: '', selector: ".adventureSend > div.adventureSendButton > button"
+                }, "click");
+                await this.requestAndAnalyse("", "", "getWindowHTML");
+            }
+        }
+        return true;
+    }
     adventure = async function () {
+        return this.adventureNew();
         let url = this.store.state.Player.url + "/hero.php?t=3"
-        let rez = await this.requestAndAnalyse(url, "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(url, "", "GET");
         if (this.store.state.Player.hero.status == 0 && this.store.state.Player.hero.adventurePoints * 1 > 0) {
             let doc = await this.createDocument(rez.document)
             let link = doc.evaluate(".//div[@id='adventureListForm']//form[@class='adventureSendButton']", doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -1102,19 +1055,13 @@ const exports = class {
             rez.errorMessage = "More than 3 attempts to get farmlists."
             return rez
         }
-        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=39", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf2.php"
-        }, 1);
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=39", "", "GET");
         if (!rez.activeTab && rez.activeTab != 0) {
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?id=39", "", "GET", {
-                "Referer": this.store.state.Player.url + "/dorf1.php"
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?id=39", "", "GET");
             return await this.goToGoldclubPage(attempts + 1);
         }
         if (rez.activeTab != 99) {
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?tt=99&id=39", "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?tt=99&id=39", "", "GET");
         }
         return rez
     }
@@ -1135,7 +1082,7 @@ const exports = class {
     }
     getRaidData = async function (lid, token) {
 
-        var rez = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidListSlots", "cmd=raidListSlots&lid=" + lid + "&ajaxToken=" + token, "POST");
+        var rez = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=raidListSlots", "cmd=raidListSlots&lid=" + lid + "&ajaxToken=" + token, "POST");
         return JSON.parse(rez.document).response.data;
     }
 
@@ -1280,8 +1227,8 @@ const exports = class {
             //
             //this.store.state.log.debug(lid,farmlistname)
         }
-        /*let rez2 = await this.request(this.store.state.Player.url + "/ajax.php?cmd=raidListSlots", "cmd=raidListSlots&lid=2860&ajaxToken="+rez.ajaxToken, "POST", {
-            "Referer": rez.responseURL,
+        /*let rez2 = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=raidListSlots", "cmd=raidListSlots&lid=2860&ajaxToken="+rez.ajaxToken, "POST", {
+            "Referer": rez.url,
             "Content-Type":"application/x-www-form-urlencoded",  
         },  1);*/
         //this.store.state.log.debug(JSON.stringify(farmlists, null, '\t'))
@@ -1302,28 +1249,19 @@ const exports = class {
         let movementType = FarmTask.movementType
         //this.store.state.log.debug(village, FarmTask, farm, this.store.state.Player)
         //
-        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php", "", "GET", {
-            "Referer": this.store.state.Player.url + "/dorf1.php"
-        }, 1);
+        let rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php", "", "GET");
         if (rez.villageId != village.villageId) {
             let oldvill = this.store.state.Player.getVillage(rez.villageId)
             let ref = this.store.state.Player.url + "/karte.php?x=" + village.x + "&y=" + village.y
             if (oldvill) {
                 ref = this.store.state.Player.url + "/karte.php?x=" + oldvill.x + "&y=" + oldvill.y
             }
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": ref
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/karte.php?newdid=" + village.villageId + "&", "", "GET");
         }
         //
         let x = farm.x + await this.randomXToY(-3, 3)
         let y = farm.y + await this.randomXToY(-3, 3)
-        let rez1 = await this.request(this.store.state.Player.url + "/ajax.php?cmd=viewTileDetails", "cmd=viewTileDetails&x=" + farm.x + "&y=" + farm.y + "&ajaxToken=" + rez.ajaxToken, "POST", {
-            "Referer": this.store.state.Player.url + "/karte.php?x=" + x + "&y=" + y,
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Request": "JSON"
-        })
+        let rez1 = await this.store.getters.request(this.store.state.Player.url + "/ajax.php?cmd=viewTileDetails", "cmd=viewTileDetails&x=" + farm.x + "&y=" + farm.y + "&ajaxToken=" + rez.ajaxToken, "POST");
         let DobljeniPodatki = JSON.parse(rez1.document)
         if (!DobljeniPodatki.response) {
             //this.store.state.log.debug("error")
@@ -1380,13 +1318,9 @@ const exports = class {
         farmlink = this.store.state.Player.url + "/" + farmlink.snapshotItem(0).getAttribute("href")
 
         //
-        rez = await this.requestAndAnalyse(farmlink, "", "GET", {
-            "Referer": this.store.state.Player.url + "/karte.php?x=" + x + "&y=" + y,
-        }, 1);
+        rez = await this.requestAndAnalyse(farmlink, "", "GET");
         if (rez.villageId != village.villageId) {
-            let rez = await this.requestAndAnalyse(rez.responseURL + "?newdid=" + village.villageId + "&gid=16", "", "GET", {
-                "Referer": rez.responseURL,
-            }, 1);
+            let rez = await this.requestAndAnalyse(rez.url + "?newdid=" + village.villageId + "&gid=16", "", "GET");
         }
         //
         doc = await this.createDocument(rez.document)
@@ -1450,10 +1384,7 @@ const exports = class {
         }*/
         data += "&s1=ok";
         //
-        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=39&tt=2", data, "POST", {
-            "Referer": rez.responseURL,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }, 1);
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=39&tt=2", data, "POST");
 
         if (rez.villageId != village.villageId) {
             //return await this.farm(village, FarmTask, farm, attempts + 1)
@@ -1500,10 +1431,7 @@ const exports = class {
             data += "&a=" + data.substring(data.indexOf('&w=') + 3, data.indexOf('&', data.indexOf('&w=') + 3));
         }
 
-        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=39&tt=2", data, "POST", {
-            "Referer": rez.responseURL,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }, 1);
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=39&tt=2", data, "POST");
 
         rez.success = true;
         //
@@ -1578,7 +1506,7 @@ const exports = class {
     }
 
 
-    analyseBuildings = async function (villId) {
+    analyzeBuildings = async function (villId) {
         let now = new Date().getTime();
         let selectedVillage = this.store.state.Player.villages.find(v => v.villageId == villId);
         if (this.store.state.selectedVillage.CASANALIZEGRADNJA1 < now || this.store.state.selectedVillage.CASANALIZEGRADNJA2 < now) {
@@ -1629,12 +1557,7 @@ const exports = class {
         let data = "cmd=mapPositionData&data[x]=" + centerX + "&data[y]=" + centerY + "&data[zoomLevel]=" + this.store.state.mapZoom + "&ajaxToken=" + ajaxToken;
         let x = cropfinder.x;
         let y = cropfinder.y;
-        let rez = await this.request(Naslov, data, "POST", {
-            "Referer": this.store.state.Player.url + "/karte.php?x=" + cropfinder.x + "&y=" + cropfinder.y,
-            "X-Requested-With": "XMLHttpRequest",
-            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-            "X-Request": "JSON"
-        })
+        let rez = await this.store.getters.request(Naslov, data, "POST");
 
 
         if (!rez) {
@@ -2206,19 +2129,13 @@ const exports = class {
         }
         let lvl = 1;
         if (rez.villageId != village.villageId) {
-            rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET");
             return await this.build2(village, villageBuilding, rez, attempts + 1, url, buildTask)
         }
-        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=" + villageBuilding.locationId, "", "GET", {
-            "Referer": rez.responseURL
-        }, 1);
+        rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=" + villageBuilding.locationId, "", "GET");
         //this.store.state.log.debug('Na zgradbi', rez);
         if (rez.villageId != village.villageId) {
-            rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET");
             return await this.build2(village, villageBuilding, rez, attempts + 1, url, buildTask)
         }
         ;
@@ -2265,13 +2182,9 @@ const exports = class {
                 rez.name = village.name
                 return rez
             } else if (tablink != "") {
-                rez = await this.requestAndAnalyse(tablink, "", "GET", {
-                    "Referer": rez.responseURL
-                }, 1);
+                rez = await this.requestAndAnalyse(tablink, "", "GET");
                 if (rez.villageId != village.villageId) {
-                    rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET", {
-                        "Referer": rez.responseURL
-                    }, 1);
+                    rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET");
                     return await this.build2(village, villageBuilding, rez, attempts + 1, url, buildTask)
                 }
                 doc = await this.createDocument(rez.document)
@@ -2314,13 +2227,9 @@ const exports = class {
                 }
                 //this.store.state.log.debug("link", link);
 
-                rez = await this.requestAndAnalyse(linkURL, "", "GET", {
-                    "Referer": rez.responseURL
-                }, 1);
+                rez = await this.requestAndAnalyse(linkURL, "", "GET");
                 if (rez.villageId != village.villageId) {
-                    rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET", {
-                        "Referer": rez.responseURL
-                    }, 1);
+                    rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET");
                     return await this.build2(village, villageBuilding, rez, attempts + 1, url, buildTask)
                 }
                 rez.lvl = 1;
@@ -2343,12 +2252,10 @@ const exports = class {
             return rez
         }
         rez = await this.requestAndAnalyse(linkURL, "", "GET", {
-            "Referer": rez.responseURL
+            "Referer": rez.url
         }, 1);
         if (rez.villageId != village.villageId) {
-            rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(url + "?newdid=" + village.villageId + "&", "", "GET");
 
             return await this.build2(village, villageBuilding, rez, attempts + 1, url, buildTask)
         }
@@ -2394,7 +2301,7 @@ const exports = class {
                 }
 
                 return this.store.state.Player.url + "/" + link
-                //rez = await this.requestAndAnalyse(this.store.state.Player.url+"/"+link,"","GET", {"Referer":rez.responseURL},Player);
+                //rez = await this.requestAndAnalyse(this.store.state.Player.url+"/"+link,"","GET", {"Referer":rez.url},Player);
                 //build2(village,villageBuilding,rez,attempts+1,url,buildTask) 
             }
         } else {
@@ -2413,63 +2320,59 @@ const exports = class {
     }
 
 
-    updateResources = async function () {
+    updateResources = async function (village) {
         let now = new Date().getTime()
-        for (let i = 0; i < this.store.state.Player.villages.length; i++) {
-            let village = this.store.state.Player.villages[i]
-            let toRemove = []
-            for (let j = 0; j < village.SUROVINEPRIHAJAJOCE.length; j++) {
-                let teSurovine = village.SUROVINEPRIHAJAJOCE[j]
-                if (teSurovine.time <= now) {
-                    toRemove.push(j)
-                    village.storage["1"] += teSurovine.wood * 1
-                    village.storage["2"] += teSurovine.clay * 1
-                    village.storage["3"] += teSurovine.iron * 1
-                    village.storage["4"] += teSurovine.grain * 1
-                }
-
+        let toRemove = []
+        for (let j = 0; j < village.SUROVINEPRIHAJAJOCE.length; j++) {
+            let teSurovine = village.SUROVINEPRIHAJAJOCE[j]
+            if (teSurovine.time <= now) {
+                toRemove.push(j)
+                village.storage["1"] += teSurovine.wood * 1
+                village.storage["2"] += teSurovine.clay * 1
+                village.storage["3"] += teSurovine.iron * 1
+                village.storage["4"] += teSurovine.grain * 1
             }
-            toRemove.sort(function (a, b) {
-                return b - a;
-            });
-            for (let j = 0; j < toRemove.length; j++) {
-                village.SUROVINEPRIHAJAJOCE.splice(toRemove[j], 1)
-            }
-
-            toRemove = []
-            for (let j = 0; j < village.TRGOVCI.length; j++) {
-                let tiTrgovci = village.TRGOVCI[j]
-                if (tiTrgovci.time <= now) {
-                    toRemove.push(j)
-                    village.Merchants.merchantsFree += tiTrgovci.trgovci * 1;
-                }
-
-            }
-            toRemove.sort(function (a, b) {
-                return b - a;
-            });
-
-            for (let j = 0; j < toRemove.length; j++) {
-                village.TRGOVCI.splice(toRemove[j], 1)
-            }
-
-            village.storage["1"] += Math.min(village.production["1"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["1"]);
-            village.storage["2"] += Math.min(village.production["2"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["2"]);
-            village.storage["3"] += Math.min(village.production["3"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["3"]);
-            village.storage["4"] += Math.min(village.production["4"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["4"]);
-            village.lastCalculation = now;
-            village.Merchants.maxCapacity = village.Merchants.carry * village.Merchants.merchantsFree;
 
         }
+        toRemove.sort(function (a, b) {
+            return b - a;
+        });
+        for (let j = 0; j < toRemove.length; j++) {
+            village.SUROVINEPRIHAJAJOCE.splice(toRemove[j], 1)
+        }
+
+        toRemove = []
+        for (let j = 0; j < village.TRGOVCI.length; j++) {
+            let tiTrgovci = village.TRGOVCI[j]
+            if (tiTrgovci.time <= now) {
+                toRemove.push(j)
+                village.Merchants.merchantsFree += tiTrgovci.trgovci * 1;
+            }
+
+        }
+        toRemove.sort(function (a, b) {
+            return b - a;
+        });
+
+        for (let j = 0; j < toRemove.length; j++) {
+            village.TRGOVCI.splice(toRemove[j], 1)
+        }
+
+        village.storage["1"] += Math.min(village.production["1"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["1"]);
+        village.storage["2"] += Math.min(village.production["2"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["2"]);
+        village.storage["3"] += Math.min(village.production["3"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["3"]);
+        village.storage["4"] += Math.min(village.production["4"] * (now - village.lastCalculation) / 3600000, village.storageCapacity["4"]);
+        village.lastCalculation = now;
+        village.Merchants.maxCapacity = village.Merchants.carry * village.Merchants.merchantsFree;
+
+
     }
 
     AnalyseMarketplace = async function (rez, village, attempts, withouterrorhandler) {
         //this.store.state.log.debug("AnalyseMarketplace", village.villageId,village);
         if (rez.villageId != village.villageId) {
 
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/dorf2.php?newdid=" + village.villageId + "&", "", "GET");
         }
         let doc = await this.createDocument(rez.document)
         if (attempts > 3) {
@@ -2490,9 +2393,7 @@ const exports = class {
 
             //this.store.state.log.debug(this.store.state.Player.url + "/build.php?id=" + location);
 
-            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=" + location, "", "GET", {
-                "Referer": rez.responseURL
-            }, 1);
+            rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?id=" + location, "", "GET");
 
             //this.store.state.log.debug(rez.villageId , village.villageId);
             if (rez.villageId != village.villageId) {
@@ -2504,9 +2405,7 @@ const exports = class {
             if (activeTab || activeTab == 0) {
                 if (activeTab != 5) {
 
-                    rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?t=5&id=" + location, "", "GET", {
-                        "Referer": rez.responseURL
-                    }, 1);
+                    rez = await this.requestAndAnalyse(this.store.state.Player.url + "/build.php?t=5&id=" + location, "", "GET");
 
                     if (rez.villageId != village.villageId) {
                         //console.log("err2",rez.villageId,village.villageId)
@@ -2598,7 +2497,7 @@ const exports = class {
             let w = doc.getElementsByName("w");
             //console.log("name=" + encodeURIComponent(this.store.state.Player.options.User.username) + "&password=" + encodeURIComponent(this.store.state.Player.options.User.password) + "&s1=" + encodeURIComponent(s1[0].value) + "&w=" + encodeURIComponent(screen.width + ":" + screen.height) + "&login=" + encodeURIComponent(login.snapshotItem(0).value))
             //console.log(this.store.state.Player)
-            return await this.request(this.store.state.Player.url + "/login.php", "name=" + encodeURIComponent(this.store.state.Player.options.User.username) + "&password=" + encodeURIComponent(this.store.state.Player.options.User.password) + "&s1=" + encodeURIComponent(s1[0].value) + "&w=" + encodeURIComponent(screen.width + ":" + screen.height) + "&login=" + encodeURIComponent(login.snapshotItem(0).value), "POST", {})
+            return await this.store.getters.request(this.store.state.Player.url + "/login.php", "name=" + encodeURIComponent(this.store.state.Player.options.User.username) + "&password=" + encodeURIComponent(this.store.state.Player.options.User.password) + "&s1=" + encodeURIComponent(s1[0].value) + "&w=" + encodeURIComponent(screen.width + ":" + screen.height) + "&login=" + encodeURIComponent(login.snapshotItem(0).value), "POST");
 
         }
     }
@@ -2614,68 +2513,41 @@ const exports = class {
       }
     });*/
 
-    requestAndAnalyse = async function (url, data, type, headers, nrattempts, addwindowsize) {
-        if (nrattempts > 3) {
-            return {
-                document: "",
-                error: true,
-                errorMessage: "More than 3 attempts done trying to request: " + url + " (" + type + ")."
-            }
-        }
-        let rez = await this.request(url, data, type, headers);
+    requestAndAnalyse = async function (url, data, type) {
+        let rez = await this.store.getters.request(url, data, type);
 
-        //this.store.state.log.debug('requestAndAnalyse rez', rez);
-        if (await this.preveriRequest(rez)) {
-            let doc = await this.createDocument(rez.document);
-            rez.doc = doc;
-            //this.store.state.log.debug('Response document:',doc); 
+        let doc = await this.createDocument(rez.document);
+        rez.doc = doc;
+        let logedin = await this.preveriLogin(doc);
+        if (logedin) {
+            await this.ananalizirajNaselje(doc, rez.url, rez.document, rez);
+            await this.setAjaxToken(rez);
+            await this.setMapSize(rez);
+            await this.setTravianTab(rez, doc);
+        } else {
+
+            doc = await this.createDocument(rez.document);
             let logedin = await this.preveriLogin(doc);
-
-            //this.store.state.log.debug('logedin:', logedin);
+            rez.loggedin = logedin;
             if (logedin) {
-                await this.ananalizirajNaselje(doc, rez.responseURL, rez.document, rez);
-                await this.setAjaxToken(rez);
-                await this.setMapSize(rez);
-                await this.setTravianTab(rez, doc);
-                return rez
-            } else {
-                //this.store.state.log.debug('Not logged in. trying to relogin: ');
-                //this.store.state.log.debug(this.store);
-                //this.store.state.log.debug(this.store.state.Player);
-                //this.store.state.log.debug('Not logged in. trying to relogin: ');
-
-                doc = await this.createDocument(rez.document);
-                let logedin = await this.preveriLogin(doc);
-                rez.loggedin = logedin;
-                //this.store.state.log.debug('logedin:', logedin);
-                if (logedin) {
-                    await ananalizirajNaselje(doc, rez.responseURL, rez.document, rez);
-                    //this.store.state.log.debug('Url after login:', rez.responseURL, url);
-                    if (rez.responseURL) {
-                        if (rez.responseURL != url) {
-                            this.store.state.log.debug('Url after login not correct, retry:', rez.responseURL, url);
-                            rez = await this.requestAndAnalyse(url, data, type, headers, nrattempts + 1, addwindowsize);
-                        }
-                    }
-                    await this.setAjaxToken(rez)
-                    return rez
-                } else {
-                    //this.store.state.log.debug('Login failed:');
-                    return {
-                        document: "",
-                        error: true,
-                        errorMessage: "login failed"
+                await ananalizirajNaselje(doc, rez.url, rez.document, rez);
+                if (rez.url) {
+                    if (rez.url != url) {
+                        this.store.state.log.debug('Url after login not correct, retry:', rez.url, url);
+                        rez = await this.requestAndAnalyse(url, data, type);
                     }
                 }
+                await this.setAjaxToken(rez)
+            } else {
+                return {
+                    document: "",
+                    error: true,
+                    errorMessage: "login failed"
+                }
+            }
 
-            }
-        } else {
-            return {
-                document: "",
-                error: true,
-                errorMessage: "no document received. url: " + url + ";type:" + type + ";data: " + data
-            }
         }
+        return rez;
     }
 
     setAjaxToken = async function (rez) {
@@ -2879,7 +2751,7 @@ const exports = class {
         village.storageCapacity["2"] = storageCapacity.l2;
         village.storageCapacity["3"] = storageCapacity.l3;
         village.storageCapacity["4"] = storageCapacity.l4;
-        village.lastCalculation = new Date().getTime()
+        village.lastCalculation = new Date().getTime();
 
         //this.store.state.log.debug('production:',production);
         //this.store.state.log.debug('storage:',storage);
@@ -3026,7 +2898,8 @@ const exports = class {
                             //this.store.state.log.debug("error next lv ", lvnext)
                         }
 
-                    } else {
+                    }
+                    if (r1 === 9999999 || r2 === 9999999 || r3 === 9999999 || r4 === 9999999) {
                         r1 = this.store.state.Buildings[ImePolja][lvnext][0];
                         r2 = this.store.state.Buildings[ImePolja][lvnext][1];
                         r3 = this.store.state.Buildings[ImePolja][lvnext][2];
@@ -3100,7 +2973,6 @@ const exports = class {
     }
 
     analizirajZgradbe = async function (doc, village, url) {
-
         if (url.indexOf("dorf2") > -1) {
             let divZPolji = doc.getElementById("village_map");
             let area = doc.evaluate(".//div[contains(@class, 'buildingSlot') and contains(@class, ' a') and contains(@class, ' g')]", doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -3213,14 +3085,12 @@ const exports = class {
                     village.buildings[IdPolja].lvl = StopnjaPolja * 1;
                     village.buildings[IdPolja].lvlNext = lvnext * 1;
                     village.buildings[IdPolja].buildingType = ImePolja * 1;
-                    if (IdPolja === 40 && r1 === 9999999 && StopnjaPolja * 1 > 0) {
-                        try {
-                            r1 = this.store.state.Buildings[ImePolja][StopnjaPolja + 1][0];
-                            r2 = this.store.state.Buildings[ImePolja][StopnjaPolja + 1][1];
-                            r3 = this.store.state.Buildings[ImePolja][StopnjaPolja + 1][2];
-                            r4 = this.store.state.Buildings[ImePolja][StopnjaPolja + 1][3];
-                        }
-                        catch{ }
+
+                    if (ImePolja !== 0 && (r1 === 9999999 || r2 === 9999999 || r3 === 9999999 || r4 === 9999999)) {
+                        r1 = this.store.state.Buildings[ImePolja][lvnext][0];
+                        r2 = this.store.state.Buildings[ImePolja][lvnext][1];
+                        r3 = this.store.state.Buildings[ImePolja][lvnext][2];
+                        r4 = this.store.state.Buildings[ImePolja][lvnext][3];
                     }
                     village.buildings[IdPolja].upgradeCosts["1"] = r1 * 1;
                     village.buildings[IdPolja].upgradeCosts["2"] = r2 * 1;
@@ -3398,8 +3268,28 @@ const exports = class {
         }*/
     }
 
-    analizirajHero = async function (doc, village, originalDocText, url) {
+    analizirajHeroNew = async function (doc, village, originalDocText, url) {
 
+        if (doc.getElementsByClassName("heroStatus").length !== 1) {
+            return;
+        }
+        if (doc.getElementsByClassName("heroRunning").length === 1) {
+            this.store.state.Player.hero.status = 2;
+        }
+
+        if (doc.getElementsByClassName("heroHome").length === 1) {
+            this.store.state.Player.hero.status = 0;
+        }
+        let divHealth = doc.evaluate('.//*[@id="healthMask"]', doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        if (divHealth.snapshotLength === 1) {
+            let health = doc.evaluate('.//*[@id="healthMask"]', doc, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null).snapshotItem(0).innerHTML.split('"')[1].split(' ')[9] * 1;
+            this.store.state.Player.hero.health = health < 100 ? 90 : 10;
+            this.store.state.Player.hero.lastHealthTime = new Date().getTime();
+        }
+    }
+
+    analizirajHero = async function (doc, village, originalDocText, url) {
+        return await this.analizirajHeroNew(doc, village, originalDocText, url);
         if (!this.store.state.Player.hero.time) {
             this.store.state.Player.hero.time = 1
         }
@@ -3775,71 +3665,6 @@ const exports = class {
 
     sleep = async function (ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    request = async function (url, data, type) {
-        await this.sleep(Math.random() * 100 + 1000);
-        let deadlinePromise = new Promise(function (resolve, reject) {
-            setTimeout(resolve, 10000, undefined);
-        });
-        let runPromise;
-        let a = false;
-        this.store.state.Player.options.logs.push({
-            "time": (new Date()).getTime(),
-            "name": this.store.state.taskStatus,
-            "success": true,
-            "text": url,
-            "villageId": type,
-            "type": "request"
-        });
-        if (a && type === "GET") {
-            this.store.state.iframesrc = url;
-            this.store.state.log.debug("request " + url);
-            await this.sleep(2000);
-            runPromise = new Promise((resolve, reject) => {
-                if (!!window.chrome) {
-                    chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
-                        'url': '',
-                        'data': '',
-                        'type': 'getWindowHTML',
-                        timeout: 10000,
-                        timemin: 500,
-                        timemax: 2000,
-                    }, function (response) {
-                        response.responseURL = response.url;
-                        console.log("request res " + response.url);
-                        resolve(response);
-                    })
-                }
-            });
-        } else {
-            runPromise = new Promise((resolve, reject) => {
-                if (!!window.chrome) {
-                    chrome.runtime.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
-                        'url': url,
-                        'data': data,
-                        'type': type,
-                        timeout: 10000,
-                        timemin: 500,
-                        timemax: 2000,
-                    }, function (response) {
-                        resolve(response);
-                    })
-                } else {
-                    let _r1 = {};
-                    window.sendMessage("gegegmbnpdigalgfkegjgnfcpmolijdg", {
-                        'url': url,
-                        'data': data,
-                        'type': type,
-                        timeout: 10000,
-                        timemin: 500,
-                        timemax: 2000,
-                    }, function (response) {
-                        resolve(response.data);
-                    }, _r1);
-                }
-            });
-        }
-        return Promise.race([runPromise, deadlinePromise]);
     }
 
     getCoordfromXY = async function (x, y) {

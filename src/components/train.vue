@@ -76,13 +76,13 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
                 <template slot="selection" slot-scope="data">
                   <div
                     class="firefoxIcon"
-                    v-bind:style="troopIcon(data.item)"
+                    v-bind:style="troopIconFF(data.item)"
                   ></div>
                 </template>
                 <template slot="item" slot-scope="data">
                   <div
                     class="firefoxIcon"
-                    v-bind:style="troopIcon(data.item)"
+                    v-bind:style="troopIconFF(data.item)"
                   ></div>
                 </template>
               </v-select>
@@ -118,7 +118,7 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
           column
           style="overflow-y: auto;"
           :style="{
-            height: $store.state.options.style.train.height - 60 + 'px'
+            height: $store.state.options.style.train.height - 60 + 'px',
           }"
           v-if="$store.state.selectedVillage.tasks.train.length != 0"
         >
@@ -138,7 +138,7 @@ div:not(.v-autocomplete__content).menuable__content__active .v-select-list {
                   <td class="tdClass" style="width:40%">
                     <div
                       class="firefoxIcon"
-                      v-bind:style="troopIcon(item.type)"
+                      v-bind:style="troopIconFF(item.type)"
                     ></div>
                   </td>
                   <td class="tdClass" style="width:20%">{{ item.amount }}</td>
@@ -171,9 +171,9 @@ export default Vue.extend({
       amount: 1,
       timeMinutes: 10,
       time: new Date().getTime(),
-      enabled: true
+      enabled: true,
     },
-    Types: [1, 2, 3, 4, 5, 6, 7, 8]
+    Types: [1, 2, 3, 4, 5, 6, 7, 8],
   }),
   methods: {
     resize(left: number, top: number, width: number, height: number) {
@@ -198,9 +198,9 @@ export default Vue.extend({
     removeTrain(index: number) {
       this.$store.state.selectedVillage.tasks.train.splice(index, 1);
     },
-    troopIcon(id: number) {
-      return this.$store.getters.troopIcon(id);
-    }
-  }
+    troopIconFF(id: number) {
+      return this.$store.getters.troopIconFF(id);
+    },
+  },
 });
 </script>

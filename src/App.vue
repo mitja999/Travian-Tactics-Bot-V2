@@ -26,9 +26,9 @@
       <setting v-show="$store.state.options.style.setting.show"></setting>
       <tasks v-show="$store.state.options.style.tasks.show"></tasks>
 
-      <commercials
+      <!--<commercials
         v-show="$store.state.options.style.commercials.show"
-      ></commercials>
+      ></commercials>-->
       <logs v-show="$store.state.options.style.logs.show"></logs>
       <farmfinder
         v-show="$store.state.options.style.farmfinder.show"
@@ -65,7 +65,7 @@ const options = {
   // optional : defaults to '|' if not specified
   separator: "|",
   // optional : defaults to false if not specified
-  showConsoleColors: false
+  showConsoleColors: false,
 };
 declare module "vue/types/vue" {
   // 3. Declare augmentation for Vue
@@ -93,11 +93,11 @@ export default Vue.extend({
     trade,
     farm,
     buildfinder,
-    commercials
+    commercials,
   },
   data: () => ({
-    applyActionV5: require("./engine/applyActionV5.js").default,
-    applyAction: require("./engine/applyAction.js").default,
+    applyActionV5: require("./engine/applyActionV5.js"),
+    applyAction: require("./engine/applyActionV4.js"),
     //Simulator: require("./engine/buildAlgorythm/simulator.js"),
     //Golder: require("./engine/golder.js"),
     initiated: false,
@@ -105,7 +105,7 @@ export default Vue.extend({
     reloadDay: new Date().getUTCDate(),
 
     iframeReloadCounter: 3600,
-    mobile: false
+    mobile: false,
   }),
   methods: {
     calculateTimerTime() {
@@ -241,7 +241,7 @@ export default Vue.extend({
       } else {
         return false;
       }
-    }
+    },
   },
   created: async function() {
     this.mobile = this.isMobile();
@@ -270,7 +270,7 @@ export default Vue.extend({
     this.$store.state.iframesrc = hostname;
 
     //this.$store.state.localStorage = this.$localStorage;
-    this.$store.state.CheckLogic.init(this.$store.state);
+    this.$store.state.CheckLogic.init(this.$store);
     this.$store.state.CheckLogic.lock = false;
     await this.$store.state.CheckLogic.getConfig(options);
 
@@ -323,20 +323,20 @@ export default Vue.extend({
 
     this.$store.watch(
       this.$store.getters.getPlayer,
-      val => {
+      (val) => {
         if (this.initiated) {
           this.$store.state.CheckLogic.setTasks(val);
         }
       },
       {
         immediate: true,
-        deep: true
+        deep: true,
       }
     );
 
     this.$store.watch(
       this.$store.getters.getPlayerOptionsworkingdurationtime,
-      val => {
+      (val) => {
         if (this.initiated) {
           this.$store.state.workingDuration =
             Math.floor(
@@ -351,12 +351,12 @@ export default Vue.extend({
       },
       {
         immediate: true,
-        deep: true
+        deep: true,
       }
     );
     this.$store.watch(
       this.$store.getters.getPlayerOptionstaskchecktime,
-      val => {
+      (val) => {
         if (this.initiated) {
           this.$store.state.timerCounter =
             Math.floor(
@@ -369,32 +369,32 @@ export default Vue.extend({
       },
       {
         immediate: true,
-        deep: true
+        deep: true,
       }
     );
     this.$store.watch(
       this.$store.getters.getOptions,
-      val => {
+      (val) => {
         this.$store.state.CheckLogic.setConfig();
       },
       {
         immediate: true,
-        deep: true
+        deep: true,
       }
     );
 
     this.$store.watch(
       this.$store.getters.getSelectedVillageId,
-      async val => {
+      async (val) => {
         if (this.$store.state.options.style.build.show) {
-          let loading1 = await this.$store.state.CheckLogic.analyseBuildings(
+          let loading1 = await this.$store.state.CheckLogic.analyzeBuildings(
             val
           );
         }
       },
       {
         immediate: true,
-        deep: true
+        deep: true,
       }
     );
 
@@ -404,8 +404,10 @@ export default Vue.extend({
     var refreshId = setInterval(async () => {
       this.$store.state.options.style.commercials.show = true;
     }, 600000);
-
+    let intervalRunning = false;
     var refreshId = setInterval(async () => {
+      if (intervalRunning) return;
+      intervalRunning = true;
       if (
         !this.$store.state.Player.loggedIn ||
         this.$store.state.Player.playerId === 0
@@ -414,7 +416,7 @@ export default Vue.extend({
         this.$store.state.taskStatus = "Get player";
         await this.getPlayer();
         if (this.$store.state.Player.playerId !== 0) {
-          this.$store.state.options.style.commercials.show = true;
+          this.$store.state.options.style.commercials.show = false;
           this.$store.state.taskStatus = "Got player";
           if (this.$store.state.Player.options.default) {
             this.$store.state.Player.options.default = false;
@@ -532,12 +534,13 @@ export default Vue.extend({
           }
         }
       }
+      intervalRunning = false;
     }, 1000);
   },
   watch: {
     "$store.state.Player.start": async function(val) {
       this.$store.state.options.style.start = val;
-    }
-  }
+    },
+  },
 });
 </script>
